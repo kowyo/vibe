@@ -37,14 +37,13 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
-        <div className="flex h-16 w-full items-center px-6">
+        <div className="flex h-12 w-full items-center px-6">
           <div className="flex items-center gap-3" style={{ width: `${leftPanelSize}%` }}>
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary shadow-sm">
-              <Code2 className="h-5 w-5 text-primary-foreground" />
+            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary shadow-sm">
+              <Code2 className="h-4 w-4 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-base font-semibold text-foreground">MGX Studio</p>
-              <p className="text-xs text-muted-foreground">Craft and iterate AI-generated apps instantly</p>
+              <p className="text-sm font-semibold text-foreground">MGX</p>
             </div>
           </div>
           <div className="pl-4 flex-1">
