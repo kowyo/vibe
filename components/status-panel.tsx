@@ -34,9 +34,9 @@ export function StatusPanel({ logs }: StatusPanelProps) {
                     log.type === "info" && "bg-muted text-foreground",
                   )}
                 >
-                  {log.type === "error" && <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />}
-                  {log.type === "success" && <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0" />}
-                  {log.type === "info" && <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />}
+                  {log.type === "error" && <XCircle className="mt-0.5 h-4 w-4 shrink-0" />}
+                  {log.type === "success" && <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
+                  {log.type === "info" && <Info className="mt-0.5 h-4 w-4 shrink-0" />}
                   <span className="font-mono text-xs leading-relaxed">{log.message}</span>
                 </div>
               ))}

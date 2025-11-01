@@ -1,17 +1,17 @@
 "use client"
 
-import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FileCode, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface CodeViewerProps {
-  files: Array<{ path: string; content: string }>
+  files: Array<{ path: string; content?: string }>
+  selectedFile: string | null
+  onSelect: (path: string) => void
+  loading?: boolean
 }
 
-export function CodeViewer({ files }: CodeViewerProps) {
-  const [selectedFile, setSelectedFile] = useState<string | null>(files.length > 0 ? files[0].path : null)
-
+export function CodeViewer({ files, selectedFile, onSelect, loading = false }: CodeViewerProps) {
   const currentFile = files.find((f) => f.path === selectedFile)
 
   if (files.length === 0) {
@@ -19,8 +19,8 @@ export function CodeViewer({ files }: CodeViewerProps) {
       <div className="flex h-full items-center justify-center text-muted-foreground">
         <div className="text-center">
           <FileCode className="mx-auto mb-3 h-12 w-12 opacity-50" />
-          <p className="text-sm">No code generated yet</p>
-          <p className="mt-1 text-xs">Enter a prompt and click Generate to start</p>
+          <p className="text-sm">{loading ? "Awaiting generated files..." : "No code generated yet"}</p>
+          {!loading && <p className="mt-1 text-xs">Enter a prompt and click Generate to start</p>}
         </div>
       </div>
     )
@@ -37,7 +37,7 @@ export function CodeViewer({ files }: CodeViewerProps) {
               {files.map((file) => (
                 <button
                   key={file.path}
-                  onClick={() => setSelectedFile(file.path)}
+                  onClick={() => onSelect(file.path)}
                   className={cn(
                     "flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors",
                     selectedFile === file.path
@@ -45,7 +45,7 @@ export function CodeViewer({ files }: CodeViewerProps) {
                       : "text-foreground hover:bg-muted",
                   )}
                 >
-                  <FileCode className="h-4 w-4 flex-shrink-0" />
+                  <FileCode className="h-4 w-4 shrink-0" />
                   <span className="truncate font-mono text-xs">{file.path}</span>
                 </button>
               ))}
@@ -64,7 +64,9 @@ export function CodeViewer({ files }: CodeViewerProps) {
                 <span className="font-mono">{currentFile.path}</span>
               </div>
               <pre className="rounded-lg bg-muted p-4 text-xs leading-relaxed">
-                <code className="font-mono text-foreground">{currentFile.content}</code>
+                <code className="font-mono text-foreground">
+                  {currentFile.content ?? "(Loading content...)"}
+                </code>
               </pre>
             </div>
           ) : (
