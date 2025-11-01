@@ -24,7 +24,7 @@ export function PreviewWindow({ url, onRefresh }: PreviewWindowProps) {
   return (
     <div className="flex h-full flex-col">
       {/* Preview Toolbar */}
-      <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4 py-2">
+      <div className="flex items-center justify-between border-b border-border bg-muted/30 px-4">
         <div className="flex items-center gap-2">
           <span className="ml-3 font-mono text-xs text-muted-foreground">{url}</span>
         </div>
