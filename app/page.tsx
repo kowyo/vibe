@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Code2, Eye } from "lucide-react"
+import Image from "next/image"
 import { CodeViewer } from "@/components/code-viewer"
 import { PreviewWindow } from "@/components/preview-window"
 import { useGenerationSession } from "@/hooks/use-generation-session"
@@ -37,9 +38,12 @@ export default function Home() {
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
         <div className="flex h-12 w-full items-center">
           <div className="flex items-center gap-3 px-6" style={{ width: `${leftPanelSize}%` }}>
-            <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary shadow-sm">
-              <Code2 className="h-4 w-4 text-primary-foreground" />
-            </div>
+            <Image
+              src="/mgx-logo.png"
+              alt="MGX Logo"
+              width={24}
+              height={24}
+            />
             <div>
               <p className="text-sm font-semibold text-foreground">MGX</p>
             </div>
