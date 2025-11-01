@@ -34,11 +34,11 @@ export default function Home() {
   const [leftPanelSize, setLeftPanelSize] = useState(20)
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex h-screen flex-col bg-background">
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
-        <div className="flex h-12 w-full items-center px-6">
-          <div className="flex items-center gap-3" style={{ width: `${leftPanelSize}%` }}>
+        <div className="flex h-12 w-full items-center">
+          <div className="flex items-center gap-3 px-6" style={{ width: `${leftPanelSize}%` }}>
             <div className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary shadow-sm">
               <Code2 className="h-4 w-4 text-primary-foreground" />
             </div>
@@ -46,16 +46,18 @@ export default function Home() {
               <p className="text-sm font-semibold text-foreground">MGX</p>
             </div>
           </div>
-          <div className="pl-4 flex-1">
+          {/* Spacer for ResizableHandle */}
+          <div className="w-px" />
+          <div className="flex-1">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="bg-transparent p-0 h-auto">
                 <TabsTrigger value="code" className="gap-2 flex-none">
                   <Code2 className="h-4 w-4" />
-                  Code
+                  {activeTab === 'code' && <span>Code</span>}
                 </TabsTrigger>
-                <TabsTrigger value="preview" className="gap-2 flex-none" disabled={!previewUrl}>
+                <TabsTrigger value="preview" className="gap-2 flex-none">
                   <Eye className="h-4 w-4" />
-                  Preview
+                  {activeTab === 'preview' && <span>Preview</span>}
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -64,14 +66,14 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-hidden bg-muted/30 px-6 py-6">
+      <main className="flex-1 overflow-hidden">
         <ResizablePanelGroup 
           direction="horizontal" 
-          className="flex h-full w-full rounded-2xl border border-border/60 bg-card/40 shadow-inner"
+          className="flex h-full w-full"
           onLayout={(sizes) => setLeftPanelSize(sizes[0])}
         >
-          <ResizablePanel defaultSize={20} minSize={20} maxSize={50} className="flex min-h-0">
-            <div className="flex w-full flex-1 flex-col p-4">
+          <ResizablePanel defaultSize={20} minSize={20} maxSize={50} className="flex min-h-0 h-full">
+            <div className="flex w-full flex-1 flex-col h-full">
               <ConversationPanel
                 messages={messages}
                 logs={logs}
@@ -85,9 +87,9 @@ export default function Home() {
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle className="bg-transparent" />
-          <ResizablePanel defaultSize={80} minSize={40} className="flex min-h-0">
-            <div className="flex w-full flex-1 flex-col p-4">
-              <Card className="flex flex-1 flex-col overflow-hidden border-border/80 bg-card/80 shadow-sm">
+          <ResizablePanel defaultSize={80} minSize={40} className="flex min-h-0 h-full">
+            <div className="flex w-full flex-1 flex-col h-full">
+              <Card className="flex flex-1 flex-col overflow-hidden border-border/80 bg-card/80 shadow-sm h-full">
                 {activeTab === 'code' && (
                   <CodeViewer
                     files={filesForViewer}
