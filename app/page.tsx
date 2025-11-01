@@ -47,10 +47,10 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 bg-muted/30 px-6 py-6">
-        <ResizablePanelGroup direction="horizontal" className="flex h-full min-h-[calc(100vh-4rem)] rounded-2xl border border-border/60 bg-card/40 shadow-inner">
-          <ResizablePanel defaultSize={35} minSize={20} maxSize={50} className="flex">
-            <div className="flex w-full flex-col p-4">
+      <main className="flex-1 overflow-hidden bg-muted/30 px-6 py-6">
+        <ResizablePanelGroup direction="horizontal" className="flex h-full w-full rounded-2xl border border-border/60 bg-card/40 shadow-inner">
+          <ResizablePanel defaultSize={35} minSize={20} maxSize={50} className="flex min-h-0">
+            <div className="flex w-full flex-1 flex-col p-4">
               <ConversationPanel
                 messages={messages}
                 logs={logs}
@@ -64,8 +64,8 @@ export default function Home() {
             </div>
           </ResizablePanel>
           <ResizableHandle withHandle className="bg-transparent" />
-          <ResizablePanel defaultSize={65} minSize={40} className="flex">
-            <div className="flex w-full flex-col p-4">
+          <ResizablePanel defaultSize={65} minSize={40} className="flex min-h-0">
+            <div className="flex w-full flex-1 flex-col p-4">
               <Card className="flex flex-1 flex-col overflow-hidden border-border/80 bg-card/80 shadow-sm">
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col">
                   <div className="border-b border-border/80 bg-card px-6 pt-4">
