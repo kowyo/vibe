@@ -39,9 +39,7 @@ type UseGenerationSessionReturn = {
   selectedFile: string | null
   setSelectedFile: (path: string | null) => void
   handleGenerate: () => Promise<void>
-  handleRegenerate: () => void
   handleRefreshPreview: () => void
-  showRegenerate: boolean
   codeViewerLoading: boolean
 }
 
@@ -625,15 +623,6 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     await triggerGeneration(prompt, { clearPrompt: true })
   }, [prompt, triggerGeneration])
 
-  const handleRegenerate = useCallback(async () => {
-    const previousPrompt = lastPromptRef.current
-    if (!previousPrompt.trim()) {
-      addLog("info", "No previous prompt available to regenerate.")
-      return
-    }
-    await triggerGeneration(previousPrompt, { clearPrompt: false })
-  }, [addLog, triggerGeneration])
-
   const handleRefreshPreview = useCallback(() => {
     if (!previewUrl) {
       return
@@ -664,7 +653,6 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     }
   }, [filesForViewer, selectedFile, setSelectedFile])
 
-  const showRegenerate = projectId !== null || filesForViewer.length > 0
   const codeViewerLoading = projectId !== null && filesForViewer.length === 0 && projectStatus !== "failed"
 
   return {
@@ -680,9 +668,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     selectedFile,
     setSelectedFile,
     handleGenerate,
-    handleRegenerate,
     handleRefreshPreview,
-    showRegenerate,
     codeViewerLoading,
   }
 }

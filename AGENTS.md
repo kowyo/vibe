@@ -16,8 +16,6 @@ This project is an AI-powered web application builder that transforms natural la
 
 **Status Panel** - Real-time logs and error messages stream from the backend, providing visibility into the generation process and helping users understand what is happening.
 
-**Regenerate Functionality** - Users can modify their prompt and regenerate the application, or refresh the preview to see updates.
-
 ## Development Tips
 
 Always use context7 when I need code generation, setup or configuration steps, or library/API documentation. This means you should automatically use the Context7 MCP tools to resolve library id and get library docs without me having to explicitly ask.

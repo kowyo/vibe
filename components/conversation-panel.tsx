@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   Info,
   Loader2,
-  RotateCcw,
   Send,
   Sparkles,
   UserRound,
@@ -25,8 +24,6 @@ interface ConversationPanelProps {
   prompt: string
   onPromptChange: (value: string) => void
   onSubmit: () => void | Promise<void>
-  onRegenerate: () => void | Promise<void>
-  showRegenerate: boolean
   isGenerating: boolean
 }
 
@@ -36,8 +33,6 @@ export function ConversationPanel({
   prompt,
   onPromptChange,
   onSubmit,
-  onRegenerate,
-  showRegenerate,
   isGenerating,
 }: ConversationPanelProps) {
   const orderedMessages = useMemo(
@@ -61,26 +56,6 @@ export function ConversationPanel({
 
   return (
     <Card className="flex h-full min-h-[520px] flex-col overflow-hidden">
-      <header className="flex items-center justify-between border-b border-border px-6 py-4">
-        <div>
-          <p className="text-sm font-semibold text-foreground">Assistant Conversation</p>
-          <p className="text-xs text-muted-foreground">Describe what to build and follow along with generation updates.</p>
-        </div>
-        {showRegenerate && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => void onRegenerate()}
-            disabled={isGenerating}
-            className="gap-2"
-          >
-            <RotateCcw className="h-4 w-4" />
-            Regenerate
-          </Button>
-        )}
-      </header>
-
       <ScrollArea className="flex-1 px-6 py-4">
         {orderedMessages.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center rounded-lg border border-dashed border-border/80 bg-muted/40 p-8 text-center">

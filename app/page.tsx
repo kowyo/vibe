@@ -25,9 +25,7 @@ export default function Home() {
     selectedFile,
     setSelectedFile,
     handleGenerate,
-    handleRegenerate,
     handleRefreshPreview,
-    showRegenerate,
     codeViewerLoading,
   } = useGenerationSession()
 
@@ -80,8 +78,6 @@ export default function Home() {
                 prompt={prompt}
                 onPromptChange={setPrompt}
                 onSubmit={handleGenerate}
-                onRegenerate={handleRegenerate}
-                showRegenerate={showRegenerate}
                 isGenerating={isGenerating}
               />
             </div>
