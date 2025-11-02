@@ -30,6 +30,7 @@ import {
   XCircle,
 } from "lucide-react"
 import { useSession, signIn } from "@/lib/auth-client"
+import { GoogleLogo } from "@/components/auth-button"
 
 interface ConversationPanelProps {
   messages: ConversationMessage[]
@@ -157,6 +158,7 @@ export function ConversationPanel({
               Cancel
             </Button>
             <Button onClick={handleLogin}>
+              <GoogleLogo />
               Sign in with Google
             </Button>
           </DialogFooter>
