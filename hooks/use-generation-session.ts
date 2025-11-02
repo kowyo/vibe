@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useSession } from "@/lib/auth-client"
+import { useSession, authClient } from "@/lib/auth-client"
 
 export type LogEntry = { type: "info" | "error" | "success"; message: string }
 type InlineGeneratedFile = { path?: string; content?: string | null }
@@ -60,14 +60,24 @@ export function useGenerationSession(): UseGenerationSessionReturn {
 
   const apiBaseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000/api").replace(/\/$/, "")
   
-  // Get auth token for API requests
-  const getAuthHeaders = useCallback(() => {
+  // Get auth headers with JWT token for API requests
+  const getAuthHeaders = useCallback(async () => {
     const headers: Record<string, string> = { "Content-Type": "application/json" }
-    // Better-auth session token is in session.session.token or session.token
-    const token = session?.session?.token || session?.token || (session as any)?.accessToken
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`
+    
+    // Fetch JWT token from better-auth if session exists
+    if (session?.session) {
+      try {
+        const { data, error } = await authClient.token()
+        if (error) {
+          console.error("Failed to get JWT token:", error)
+        } else if (data?.token) {
+          headers["Authorization"] = `Bearer ${data.token}`
+        }
+      } catch (error) {
+        console.error("Error fetching JWT token:", error)
+      }
     }
+    
     return headers
   }, [session])
   const wsBaseEnv = useMemo(() => {
@@ -204,31 +214,71 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   }, [closeWebSocket, stopPolling])
 
   const toAbsolutePreviewUrl = useCallback(
-    (raw: string) => {
+    async (raw: string) => {
       if (!raw) {
         return ""
       }
       try {
+        let url: URL
         if (raw.startsWith("http://") || raw.startsWith("https://")) {
-          return raw
+          url = new URL(raw)
+        } else {
+          if (!backendOrigin) {
+            return raw
+          }
+          url = new URL(raw, backendOrigin)
         }
-        if (!backendOrigin) {
-          return raw
+        
+        // Add authentication token to preview URLs
+        if (session?.session) {
+          try {
+            const { data, error } = await authClient.token()
+            if (!error && data?.token) {
+              // Only add token if it's not already present
+              if (!url.searchParams.has("token")) {
+                url.searchParams.set("token", data.token)
+              }
+            }
+          } catch (error) {
+            console.error("Error fetching token for preview URL:", error)
+          }
         }
-        return new URL(raw, backendOrigin).toString()
+        
+        return url.toString()
       } catch {
         return raw
       }
     },
-    [backendOrigin],
+    [backendOrigin, session],
   )
 
   const updatePreview = useCallback(
     (raw?: string | null) => {
-      const resolved = raw ? toAbsolutePreviewUrl(raw) : ""
-      setPreviewUrl(resolved)
+      if (!raw) {
+        setPreviewUrl("")
+        return
+      }
+      // Handle async token fetching internally
+      toAbsolutePreviewUrl(raw).then(setPreviewUrl).catch((error) => {
+        console.error("Error updating preview URL:", error)
+        // Fallback to URL without token if token fetch fails
+        try {
+          const url = raw.startsWith("http://") || raw.startsWith("https://")
+            ? new URL(raw)
+            : backendOrigin
+            ? new URL(raw, backendOrigin)
+            : null
+          if (url) {
+            setPreviewUrl(url.toString())
+          } else {
+            setPreviewUrl(raw)
+          }
+        } catch {
+          setPreviewUrl(raw)
+        }
+      })
     },
-    [toAbsolutePreviewUrl],
+    [toAbsolutePreviewUrl, backendOrigin],
   )
 
   const buildWsUrl = useCallback(
@@ -364,9 +414,10 @@ export function useGenerationSession(): UseGenerationSessionReturn {
           .split("/")
           .map((segment) => encodeURIComponent(segment))
           .join("/")
+        const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/projects/${id}/files/${encodedPath}`, {
           cache: "no-store",
-          headers: getAuthHeaders(),
+          headers,
         })
         if (!response.ok) {
           throw new Error(`status ${response.status}`)
@@ -388,9 +439,10 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const fetchProjectFiles = useCallback(
     async (id: string) => {
       try {
+        const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/projects/${id}/files`, {
           cache: "no-store",
-          headers: getAuthHeaders(),
+          headers,
         })
         if (!response.ok) {
           if (!filesErrorLoggedRef.current) {
@@ -456,9 +508,10 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const fetchProjectStatus = useCallback(
     async (id: string) => {
       try {
+        const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/projects/${id}/status`, {
           cache: "no-store",
-          headers: getAuthHeaders(),
+          headers,
         })
         if (!response.ok) {
           if (!statusErrorLoggedRef.current) {
@@ -553,9 +606,10 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       addLog("info", `Prompt: ${trimmedPrompt}`)
 
       try {
+        const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/generate`, {
           method: "POST",
-          headers: getAuthHeaders(),
+          headers,
           body: JSON.stringify({ prompt: trimmedPrompt }),
         })
 

@@ -95,8 +95,12 @@ HTML_REWRITE_SUFFIXES = {
 }
 
 
-def _rewrite_preview_html(document: str) -> str:
-    """Rewrite absolute asset references to relative ones for iframe previews."""
+def _rewrite_preview_html(document: str, token: str | None = None) -> str:
+    """Rewrite absolute asset references to relative ones for iframe previews.
+    
+    If a token is provided, it will be appended to rewritten asset URLs to enable
+    authenticated access to assets loaded by the browser.
+    """
 
     def _replace(match: re.Match[str]) -> str:
         path = match.group("path")
@@ -109,7 +113,16 @@ def _rewrite_preview_html(document: str) -> str:
         suffix = Path(core).suffix.lower()
         if suffix not in HTML_REWRITE_SUFFIXES:
             return match.group(0)
-        return f"{match.group('prefix')}./{stripped}"
+        
+        # Rewrite to relative path
+        rewritten_path = f"./{stripped}"
+        
+        # Append token as query parameter if provided
+        if token:
+            separator = "&" if "?" in rewritten_path else "?"
+            rewritten_path = f"{rewritten_path}{separator}token={token}"
+        
+        return f"{match.group('prefix')}{rewritten_path}"
 
     # Fast exit when no absolute references are present.
     if "\"/" not in document and "'/" not in document:
@@ -220,6 +233,7 @@ async def fetch_preview_asset(
     manager: ProjectManagerDep,
     current_user: CurrentUser,
     db: AsyncDBSession,
+    token: str | None = None,
 ) -> Response:
     try:
         project = await manager.get_project(project_id, user_id=current_user.id, db=db)
@@ -283,7 +297,10 @@ async def fetch_preview_asset(
 
     if selected_path.suffix.lower() == ".html":
         text = await asyncio.to_thread(selected_path.read_text, encoding="utf-8")
-        rewritten = _rewrite_preview_html(text)
+        # Use token from query parameter or extract from current_user context
+        # Pass token so HTML rewriting includes it in asset URLs
+        auth_token = token
+        rewritten = _rewrite_preview_html(text, token=auth_token)
         return Response(rewritten.encode("utf-8"), media_type=media_type)
 
     content = await asyncio.to_thread(selected_path.read_bytes)
