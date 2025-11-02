@@ -75,7 +75,7 @@ export function ConversationPanel({
           <PromptInputTextarea
             value={prompt}
             onChange={(event: ChangeEvent<HTMLTextAreaElement>) => onPromptChange(event.target.value)}
-            placeholder="Explain the app you want. Press Enter to send."
+            placeholder="What do you want to build today?"
             disabled={isGenerating}
           />
           <PromptInputToolbar>
