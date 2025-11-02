@@ -49,11 +49,16 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const activeAssistantMessageIdRef = useRef<string | null>(null)
   const basePreviewUrlRef = useRef<string>("")
   const previewUrlWithTokenRef = useRef<string>("")
+  const projectIdRef = useRef<string | null>(null)
 
-  // Sync ref with state
+  // Sync refs with state
   useEffect(() => {
     fileContentsRef.current = fileContents
   }, [fileContents])
+
+  useEffect(() => {
+    projectIdRef.current = projectId
+  }, [projectId])
 
   // Setters
   const setPrompt = useCallback((value: string) => {
@@ -213,12 +218,17 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     [closeWebSocket, wsBaseEnv, backendOrigin, wsHandlers],
   )
 
-  // File service handlers
+  // File service handlers - React state setters are stable, so we can use them directly
+  // Note: setFileOrder and setFileContents are stable and don't need to be in deps
   const fileServiceHandlers: FileServiceHandlers = useMemo(
     () => ({
       addLog,
-      setFileOrder,
-      setFileContents,
+      setFileOrder: (order: string[]) => {
+        setFileOrder(order)
+      },
+      setFileContents: (updater: (prev: Record<string, string>) => Record<string, string>) => {
+        setFileContents(updater)
+      },
       getFileContents: () => fileContentsRef.current,
       getApiBaseUrl: () => apiBaseUrl,
       getAuthHeaders: async () => getAuthHeaders(session),
@@ -228,9 +238,12 @@ export function useGenerationSession(): UseGenerationSessionReturn {
 
   const fetchProjectFilesHandler = useCallback(
     async () => {
-      if (!projectId) return
+      const currentProjectId = projectIdRef.current
+      if (!currentProjectId) {
+        return
+      }
       await fetchProjectFiles(
-        projectId,
+        currentProjectId,
         fileServiceHandlers,
         metadataRef,
         fileContentsRef,
@@ -238,7 +251,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         filesErrorLoggedRef,
       )
     },
-    [projectId, fileServiceHandlers],
+    [fileServiceHandlers],
   )
 
   // Project service handlers
@@ -281,6 +294,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     activeAssistantMessageIdRef.current = null
     basePreviewUrlRef.current = ""
     previewUrlWithTokenRef.current = ""
+    projectIdRef.current = null
     setProjectId(null)
     setProjectStatus(null)
     setFileOrder([])
@@ -325,6 +339,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
 
         const data = await response.json()
         if (typeof data.project_id === "string") {
+          projectIdRef.current = data.project_id
           setProjectId(data.project_id)
           if (typeof data.status === "string") {
             setProjectStatus(data.status)
@@ -416,10 +431,10 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     addLog("success", "Preview refreshed")
   }, [addLog, previewUrl])
 
-  const filesForViewer = useMemo<ViewerFile[]>(
-    () => fileOrder.map((path) => ({ path, content: fileContents[path] })),
-    [fileContents, fileOrder],
-  )
+  const filesForViewer = useMemo<ViewerFile[]>(() => {
+    const files = fileOrder.map((path) => ({ path, content: fileContents[path] }))
+    return files
+  }, [fileContents, fileOrder])
 
   useEffect(() => {
     if (filesForViewer.length === 0) {

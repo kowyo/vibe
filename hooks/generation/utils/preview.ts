@@ -4,8 +4,8 @@ export const toAbsolutePreviewUrl = async (
   raw: string,
   backendOrigin: string,
   session: SessionData,
-  basePreviewUrlRef: React.MutableRefObject<string>,
-  previewUrlWithTokenRef: React.MutableRefObject<string>,
+  basePreviewUrlRef: React.RefObject<string>,
+  previewUrlWithTokenRef: React.RefObject<string>,
 ): Promise<string> => {
   if (!raw) {
     return ""

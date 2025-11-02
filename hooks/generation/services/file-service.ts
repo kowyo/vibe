@@ -13,7 +13,7 @@ export const fetchFileContent = async (
   projectId: string,
   path: string,
   handlers: FileServiceHandlers,
-  pendingFetchesRef: React.MutableRefObject<Set<string>>,
+  pendingFetchesRef: React.RefObject<Set<string>>,
 ): Promise<void> => {
   if (pendingFetchesRef.current.has(path)) {
     return
@@ -50,10 +50,10 @@ export const fetchFileContent = async (
 export const fetchProjectFiles = async (
   projectId: string,
   handlers: FileServiceHandlers,
-  metadataRef: React.MutableRefObject<Record<string, string>>,
-  fileContentsRef: React.MutableRefObject<Record<string, string>>,
-  pendingFetchesRef: React.MutableRefObject<Set<string>>,
-  filesErrorLoggedRef: React.MutableRefObject<boolean>,
+  metadataRef: React.RefObject<Record<string, string>>,
+  fileContentsRef: React.RefObject<Record<string, string>>,
+  pendingFetchesRef: React.RefObject<Set<string>>,
+  filesErrorLoggedRef: React.RefObject<boolean>,
 ): Promise<void> => {
   try {
     const headers = await handlers.getAuthHeaders()
@@ -80,11 +80,17 @@ export const fetchProjectFiles = async (
     )
     const uniquePaths = Array.from(new Set(fileEntries.map((entry) => entry.path))).sort()
 
+    // Set file order first so files appear in the viewer immediately
+    // Always call setFileOrder to ensure state updates, even if empty
+    handlers.addLog("info", `Setting file order with ${uniquePaths.length} files`)
     handlers.setFileOrder(uniquePaths)
 
+    // Preserve existing file contents for files that still exist
+    // Files without content will still show up in fileOrder and filesForViewer
     handlers.setFileContents((prev) => {
       const next: Record<string, string> = {}
       for (const path of uniquePaths) {
+        // Only preserve content if it exists - files without content will show as "Loading..."
         if (prev[path] !== undefined) {
           next[path] = prev[path]
         }
@@ -102,7 +108,8 @@ export const fetchProjectFiles = async (
     for (const entry of fileEntries) {
       const updatedAt = typeof entry.updated_at === "string" ? entry.updated_at : ""
       const existingStamp = previousMetadata[entry.path] ?? ""
-      const hasContent = fileContentsRef.current[entry.path] !== undefined
+      const currentContents = handlers.getFileContents()
+      const hasContent = currentContents[entry.path] !== undefined
       if (!hasContent || existingStamp !== updatedAt) {
         await fetchFileContent(projectId, entry.path, handlers, pendingFetchesRef)
       }

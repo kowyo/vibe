@@ -10,7 +10,7 @@ export type ProjectServiceHandlers = {
 export const fetchProjectStatus = async (
   projectId: string,
   handlers: ProjectServiceHandlers,
-  statusErrorLoggedRef: React.MutableRefObject<boolean>,
+  statusErrorLoggedRef: React.RefObject<boolean>,
 ): Promise<void> => {
   try {
     const headers = await handlers.getAuthHeaders()
@@ -57,7 +57,7 @@ export const pollProject = async (
   fileHandlers: {
     fetchProjectFiles: () => Promise<void>
   },
-  statusErrorLoggedRef: React.MutableRefObject<boolean>,
+  statusErrorLoggedRef: React.RefObject<boolean>,
 ): Promise<void> => {
   await Promise.allSettled([
     fetchProjectStatus(projectId, handlers, statusErrorLoggedRef),
@@ -71,8 +71,8 @@ export const startPolling = (
   fileHandlers: {
     fetchProjectFiles: () => Promise<void>
   },
-  statusErrorLoggedRef: React.MutableRefObject<boolean>,
-  pollingRef: React.MutableRefObject<number | null>,
+  statusErrorLoggedRef: React.RefObject<boolean>,
+  pollingRef: React.RefObject<number | null>,
 ): void => {
   pollProject(projectId, handlers, fileHandlers, statusErrorLoggedRef).catch(() => {
     // errors surfaced via logging inside helpers
@@ -84,7 +84,7 @@ export const startPolling = (
   }, 3000)
 }
 
-export const stopPolling = (pollingRef: React.MutableRefObject<number | null>): void => {
+export const stopPolling = (pollingRef: React.RefObject<number | null>): void => {
   if (pollingRef.current !== null) {
     window.clearInterval(pollingRef.current)
     pollingRef.current = null
