@@ -33,7 +33,7 @@ export default function Home() {
     codeViewerLoading,
   } = useGenerationSession()
 
-  const [leftPanelSize, setLeftPanelSize] = useState(20)
+  const [leftPanelSize, setLeftPanelSize] = useState(28)
 
   return (
     <SidebarProvider>
