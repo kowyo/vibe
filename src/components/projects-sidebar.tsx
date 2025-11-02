@@ -152,11 +152,9 @@ export function ProjectsSidebar({ onProjectClick }: ProjectsSidebarProps) {
                     >
                       <div className="flex flex-col gap-1.5 w-full">
                         <div className="flex items-start justify-between gap-2">
-                          <p className="text-sm font-medium leading-tight line-clamp-2 flex-1">
-                            {project.prompt.length > 50
-                              ? `${project.prompt.substring(0, 50)}...`
-                              : project.prompt}
-                          </p>
+                            <p className="text-sm font-medium leading-tight line-clamp-2 flex-1">  
+                            {project.prompt}  
+                            </p>
                           <Badge
                             variant="outline"
                             className={cn(
