@@ -36,7 +36,7 @@ export default function Home() {
   const [leftPanelSize, setLeftPanelSize] = useState(28)
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={false}>
       <ProjectsSidebar onProjectClick={loadProject} />
       <SidebarInset className="min-w-0 overflow-x-hidden">
         <div className="flex h-screen flex-col bg-background min-w-0 w-full overflow-x-hidden">
