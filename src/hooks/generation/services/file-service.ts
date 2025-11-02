@@ -82,7 +82,6 @@ export const fetchProjectFiles = async (
 
     // Set file order first so files appear in the viewer immediately
     // Always call setFileOrder to ensure state updates, even if empty
-    handlers.addLog("info", `Setting file order with ${uniquePaths.length} files`)
     handlers.setFileOrder(uniquePaths)
 
     // Preserve existing file contents for files that still exist
