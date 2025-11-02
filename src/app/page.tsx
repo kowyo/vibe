@@ -69,7 +69,7 @@ export default function Home() {
                     </TabsList>
                   </Tabs>
                 </div>
-                <div className="shrink-0">
+                <div className="shrink-0 pr-2">
                   <AuthButton />
                 </div>
               </div>
