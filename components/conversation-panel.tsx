@@ -90,7 +90,7 @@ export function ConversationPanel({
         </PromptInput>
       </footer>
 
-      <div className="border-t border-border bg-muted/30 px-6 py-4">
+      <div className="border-t border-none bg-muted/30 px-6 py-4">
         <div className="flex items-center justify-between text-xs">
           <span className="font-medium text-muted-foreground uppercase tracking-wide">Activity</span>
           <span className="text-muted-foreground">{recentLogs.length} updates</span>

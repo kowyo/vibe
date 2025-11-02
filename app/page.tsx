@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <div className="flex h-screen flex-col bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
+      <header className="sticky top-0 z-20 bg-card/95 backdrop-blur">
         <div className="flex h-12 w-full items-center">
           <div className="flex items-center gap-3 px-6" style={{ width: `${leftPanelSize}%` }}>
             <Image
