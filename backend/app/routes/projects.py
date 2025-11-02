@@ -6,10 +6,10 @@ import re
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import PlainTextResponse, Response
 
-from app.dependencies import get_project_manager
+from app.dependencies import AsyncDBSession, CurrentUser, get_project_manager
 from app.models.api import (
     ProjectFilesResponse,
     ProjectPreviewResponse,
@@ -95,8 +95,12 @@ HTML_REWRITE_SUFFIXES = {
 }
 
 
-def _rewrite_preview_html(document: str) -> str:
-    """Rewrite absolute asset references to relative ones for iframe previews."""
+def _rewrite_preview_html(document: str, token: str | None = None) -> str:
+    """Rewrite absolute asset references to relative ones for iframe previews.
+    
+    If a token is provided, it will be appended to rewritten asset URLs to enable
+    authenticated access to assets loaded by the browser.
+    """
 
     def _replace(match: re.Match[str]) -> str:
         path = match.group("path")
@@ -109,7 +113,16 @@ def _rewrite_preview_html(document: str) -> str:
         suffix = Path(core).suffix.lower()
         if suffix not in HTML_REWRITE_SUFFIXES:
             return match.group(0)
-        return f"{match.group('prefix')}./{stripped}"
+        
+        # Rewrite to relative path
+        rewritten_path = f"./{stripped}"
+        
+        # Append token as query parameter if provided
+        if token:
+            separator = "&" if "?" in rewritten_path else "?"
+            rewritten_path = f"{rewritten_path}{separator}token={token}"
+        
+        return f"{match.group('prefix')}{rewritten_path}"
 
     # Fast exit when no absolute references are present.
     if "\"/" not in document and "'/" not in document:
@@ -122,9 +135,11 @@ def _rewrite_preview_html(document: str) -> str:
 async def get_project_status(
     project_id: str,
     manager: ProjectManagerDep,
+    current_user: CurrentUser,
+    db: AsyncDBSession,
 ) -> ProjectStatusResponse:
     try:
-        project = await manager.get_project(project_id)
+        project = await manager.get_project(project_id, user_id=current_user.id, db=db)
     except ProjectNotFoundError as exc:  # pragma: no cover - defensive guard
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
@@ -141,8 +156,12 @@ async def get_project_status(
 async def list_project_files(
     project_id: str,
     manager: ProjectManagerDep,
+    current_user: CurrentUser,
+    db: AsyncDBSession,
 ) -> ProjectFilesResponse:
     try:
+        # Verify project ownership
+        await manager.get_project(project_id, user_id=current_user.id, db=db)
         files = await manager.list_files(project_id)
     except ProjectNotFoundError as exc:  # pragma: no cover - defensive guard
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
@@ -155,9 +174,11 @@ async def get_project_file_content(
     project_id: str,
     file_path: str,
     manager: ProjectManagerDep,
+    current_user: CurrentUser,
+    db: AsyncDBSession,
 ) -> PlainTextResponse:
     try:
-        project = await manager.get_project(project_id)
+        project = await manager.get_project(project_id, user_id=current_user.id, db=db)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
@@ -194,9 +215,11 @@ async def get_project_file_content(
 async def get_project_preview(
     project_id: str,
     manager: ProjectManagerDep,
+    current_user: CurrentUser,
+    db: AsyncDBSession,
 ) -> ProjectPreviewResponse:
     try:
-        project = await manager.get_project(project_id)
+        project = await manager.get_project(project_id, user_id=current_user.id, db=db)
     except ProjectNotFoundError as exc:  # pragma: no cover - defensive guard
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
@@ -205,12 +228,16 @@ async def get_project_preview(
 
 @router.get("/{project_id}/preview/{asset_path:path}")
 async def fetch_preview_asset(
+    request: Request,
     project_id: str,
     asset_path: str,
     manager: ProjectManagerDep,
+    current_user: CurrentUser,
+    db: AsyncDBSession,
+    token: str | None = None,
 ) -> Response:
     try:
-        project = await manager.get_project(project_id)
+        project = await manager.get_project(project_id, user_id=current_user.id, db=db)
     except ProjectNotFoundError as exc:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
 
@@ -271,7 +298,9 @@ async def fetch_preview_asset(
 
     if selected_path.suffix.lower() == ".html":
         text = await asyncio.to_thread(selected_path.read_text, encoding="utf-8")
-        rewritten = _rewrite_preview_html(text)
+        # Get token from request state (set by get_current_user dependency)
+        auth_token = getattr(request.state, "auth_token", None)
+        rewritten = _rewrite_preview_html(text, token=auth_token)
         return Response(rewritten.encode("utf-8"), media_type=media_type)
 
     content = await asyncio.to_thread(selected_path.read_bytes)

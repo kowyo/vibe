@@ -28,3 +28,6 @@ yarn-error.log*
 next-env.d.ts
 
 __pycache__/
+
+better-auth_migrations/
+*.db

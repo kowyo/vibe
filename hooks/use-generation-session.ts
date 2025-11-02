@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useSession, getJWTToken } from "@/lib/auth-client"
 
 export type LogEntry = { type: "info" | "error" | "success"; message: string }
 type InlineGeneratedFile = { path?: string; content?: string | null }
@@ -44,6 +45,7 @@ type UseGenerationSessionReturn = {
 }
 
 export function useGenerationSession(): UseGenerationSessionReturn {
+  const { data: session } = useSession()
   const [prompt, setPromptState] = useState("")
   const [isGenerating, setIsGenerating] = useState(false)
   const [logs, setLogs] = useState<LogEntry[]>([])
@@ -57,6 +59,24 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const [selectedFile, setSelectedFileState] = useState<string | null>(null)
 
   const apiBaseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000/api").replace(/\/$/, "")
+  
+  // Get auth headers with JWT token for API requests
+  const getAuthHeaders = useCallback(async () => {
+    const headers: Record<string, string> = { "Content-Type": "application/json" }
+    
+    // Fetch JWT token using the centralized helper function
+    const token = await getJWTToken(session)
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`
+    } else if (!session?.session) {
+      console.warn("No session found, requests will fail if authentication is required")
+      // Continue without token - backend can try to use cookies as fallback
+    }
+    // If session exists but token fetch failed, continue without token
+    // The backend can try to use cookies as fallback
+    
+    return headers
+  }, [session])
   const wsBaseEnv = useMemo(() => {
     const raw = process.env.NEXT_PUBLIC_BACKEND_WS_URL
     return raw ? raw.replace(/\/$/, "") : null
@@ -81,6 +101,8 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const filesErrorLoggedRef = useRef(false)
   const activeAssistantMessageIdRef = useRef<string | null>(null)
   const lastPromptRef = useRef<string>("")
+  const basePreviewUrlRef = useRef<string>("")
+  const previewUrlWithTokenRef = useRef<string>("")
 
   useEffect(() => {
     fileContentsRef.current = fileContents
@@ -191,31 +213,83 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   }, [closeWebSocket, stopPolling])
 
   const toAbsolutePreviewUrl = useCallback(
-    (raw: string) => {
+    async (raw: string) => {
       if (!raw) {
         return ""
       }
       try {
+        let url: URL
         if (raw.startsWith("http://") || raw.startsWith("https://")) {
-          return raw
+          url = new URL(raw)
+        } else {
+          if (!backendOrigin) {
+            return raw
+          }
+          url = new URL(raw, backendOrigin)
         }
-        if (!backendOrigin) {
-          return raw
+        
+        // Remove any existing token parameter first
+        url.searchParams.delete("token")
+        
+        // Get base URL without token for comparison
+        const baseUrl = url.toString()
+        
+        // Only regenerate URL with token if the base URL changed
+        if (baseUrl !== basePreviewUrlRef.current) {
+          basePreviewUrlRef.current = baseUrl
+          
+          // Add token for authentication (iframes need explicit auth)
+          const token = await getJWTToken(session)
+          if (token) {
+            url.searchParams.set("token", token)
+            const urlWithToken = url.toString()
+            previewUrlWithTokenRef.current = urlWithToken
+            return urlWithToken
+          }
+          
+          // If no token, use base URL
+          previewUrlWithTokenRef.current = baseUrl
+          return baseUrl
         }
-        return new URL(raw, backendOrigin).toString()
+        
+        // Base URL hasn't changed, return cached URL with token
+        return previewUrlWithTokenRef.current || baseUrl
       } catch {
         return raw
       }
     },
-    [backendOrigin],
+    [backendOrigin, session],
   )
 
   const updatePreview = useCallback(
     (raw?: string | null) => {
-      const resolved = raw ? toAbsolutePreviewUrl(raw) : ""
-      setPreviewUrl(resolved)
+      if (!raw) {
+        basePreviewUrlRef.current = ""
+        previewUrlWithTokenRef.current = ""
+        setPreviewUrl("")
+        return
+      }
+      // Convert to absolute URL with token, but only update if base URL changed
+      toAbsolutePreviewUrl(raw).then(setPreviewUrl).catch((error) => {
+        console.error("Error updating preview URL:", error)
+        // Fallback: try without token
+        try {
+          let url: URL
+          if (raw.startsWith("http://") || raw.startsWith("https://")) {
+            url = new URL(raw)
+          } else if (backendOrigin) {
+            url = new URL(raw, backendOrigin)
+          } else {
+            setPreviewUrl(raw)
+            return
+          }
+          setPreviewUrl(url.toString())
+        } catch {
+          setPreviewUrl(raw)
+        }
+      })
     },
-    [toAbsolutePreviewUrl],
+    [toAbsolutePreviewUrl, backendOrigin],
   )
 
   const buildWsUrl = useCallback(
@@ -351,7 +425,12 @@ export function useGenerationSession(): UseGenerationSessionReturn {
           .split("/")
           .map((segment) => encodeURIComponent(segment))
           .join("/")
-        const response = await fetch(`${apiBaseUrl}/projects/${id}/files/${encodedPath}`, { cache: "no-store" })
+        const headers = await getAuthHeaders()
+        const response = await fetch(`${apiBaseUrl}/projects/${id}/files/${encodedPath}`, {
+          cache: "no-store",
+          credentials: "include",
+          headers,
+        })
         if (!response.ok) {
           throw new Error(`status ${response.status}`)
         }
@@ -366,13 +445,18 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         pendingFetchesRef.current.delete(path)
       }
     },
-    [addLog, apiBaseUrl],
+    [addLog, apiBaseUrl, getAuthHeaders],
   )
 
   const fetchProjectFiles = useCallback(
     async (id: string) => {
       try {
-        const response = await fetch(`${apiBaseUrl}/projects/${id}/files`, { cache: "no-store" })
+        const headers = await getAuthHeaders()
+        const response = await fetch(`${apiBaseUrl}/projects/${id}/files`, {
+          cache: "no-store",
+          credentials: "include",
+          headers,
+        })
         if (!response.ok) {
           if (!filesErrorLoggedRef.current) {
             addLog("error", `Failed to fetch files (status ${response.status})`)
@@ -431,13 +515,18 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         }
       }
     },
-    [addLog, apiBaseUrl, fetchFileContent],
+    [addLog, apiBaseUrl, fetchFileContent, getAuthHeaders],
   )
 
   const fetchProjectStatus = useCallback(
     async (id: string) => {
       try {
-        const response = await fetch(`${apiBaseUrl}/projects/${id}/status`, { cache: "no-store" })
+        const headers = await getAuthHeaders()
+        const response = await fetch(`${apiBaseUrl}/projects/${id}/status`, {
+          cache: "no-store",
+          credentials: "include",
+          headers,
+        })
         if (!response.ok) {
           if (!statusErrorLoggedRef.current) {
             addLog("error", `Failed to fetch status (status ${response.status})`)
@@ -467,7 +556,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         }
       }
     },
-    [addLog, apiBaseUrl, updatePreview],
+    [addLog, apiBaseUrl, updatePreview, getAuthHeaders],
   )
 
   const pollProject = useCallback(
@@ -500,6 +589,8 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     statusErrorLoggedRef.current = false
     filesErrorLoggedRef.current = false
     activeAssistantMessageIdRef.current = null
+    basePreviewUrlRef.current = ""
+    previewUrlWithTokenRef.current = ""
     setProjectId(null)
     setProjectStatus(null)
     setFileOrder([])
@@ -531,9 +622,11 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       addLog("info", `Prompt: ${trimmedPrompt}`)
 
       try {
+        const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/generate`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          headers,
           body: JSON.stringify({ prompt: trimmedPrompt }),
         })
 
@@ -611,6 +704,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       addLog,
       apiBaseUrl,
       beginConversationTurn,
+      getAuthHeaders,
       resetForNewGeneration,
       startPolling,
       startWebSocket,
