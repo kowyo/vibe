@@ -3,6 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FileCode, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { FileTree } from "@/components/file-tree"
 
 interface CodeViewerProps {
   files: Array<{ path: string; content?: string }>
@@ -33,23 +34,11 @@ export function CodeViewer({ files, selectedFile, onSelect, loading = false }: C
         <ScrollArea className="h-full">
           <div className="p-4">
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Files</p>
-            <div className="space-y-1">
-              {files.map((file) => (
-                <button
-                  key={file.path}
-                  onClick={() => onSelect(file.path)}
-                  className={cn(
-                    "flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors",
-                    selectedFile === file.path
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-muted",
-                  )}
-                >
-                  <FileCode className="h-4 w-4 shrink-0" />
-                  <span className="truncate font-mono text-xs">{file.path}</span>
-                </button>
-              ))}
-            </div>
+            <FileTree
+              files={files}
+              selectedFile={selectedFile}
+              onSelect={onSelect}
+            />
           </div>
         </ScrollArea>
       </div>
@@ -65,7 +54,7 @@ export function CodeViewer({ files, selectedFile, onSelect, loading = false }: C
               </div>
               <div className="overflow-x-auto">
                 <pre className="rounded-lg bg-muted p-4 text-xs leading-relaxed min-w-0">
-                  <code className="font-mono text-foreground whitespace-pre-wrap break-words">
+                  <code className="font-mono text-foreground whitespace-pre-wrap">
                     {currentFile.content ?? "(Loading content...)"}
                   </code>
                 </pre>
