@@ -1,15 +1,50 @@
 "use client"
 
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { FileCode, ChevronRight } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { FileCode} from "lucide-react"
 import { FileTree } from "@/components/file-tree"
+import { CodeBlockContent } from "@/components/ui/shadcn-io/code-block"
+import { useState } from "react"
 
 interface CodeViewerProps {
   files: Array<{ path: string; content?: string }>
   selectedFile: string | null
   onSelect: (path: string) => void
   loading?: boolean
+}
+
+// Helper function to detect language from file extension
+function getLanguageFromPath(path: string): string {
+  const ext = path.split(".").pop()?.toLowerCase()
+  const languageMap: Record<string, string> = {
+    ts: "typescript",
+    tsx: "tsx",
+    js: "javascript",
+    jsx: "jsx",
+    py: "python",
+    json: "json",
+    html: "html",
+    css: "css",
+    scss: "scss",
+    md: "markdown",
+    yaml: "yaml",
+    yml: "yaml",
+    sh: "bash",
+    sql: "sql",
+    go: "go",
+    rs: "rust",
+    java: "java",
+    c: "c",
+    cpp: "cpp",
+    rb: "ruby",
+    php: "php",
+    swift: "swift",
+    kt: "kotlin",
+    dart: "dart",
+    vue: "vue",
+    svelte: "svelte",
+  }
+  return languageMap[ext || ""] || "text"
 }
 
 export function CodeViewer({ files, selectedFile, onSelect, loading = false }: CodeViewerProps) {
@@ -47,17 +82,16 @@ export function CodeViewer({ files, selectedFile, onSelect, loading = false }: C
       <div className="flex-1 min-w-0 overflow-hidden">
         <ScrollArea className="h-full">
           {currentFile ? (
-            <div className="p-6 min-w-0">
-              <div className="mb-4 flex items-center gap-2 text-sm text-muted-foreground min-w-0">
-                <ChevronRight className="h-4 w-4 shrink-0" />
-                <span className="font-mono truncate">{currentFile.path}</span>
-              </div>
+            <div className="p-2 min-w-0">
+              <div className="mb-4 flex items-center justify-between gap-2 text-sm text-muted-foreground min-w-0"></div>
               <div className="overflow-x-auto">
-                <pre className="rounded-lg bg-muted p-4 text-xs leading-relaxed min-w-0">
-                  <code className="font-mono text-foreground whitespace-pre-wrap">
-                    {currentFile.content ?? "(Loading content...)"}
-                  </code>
-                </pre>
+                <CodeBlockContent
+                  language={getLanguageFromPath(currentFile.path) as any}
+                  syntaxHighlighting={true}
+                  className="rounded-lg bg-muted text-xs leading-relaxed min-w-0 [&>pre]:bg-transparent [&>pre]:p-0 [&>code]:bg-transparent [&>code]:text-foreground [&>code]:whitespace-pre-wrap [&>code]:wrap-break-word"
+                >
+                  {currentFile.content ?? "(Loading content...)"}
+                </CodeBlockContent>
               </div>
             </div>
           ) : (
