@@ -41,13 +41,9 @@ class AuthService:
 
                 # Decode token without verification first to see the claims
                 unverified = jwt.decode(token, options={"verify_signature": False})
-                print(f"DEBUG: Unverified token payload: {unverified}")
                 
                 # Better-auth uses the baseURL as issuer and audience
                 issuer = self.better_auth_url
-                print(f"DEBUG: Expected issuer/audience: {issuer}")
-                print(f"DEBUG: Token issuer: {unverified.get('iss')}")
-                print(f"DEBUG: Token audience: {unverified.get('aud')}")
                 
                 # Verify and decode the token
                 payload = jwt.decode(
@@ -60,19 +56,16 @@ class AuthService:
                 )
                 return payload
             except ExpiredSignatureError as e:
-                print(f"DEBUG: Token expired: {e}")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail="Token has expired",
                 ) from e
             except InvalidTokenError as e:
-                print(f"DEBUG: Invalid token error: {e}")
                 raise HTTPException(
                     status_code=status.HTTP_401_UNAUTHORIZED,
                     detail=f"Invalid token: {str(e)}",
                 ) from e
             except Exception as e:
-                print(f"DEBUG: Token verification exception: {type(e).__name__}: {e}")
                 import traceback
                 traceback.print_exc()
                 raise HTTPException(

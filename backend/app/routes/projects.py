@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import PlainTextResponse, Response
 
 from app.dependencies import AsyncDBSession, CurrentUser, get_project_manager
@@ -228,6 +228,7 @@ async def get_project_preview(
 
 @router.get("/{project_id}/preview/{asset_path:path}")
 async def fetch_preview_asset(
+    request: Request,
     project_id: str,
     asset_path: str,
     manager: ProjectManagerDep,
@@ -297,9 +298,8 @@ async def fetch_preview_asset(
 
     if selected_path.suffix.lower() == ".html":
         text = await asyncio.to_thread(selected_path.read_text, encoding="utf-8")
-        # Use token from query parameter or extract from current_user context
-        # Pass token so HTML rewriting includes it in asset URLs
-        auth_token = token
+        # Get token from request state (set by get_current_user dependency)
+        auth_token = getattr(request.state, "auth_token", None)
         rewritten = _rewrite_preview_html(text, token=auth_token)
         return Response(rewritten.encode("utf-8"), media_type=media_type)
 

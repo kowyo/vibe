@@ -70,12 +70,18 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         const { data, error } = await authClient.token()
         if (error) {
           console.error("Failed to get JWT token:", error)
+          // Continue without token - backend can try to use cookies as fallback
         } else if (data?.token) {
           headers["Authorization"] = `Bearer ${data.token}`
+        } else {
+          console.warn("Token endpoint returned no token data")
         }
       } catch (error) {
         console.error("Error fetching JWT token:", error)
+        // Continue without token - backend can try to use cookies as fallback
       }
+    } else {
+      console.warn("No session found, requests will fail if authentication is required")
     }
     
     return headers
@@ -417,6 +423,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/projects/${id}/files/${encodedPath}`, {
           cache: "no-store",
+          credentials: "include",
           headers,
         })
         if (!response.ok) {
@@ -433,7 +440,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         pendingFetchesRef.current.delete(path)
       }
     },
-    [addLog, apiBaseUrl],
+    [addLog, apiBaseUrl, getAuthHeaders],
   )
 
   const fetchProjectFiles = useCallback(
@@ -442,6 +449,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/projects/${id}/files`, {
           cache: "no-store",
+          credentials: "include",
           headers,
         })
         if (!response.ok) {
@@ -511,6 +519,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/projects/${id}/status`, {
           cache: "no-store",
+          credentials: "include",
           headers,
         })
         if (!response.ok) {
@@ -542,7 +551,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         }
       }
     },
-    [addLog, apiBaseUrl, updatePreview],
+    [addLog, apiBaseUrl, updatePreview, getAuthHeaders],
   )
 
   const pollProject = useCallback(
@@ -609,6 +618,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         const headers = await getAuthHeaders()
         const response = await fetch(`${apiBaseUrl}/generate`, {
           method: "POST",
+          credentials: "include",
           headers,
           body: JSON.stringify({ prompt: trimmedPrompt }),
         })
@@ -687,6 +697,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       addLog,
       apiBaseUrl,
       beginConversationTurn,
+      getAuthHeaders,
       resetForNewGeneration,
       startPolling,
       startWebSocket,
