@@ -33,9 +33,6 @@ export const fetchProjectStatus = async (
     const data = await response.json()
     if (typeof data.status === "string") {
       handlers.setProjectStatus(data.status)
-      if (data.status === "ready") {
-        handlers.setActiveTab("preview")
-      }
     }
     if (typeof data.preview_url === "string" && data.preview_url) {
       handlers.updatePreview(data.preview_url)

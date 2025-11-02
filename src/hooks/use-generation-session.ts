@@ -156,9 +156,6 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       onStatusUpdated: (status) => {
         setProjectStatus(status)
         addLog(status === "ready" ? "success" : "info", `Status changed to ${status}`)
-        if (status === "ready") {
-          setActiveTab("preview")
-        }
         updateActiveAssistantMessage(() => ({
           content:
             status === "ready"
@@ -173,7 +170,6 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       onPreviewReady: (preview) => {
         updatePreview(preview)
         addLog("success", "Preview ready")
-        setActiveTab("preview")
         updateActiveAssistantMessage(() => ({
           content: "Preview is ready in the right panel.",
           status: "complete",
