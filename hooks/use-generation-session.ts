@@ -1,48 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { useSession, getJWTToken } from "@/lib/auth-client"
+import { useSession } from "@/lib/auth-client"
+import type {
+  LogEntry,
+  ConversationMessage,
+  ViewerFile,
+  UseGenerationSessionReturn,
+  InlineGeneratedFile,
+} from "./generation/types"
+import { beginConversationTurn, updateMessage } from "./generation/utils/conversation"
+import { toAbsolutePreviewUrl, refreshPreviewUrl } from "./generation/utils/preview"
+import { getApiBaseUrl, getBackendOrigin, getWsBaseUrl, getAuthHeaders } from "./generation/utils/api"
+import { createWebSocket } from "./generation/services/websocket"
+import { fetchProjectFiles } from "./generation/services/file-service"
+import { startPolling, stopPolling } from "./generation/services/project-service"
+import type { ProjectServiceHandlers } from "./generation/services/project-service"
+import type { FileServiceHandlers } from "./generation/services/file-service"
+import type { WebSocketMessageHandler } from "./generation/services/websocket"
 
-export type LogEntry = { type: "info" | "error" | "success"; message: string }
-type InlineGeneratedFile = { path?: string; content?: string | null }
-type ApiProjectFileEntry = { path?: string; is_dir?: boolean; updated_at?: string | null }
-
-type ViewerFile = { path: string; content?: string }
-
-type ConversationStatus = "pending" | "complete" | "error"
-type ConversationRole = "user" | "assistant"
-
-export type ConversationMessage = {
-  id: string
-  role: ConversationRole
-  content: string
-  status: ConversationStatus
-  createdAt: number
-  updatedAt: number
-  projectId?: string | null
-}
-
-const createMessageId = () => {
-  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
-    return crypto.randomUUID()
-  }
-  return `msg_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`
-}
-
-type UseGenerationSessionReturn = {
-  prompt: string
-  setPrompt: (value: string) => void
-  isGenerating: boolean
-  logs: LogEntry[]
-  messages: ConversationMessage[]
-  activeTab: string
-  setActiveTab: (value: string) => void
-  previewUrl: string
-  filesForViewer: ViewerFile[]
-  selectedFile: string | null
-  setSelectedFile: (path: string | null) => void
-  handleGenerate: () => Promise<void>
-  handleRefreshPreview: () => void
-  codeViewerLoading: boolean
-}
+// Re-export types for backward compatibility
+export type { LogEntry, ConversationMessage, ViewerFile, UseGenerationSessionReturn }
 
 export function useGenerationSession(): UseGenerationSessionReturn {
   const { data: session } = useSession()
@@ -58,40 +34,11 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const [fileContents, setFileContents] = useState<Record<string, string>>({})
   const [selectedFile, setSelectedFileState] = useState<string | null>(null)
 
-  const apiBaseUrl = (process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000/api").replace(/\/$/, "")
-  
-  // Get auth headers with JWT token for API requests
-  const getAuthHeaders = useCallback(async () => {
-    const headers: Record<string, string> = { "Content-Type": "application/json" }
-    
-    // Fetch JWT token using the centralized helper function
-    const token = await getJWTToken(session)
-    if (token) {
-      headers["Authorization"] = `Bearer ${token}`
-    } else if (!session?.session) {
-      console.warn("No session found, requests will fail if authentication is required")
-      // Continue without token - backend can try to use cookies as fallback
-    }
-    // If session exists but token fetch failed, continue without token
-    // The backend can try to use cookies as fallback
-    
-    return headers
-  }, [session])
-  const wsBaseEnv = useMemo(() => {
-    const raw = process.env.NEXT_PUBLIC_BACKEND_WS_URL
-    return raw ? raw.replace(/\/$/, "") : null
-  }, [])
+  const apiBaseUrl = useMemo(() => getApiBaseUrl(), [])
+  const wsBaseEnv = useMemo(() => getWsBaseUrl(), [])
+  const backendOrigin = useMemo(() => getBackendOrigin(apiBaseUrl), [apiBaseUrl])
 
-  const backendOrigin = useMemo(() => {
-    try {
-      const normalized = apiBaseUrl.endsWith("/") ? apiBaseUrl : `${apiBaseUrl}/`
-      const url = new URL(normalized)
-      return url.origin
-    } catch {
-      return ""
-    }
-  }, [apiBaseUrl])
-
+  // Refs
   const pollingRef = useRef<number | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
   const metadataRef = useRef<Record<string, string>>({})
@@ -100,14 +47,15 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const statusErrorLoggedRef = useRef(false)
   const filesErrorLoggedRef = useRef(false)
   const activeAssistantMessageIdRef = useRef<string | null>(null)
-  const lastPromptRef = useRef<string>("")
   const basePreviewUrlRef = useRef<string>("")
   const previewUrlWithTokenRef = useRef<string>("")
 
+  // Sync ref with state
   useEffect(() => {
     fileContentsRef.current = fileContents
   }, [fileContents])
 
+  // Setters
   const setPrompt = useCallback((value: string) => {
     setPromptState(value)
   }, [])
@@ -124,153 +72,50 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     setLogs((prev) => [...prev, { type, message }])
   }, [])
 
-  const beginConversationTurn = useCallback(
+  // Conversation management
+  const beginTurn = useCallback(
     (userContent: string, assistantIntro = "Working on your app...") => {
-      const trimmed = userContent.trim()
-      if (!trimmed) {
+      const result = beginConversationTurn(userContent, assistantIntro)
+      if (!result) {
         return null
       }
-      const timestamp = Date.now()
-      const userMessage: ConversationMessage = {
-        id: createMessageId(),
-        role: "user",
-        content: trimmed,
-        status: "complete",
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      }
-      const assistantMessage: ConversationMessage = {
-        id: createMessageId(),
-        role: "assistant",
-        content: assistantIntro,
-        status: "pending",
-        createdAt: timestamp,
-        updatedAt: timestamp,
-      }
-      const assistantId = assistantMessage.id
+      const { userMessage, assistantMessage } = result
       setMessages((previous) => [...previous, userMessage, assistantMessage])
-      activeAssistantMessageIdRef.current = assistantId
-      return assistantId
+      activeAssistantMessageIdRef.current = assistantMessage.id
+      return assistantMessage.id
     },
     [],
   )
 
-  const updateAssistantMessage = useCallback(
-    (
-      id: string | null,
-      next: Partial<ConversationMessage> | ((message: ConversationMessage) => Partial<ConversationMessage>),
-    ) => {
-      if (!id) {
-        return
-      }
-      setMessages((previous) =>
-        previous.map((message) => {
-          if (message.id !== id) {
-            return message
-          }
-          const patch = typeof next === "function" ? next(message) : next
-          const status: ConversationStatus = patch.status ?? message.status
-          return {
-            ...message,
-            ...patch,
-            status,
-            updatedAt: Date.now(),
-          }
-        }),
-      )
-    },
-    [],
-  )
+  const updateAssistantMessage = useCallback((id: string | null, patch: Partial<ConversationMessage> | ((message: ConversationMessage) => Partial<ConversationMessage>)) => {
+    if (!id) {
+      return
+    }
+    setMessages((previous) =>
+      previous.map((message) => (message.id === id ? updateMessage(message, patch) : message)),
+    )
+  }, [])
 
   const updateActiveAssistantMessage = useCallback(
-    (
-      next: Partial<ConversationMessage> | ((message: ConversationMessage) => Partial<ConversationMessage>),
-    ) => {
-      updateAssistantMessage(activeAssistantMessageIdRef.current, next)
+    (patch: Partial<ConversationMessage> | ((message: ConversationMessage) => Partial<ConversationMessage>)) => {
+      updateAssistantMessage(activeAssistantMessageIdRef.current, patch)
     },
     [updateAssistantMessage],
   )
 
-  const stopPolling = useCallback(() => {
-    if (pollingRef.current !== null) {
-      window.clearInterval(pollingRef.current)
-      pollingRef.current = null
-    }
-  }, [])
-
-  const closeWebSocket = useCallback(() => {
-    if (wsRef.current) {
-      wsRef.current.close()
-      wsRef.current = null
-    }
-  }, [])
-
-  useEffect(() => {
-    return () => {
-      stopPolling()
-      closeWebSocket()
-    }
-  }, [closeWebSocket, stopPolling])
-
-  const toAbsolutePreviewUrl = useCallback(
-    async (raw: string) => {
-      if (!raw) {
-        return ""
-      }
-      try {
-        let url: URL
-        if (raw.startsWith("http://") || raw.startsWith("https://")) {
-          url = new URL(raw)
-        } else {
-          if (!backendOrigin) {
-            return raw
-          }
-          url = new URL(raw, backendOrigin)
-        }
-        
-        // Remove any existing token parameter first
-        url.searchParams.delete("token")
-        
-        // Get base URL without token for comparison
-        const baseUrl = url.toString()
-        
-        // Only regenerate URL with token if the base URL changed
-        if (baseUrl !== basePreviewUrlRef.current) {
-          basePreviewUrlRef.current = baseUrl
-          
-          // Add token for authentication (iframes need explicit auth)
-          const token = await getJWTToken(session)
-          if (token) {
-            url.searchParams.set("token", token)
-            const urlWithToken = url.toString()
-            previewUrlWithTokenRef.current = urlWithToken
-            return urlWithToken
-          }
-          
-          // If no token, use base URL
-          previewUrlWithTokenRef.current = baseUrl
-          return baseUrl
-        }
-        
-        // Base URL hasn't changed, return cached URL with token
-        return previewUrlWithTokenRef.current || baseUrl
-      } catch {
-        return raw
-      }
-    },
-    [backendOrigin, session],
-  )
-
+  // Preview URL management
   const updatePreview = useCallback(
-    (raw?: string | null) => {
+    async (raw?: string | null) => {
       if (!raw) {
         basePreviewUrlRef.current = ""
         previewUrlWithTokenRef.current = ""
         setPreviewUrl("")
         return
       }
-      // Convert to absolute URL with token, but only update if base URL changed
-      toAbsolutePreviewUrl(raw).then(setPreviewUrl).catch((error) => {
+      try {
+        const url = await toAbsolutePreviewUrl(raw, backendOrigin, session, basePreviewUrlRef, previewUrlWithTokenRef)
+        setPreviewUrl(url)
+      } catch (error) {
         console.error("Error updating preview URL:", error)
         // Fallback: try without token
         try {
@@ -287,301 +132,146 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         } catch {
           setPreviewUrl(raw)
         }
-      })
-    },
-    [toAbsolutePreviewUrl, backendOrigin],
-  )
-
-  const buildWsUrl = useCallback(
-    (id: string) => {
-      if (wsBaseEnv) {
-        return `${wsBaseEnv}/${id}`
-      }
-      if (backendOrigin) {
-        const originUrl = new URL(backendOrigin)
-        const protocol = originUrl.protocol === "https:" ? "wss:" : "ws:"
-        return `${protocol}//${originUrl.host}/ws/${id}`
-      }
-      return `ws://127.0.0.1:8000/ws/${id}`
-    },
-    [backendOrigin, wsBaseEnv],
-  )
-
-  const handleWebSocketMessage = useCallback(
-    (raw: string) => {
-      try {
-        const data = JSON.parse(raw)
-
-        if (data.type === "status_snapshot") {
-          const status = data.payload?.status
-          if (typeof status === "string") {
-            setProjectStatus(status)
-          }
-          if (typeof data.payload?.preview_url === "string") {
-            updatePreview(data.payload.preview_url)
-          }
-          return
-        }
-
-        if (data.type === "status_updated") {
-          const status = data.payload?.status ?? data.message
-          if (typeof status === "string") {
-            setProjectStatus(status)
-            addLog(status === "ready" ? "success" : "info", `Status changed to ${status}`)
-            if (status === "ready") {
-              setActiveTab("preview")
-            }
-            updateActiveAssistantMessage(() => ({
-              content:
-                status === "ready"
-                  ? "Your app is ready. Open the preview to explore the result."
-                  : `Status updated: ${status}`,
-              status: status === "failed" ? "error" : status === "ready" ? "complete" : "pending",
-            }))
-          }
-          return
-        }
-
-        if (data.type === "log_appended" && typeof data.message === "string") {
-          addLog("info", data.message)
-          return
-        }
-
-        if (data.type === "preview_ready") {
-          const preview = data.payload?.preview_url
-          if (typeof preview === "string") {
-            updatePreview(preview)
-            addLog("success", "Preview ready")
-            setActiveTab("preview")
-            updateActiveAssistantMessage(() => ({
-              content: "Preview is ready in the right panel.",
-              status: "complete",
-            }))
-          }
-          return
-        }
-
-        if (data.type === "error") {
-          if (typeof data.message === "string") {
-            addLog("error", data.message)
-            updateActiveAssistantMessage(() => ({ content: data.message, status: "error" }))
-          } else {
-            addLog("error", "Generation error")
-            updateActiveAssistantMessage(() => ({ content: "Generation error", status: "error" }))
-          }
-          setProjectStatus("failed")
-          return
-        }
-
-        if (data.type === "project_created" && typeof data.message === "string") {
-          addLog("info", data.message)
-          updateActiveAssistantMessage((message) => ({
-            content: `${message.content}\n${data.message}`.trim(),
-          }))
-          return
-        }
-      } catch (error) {
-        addLog(
-          "error",
-          `Failed to parse stream message: ${error instanceof Error ? error.message : String(error)}`,
-        )
       }
     },
-    [addLog, updateActiveAssistantMessage, updatePreview],
+    [backendOrigin, session],
   )
+
+  // WebSocket handlers
+  const wsHandlers: WebSocketMessageHandler = useMemo(
+    () => ({
+      onStatusSnapshot: (status, previewUrl) => {
+        if (status) {
+          setProjectStatus(status)
+        }
+        if (previewUrl) {
+          updatePreview(previewUrl)
+        }
+      },
+      onStatusUpdated: (status) => {
+        setProjectStatus(status)
+        addLog(status === "ready" ? "success" : "info", `Status changed to ${status}`)
+        if (status === "ready") {
+          setActiveTab("preview")
+        }
+        updateActiveAssistantMessage(() => ({
+          content:
+            status === "ready"
+              ? "Your app is ready. Open the preview to explore the result."
+              : `Status updated: ${status}`,
+          status: status === "failed" ? "error" : status === "ready" ? "complete" : "pending",
+        }))
+      },
+      onLogAppended: (message) => {
+        addLog("info", message)
+      },
+      onPreviewReady: (preview) => {
+        updatePreview(preview)
+        addLog("success", "Preview ready")
+        setActiveTab("preview")
+        updateActiveAssistantMessage(() => ({
+          content: "Preview is ready in the right panel.",
+          status: "complete",
+        }))
+      },
+      onError: (message) => {
+        addLog("error", message)
+        updateActiveAssistantMessage(() => ({ content: message, status: "error" }))
+        setProjectStatus("failed")
+      },
+      onProjectCreated: (message) => {
+        addLog("info", message)
+        updateActiveAssistantMessage((msg) => ({
+          content: `${msg.content}\n${message}`.trim(),
+        }))
+      },
+      addLog,
+      updateActiveAssistantMessage,
+      setProjectStatus,
+      setActiveTab,
+      updatePreview,
+    }),
+    [addLog, updateActiveAssistantMessage, setProjectStatus, setActiveTab, updatePreview],
+  )
+
+  // WebSocket management
+  const closeWebSocket = useCallback(() => {
+    if (wsRef.current) {
+      wsRef.current.close()
+      wsRef.current = null
+    }
+  }, [])
 
   const startWebSocket = useCallback(
     (id: string) => {
-      try {
-        const url = buildWsUrl(id)
-        const socket = new WebSocket(url)
+      closeWebSocket()
+      const socket = createWebSocket(id, wsBaseEnv, backendOrigin, wsHandlers)
+      if (socket) {
         wsRef.current = socket
-        socket.onopen = () => addLog("info", "Connected to generation stream")
-        socket.onmessage = (event) => handleWebSocketMessage(event.data)
-        socket.onerror = () => addLog("error", "WebSocket connection error")
-        socket.onclose = (event) => {
-          if (event.code !== 1000) {
-            addLog("info", `Stream closed (${event.code})`)
-          }
-          if (wsRef.current === socket) {
-            wsRef.current = null
-          }
-        }
-      } catch (error) {
-        addLog("error", `Failed to open WebSocket: ${error instanceof Error ? error.message : String(error)}`)
       }
     },
-    [addLog, buildWsUrl, handleWebSocketMessage],
+    [closeWebSocket, wsBaseEnv, backendOrigin, wsHandlers],
   )
 
-  const fetchFileContent = useCallback(
-    async (id: string, path: string) => {
-      if (pendingFetchesRef.current.has(path)) {
-        return
-      }
-      pendingFetchesRef.current.add(path)
-      try {
-        const encodedPath = path
-          .split("/")
-          .map((segment) => encodeURIComponent(segment))
-          .join("/")
-        const headers = await getAuthHeaders()
-        const response = await fetch(`${apiBaseUrl}/projects/${id}/files/${encodedPath}`, {
-          cache: "no-store",
-          credentials: "include",
-          headers,
-        })
-        if (!response.ok) {
-          throw new Error(`status ${response.status}`)
-        }
-        const content = await response.text()
-        setFileContents((prev) => ({ ...prev, [path]: content }))
-      } catch (error) {
-        addLog(
-          "error",
-          `Failed to fetch file ${path}: ${error instanceof Error ? error.message : String(error)}`,
-        )
-      } finally {
-        pendingFetchesRef.current.delete(path)
-      }
+  // File service handlers
+  const fileServiceHandlers: FileServiceHandlers = useMemo(
+    () => ({
+      addLog,
+      setFileOrder,
+      setFileContents,
+      getFileContents: () => fileContentsRef.current,
+      getApiBaseUrl: () => apiBaseUrl,
+      getAuthHeaders: async () => getAuthHeaders(session),
+    }),
+    [addLog, apiBaseUrl, session],
+  )
+
+  const fetchProjectFilesHandler = useCallback(
+    async () => {
+      if (!projectId) return
+      await fetchProjectFiles(
+        projectId,
+        fileServiceHandlers,
+        metadataRef,
+        fileContentsRef,
+        pendingFetchesRef,
+        filesErrorLoggedRef,
+      )
     },
-    [addLog, apiBaseUrl, getAuthHeaders],
+    [projectId, fileServiceHandlers],
   )
 
-  const fetchProjectFiles = useCallback(
-    async (id: string) => {
-      try {
-        const headers = await getAuthHeaders()
-        const response = await fetch(`${apiBaseUrl}/projects/${id}/files`, {
-          cache: "no-store",
-          credentials: "include",
-          headers,
-        })
-        if (!response.ok) {
-          if (!filesErrorLoggedRef.current) {
-            addLog("error", `Failed to fetch files (status ${response.status})`)
-            filesErrorLoggedRef.current = true
-          }
-          return
-        }
-        filesErrorLoggedRef.current = false
-
-        const data = await response.json()
-        const items: ApiProjectFileEntry[] = Array.isArray(data.files) ? data.files : []
-        const fileEntries = items.filter((entry): entry is { path: string; updated_at?: string | null } =>
-          !!entry && entry.is_dir === false && typeof entry.path === "string",
-        )
-        const uniquePaths = Array.from(new Set(fileEntries.map((entry) => entry.path))).sort()
-
-        setFileOrder((prev) => {
-          if (prev.length === uniquePaths.length && prev.every((value, index) => value === uniquePaths[index])) {
-            return prev
-          }
-          return uniquePaths
-        })
-
-        setFileContents((prev) => {
-          const next: Record<string, string> = {}
-          for (const path of uniquePaths) {
-            if (prev[path] !== undefined) {
-              next[path] = prev[path]
-            }
-          }
-          return next
-        })
-
-        const nextMetadata: Record<string, string> = {}
-        for (const entry of fileEntries) {
-          nextMetadata[entry.path] = typeof entry.updated_at === "string" ? entry.updated_at : ""
-        }
-        const previousMetadata = metadataRef.current
-        metadataRef.current = nextMetadata
-
-        for (const entry of fileEntries) {
-          const updatedAt = typeof entry.updated_at === "string" ? entry.updated_at : ""
-          const existingStamp = previousMetadata[entry.path] ?? ""
-          const hasContent = fileContentsRef.current[entry.path] !== undefined
-          if (!hasContent || existingStamp !== updatedAt) {
-            await fetchFileContent(id, entry.path)
-          }
-        }
-      } catch (error) {
-        if (!filesErrorLoggedRef.current) {
-          addLog(
-            "error",
-            `Failed to fetch files: ${error instanceof Error ? error.message : String(error)}`,
-          )
-          filesErrorLoggedRef.current = true
-        }
-      }
-    },
-    [addLog, apiBaseUrl, fetchFileContent, getAuthHeaders],
+  // Project service handlers
+  const projectServiceHandlers: ProjectServiceHandlers = useMemo(
+    () => ({
+      addLog,
+      setProjectStatus,
+      setActiveTab,
+      updatePreview,
+      getApiBaseUrl: () => apiBaseUrl,
+      getAuthHeaders: async () => getAuthHeaders(session),
+    }),
+    [addLog, apiBaseUrl, session, setActiveTab, updatePreview],
   )
 
-  const fetchProjectStatus = useCallback(
-    async (id: string) => {
-      try {
-        const headers = await getAuthHeaders()
-        const response = await fetch(`${apiBaseUrl}/projects/${id}/status`, {
-          cache: "no-store",
-          credentials: "include",
-          headers,
-        })
-        if (!response.ok) {
-          if (!statusErrorLoggedRef.current) {
-            addLog("error", `Failed to fetch status (status ${response.status})`)
-            statusErrorLoggedRef.current = true
-          }
-          return
-        }
-        statusErrorLoggedRef.current = false
+  // Polling management
+  useEffect(() => {
+    return () => {
+      stopPolling(pollingRef)
+      closeWebSocket()
+    }
+  }, [closeWebSocket])
 
-        const data = await response.json()
-        if (typeof data.status === "string") {
-          setProjectStatus(data.status)
-          if (data.status === "ready") {
-            setActiveTab("preview")
-          }
-        }
-        if (typeof data.preview_url === "string" && data.preview_url) {
-          updatePreview(data.preview_url)
-        }
-      } catch (error) {
-        if (!statusErrorLoggedRef.current) {
-          addLog(
-            "error",
-            `Failed to fetch status: ${error instanceof Error ? error.message : String(error)}`,
-          )
-          statusErrorLoggedRef.current = true
-        }
-      }
-    },
-    [addLog, apiBaseUrl, updatePreview, getAuthHeaders],
-  )
-
-  const pollProject = useCallback(
-    async (id: string) => {
-      await Promise.allSettled([fetchProjectStatus(id), fetchProjectFiles(id)])
-    },
-    [fetchProjectFiles, fetchProjectStatus],
-  )
-
-  const startPolling = useCallback(
+  const startPollingHandler = useCallback(
     (id: string) => {
-      pollProject(id).catch(() => {
-        // errors surfaced via logging inside helpers
-      })
-      pollingRef.current = window.setInterval(() => {
-        pollProject(id).catch(() => {
-          // errors surfaced via logging inside helpers
-        })
-      }, 3000)
+      startPolling(id, projectServiceHandlers, { fetchProjectFiles: fetchProjectFilesHandler }, statusErrorLoggedRef, pollingRef)
     },
-    [pollProject],
+    [projectServiceHandlers, fetchProjectFilesHandler],
   )
 
+  // Reset for new generation
   const resetForNewGeneration = useCallback(() => {
-    stopPolling()
+    stopPolling(pollingRef)
     closeWebSocket()
     metadataRef.current = {}
     fileContentsRef.current = {}
@@ -597,8 +287,9 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     setFileContents({})
     setSelectedFile(null)
     setPreviewUrl("")
-  }, [closeWebSocket, stopPolling])
+  }, [closeWebSocket])
 
+  // Generation trigger
   const triggerGeneration = useCallback(
     async (rawPrompt: string, options?: { clearPrompt?: boolean }) => {
       const trimmedPrompt = rawPrompt.trim()
@@ -607,11 +298,9 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         return
       }
 
-      lastPromptRef.current = trimmedPrompt
-
       resetForNewGeneration()
 
-      const assistantMessageId = beginConversationTurn(trimmedPrompt)
+      const assistantMessageId = beginTurn(trimmedPrompt)
       if (options?.clearPrompt ?? true) {
         setPromptState("")
       }
@@ -622,7 +311,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       addLog("info", `Prompt: ${trimmedPrompt}`)
 
       try {
-        const headers = await getAuthHeaders()
+        const headers = await getAuthHeaders(session)
         const response = await fetch(`${apiBaseUrl}/generate`, {
           method: "POST",
           credentials: "include",
@@ -647,7 +336,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
             projectId: data.project_id,
           })
           startWebSocket(data.project_id)
-          startPolling(data.project_id)
+          startPollingHandler(data.project_id)
           setActiveTab("code")
           return
         }
@@ -703,10 +392,10 @@ export function useGenerationSession(): UseGenerationSessionReturn {
     [
       addLog,
       apiBaseUrl,
-      beginConversationTurn,
-      getAuthHeaders,
+      beginTurn,
       resetForNewGeneration,
-      startPolling,
+      session,
+      startPollingHandler,
       startWebSocket,
       updateAssistantMessage,
       updatePreview,
@@ -722,13 +411,8 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       return
     }
     addLog("info", "Refreshing preview...")
-    try {
-      const url = new URL(previewUrl)
-      url.searchParams.set("t", Date.now().toString())
-      setPreviewUrl(url.toString())
-    } catch {
-      setPreviewUrl(`${previewUrl}?t=${Date.now()}`)
-    }
+    const refreshed = refreshPreviewUrl(previewUrl)
+    setPreviewUrl(refreshed)
     addLog("success", "Preview refreshed")
   }, [addLog, previewUrl])
 
