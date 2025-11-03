@@ -22,24 +22,41 @@ export const Message = ({ className, from, ...props }: MessageProps) => (
   />
 );
 
-export type MessageContentProps = HTMLAttributes<HTMLDivElement>;
+export type MessageContentProps = HTMLAttributes<HTMLDivElement> & {
+  variant?: 'default' | 'flat';
+};
 
 export const MessageContent = ({
   children,
   className,
+  variant = 'default',
   ...props
-}: MessageContentProps) => (
-  <div
-    className={cn(
-      'flex flex-col gap-2 overflow-hidden rounded-lg px-4 py-3 text-foreground text-sm',
-      'group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground',
-      className
-    )}
-    {...props}
-  >
-    <div className="is-user:dark">{children}</div>
-  </div>
-);
+}: MessageContentProps) => {
+  const isFlat = variant === 'flat';
+  
+  return (
+    <div
+      className={cn(
+        'flex flex-col gap-2 text-foreground text-sm',
+        // Default variant styling
+        !isFlat && [
+          'overflow-hidden rounded-lg py-3',
+          'px-4 group-[.is-assistant]:pl-2',
+          'group-[.is-user]:bg-primary group-[.is-user]:text-primary-foreground',
+        ],
+        // Flat variant styling
+        isFlat && [
+          'group-[.is-user]:bg-secondary/50 group-[.is-user]:border group-[.is-user]:border-border/50 group-[.is-user]:rounded-lg group-[.is-user]:px-4 group-[.is-user]:py-3',
+          'group-[.is-assistant]:w-full group-[.is-assistant]:p-0',
+        ],
+        className
+      )}
+      {...props}
+    >
+      <div className="is-user:dark">{children}</div>
+    </div>
+  );
+};
 
 export type MessageAvatarProps = ComponentProps<typeof Avatar> & {
   src: string;

@@ -101,7 +101,7 @@ export function ConversationPanel({
                       isUser ? "max-w-[80%] items-end" : "w-full items-start",
                     )}
                   >
-                    <MessageContent>
+                    <MessageContent variant="flat">
                       <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
                     </MessageContent>
                     {!isUser && message.status !== "complete" && (
