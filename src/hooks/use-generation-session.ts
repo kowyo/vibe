@@ -378,7 +378,6 @@ export function useGenerationSession(): UseGenerationSessionReturn {
           }
           addLog("success", `Generation request accepted (project ${data.project_id})`)
           updateAssistantMessage(assistantMessageId, {
-            content: `Project ${data.project_id} accepted. I will update you as soon as it is ready.`,
             status: "pending",
             projectId: data.project_id,
           })
