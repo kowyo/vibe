@@ -156,11 +156,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       onStatusUpdated: (status) => {
         setProjectStatus(status)
         addLog(status === "ready" ? "success" : "info", `Status changed to ${status}`)
-        const statusMessage = status === "ready"
-          ? "Your app is ready. Open the preview to explore the result."
-          : `Status updated: ${status}`
-        updateActiveAssistantMessage((msg) => ({
-          content: msg.content ? `${msg.content}\n\n${statusMessage}`.trim() : statusMessage,
+        updateActiveAssistantMessage(() => ({
           status: status === "failed" ? "error" : status === "ready" ? "complete" : "pending",
         }))
       },
@@ -170,10 +166,6 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       onPreviewReady: (preview) => {
         updatePreview(preview)
         addLog("success", "Preview ready")
-        updateActiveAssistantMessage((msg) => ({
-          content: msg.content ? `${msg.content}\n\nPreview is ready in the right panel.` : "Preview is ready in the right panel.",
-          status: "complete",
-        }))
       },
       onError: (message) => {
         addLog("error", message)
@@ -183,11 +175,8 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         }))
         setProjectStatus("failed")
       },
-      onProjectCreated: (message) => {
-        addLog("info", message)
-        updateActiveAssistantMessage((msg) => ({
-          content: `${msg.content}\n${message}`.trim(),
-        }))
+      onProjectCreated: () => {
+        // No-op: suppress redundant "Project created" surface message
       },
       onAssistantMessage: (payload) => {
         const text = payload.text || ""
@@ -496,16 +485,16 @@ export function useGenerationSession(): UseGenerationSessionReturn {
           projectId: id,
         }
         
+        // Prepare an assistant placeholder to receive streaming/history updates
         const assistantMessage: ConversationMessage = {
           id: `load-assistant-${id}-${Date.now()}`,
           role: "assistant",
-          content: "Loading project files and status...",
+          content: "",
           status: "pending",
           createdAt: Date.now(),
           updatedAt: Date.now(),
           projectId: id,
         }
-        
         setMessages([userMessage, assistantMessage])
         activeAssistantMessageIdRef.current = assistantMessage.id
         
@@ -546,13 +535,6 @@ export function useGenerationSession(): UseGenerationSessionReturn {
         } else {
           setActiveTab("code")
         }
-        
-        updateAssistantMessage(assistantMessage.id, {
-          content: statusData.status === "ready" 
-            ? "Project loaded. You can view the code and preview."
-            : `Project loaded. Status: ${statusData.status}`,
-          status: statusData.status === "ready" ? "complete" : "pending",
-        })
         
         addLog("success", `Project ${id} loaded`)
       } catch (error) {
