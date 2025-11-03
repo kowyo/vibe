@@ -21,12 +21,12 @@ import {
   PromptInputToolbar,
   PromptInputSubmit,
 } from "@/components/ui/shadcn-io/ai/prompt-input"
+import { Message, MessageContent } from "@/components/ui/shadcn-io/ai/message"
 import {
   CheckCircle2,
   Info,
   Loader2,
   Sparkles,
-  UserRound,
   XCircle,
 } from "lucide-react"
 import { useSession, signIn } from "@/lib/auth-client"
@@ -90,9 +90,31 @@ export function ConversationPanel({
           </div>
         ) : (
           <div className="space-y-4">
-            {orderedMessages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
-            ))}
+            {orderedMessages.map((message) => {
+              const isUser = message.role === "user"
+
+              return (
+                <Message from={message.role} key={message.id}>
+                  <div
+                    className={cn(
+                      "flex max-w-[80%] flex-col gap-2",
+                      isUser ? "items-end" : "items-start",
+                    )}
+                  >
+                    <MessageContent>
+                      <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                    </MessageContent>
+                    {!isUser && message.status !== "complete" && (
+                      <Badge variant="outline" className="gap-2 text-[11px]">
+                        {message.status === "pending" && <Loader2 className="h-3 w-3 animate-spin" />}
+                        {message.status === "error" && <XCircle className="h-3 w-3" />}
+                        <span className="capitalize">{message.status}</span>
+                      </Badge>
+                    )}
+                  </div>
+                </Message>
+              )
+            })}
           </div>
         )}
       </ScrollArea>
@@ -165,44 +187,6 @@ export function ConversationPanel({
         </DialogContent>
       </Dialog>
     </Card>
-  )
-}
-
-function MessageBubble({ message }: { message: ConversationMessage }) {
-  const isUser = message.role === "user"
-  return (
-    <div className={cn("flex gap-3", isUser ? "justify-end" : "justify-start")}
-    >
-      {!isUser && (
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-          <Sparkles className="h-4 w-4" />
-        </div>
-      )}
-      <div className="max-w-[85%] space-y-2">
-        <div
-          className={cn(
-            "rounded-2xl px-4 py-3 text-sm shadow-sm",
-            isUser
-              ? "ml-auto bg-primary text-primary-foreground"
-              : "border border-border bg-background text-foreground",
-          )}
-        >
-          <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
-        </div>
-        {!isUser && message.status !== "complete" && (
-          <Badge variant="outline" className="gap-2 text-[11px]">
-            {message.status === "pending" && <Loader2 className="h-3 w-3 animate-spin" />}
-            {message.status === "error" && <XCircle className="h-3 w-3" />}
-            <span className="capitalize">{message.status}</span>
-          </Badge>
-        )}
-      </div>
-      {isUser && (
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <UserRound className="h-4 w-4" />
-        </div>
-      )}
-    </div>
   )
 }
 
