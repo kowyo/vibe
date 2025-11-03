@@ -34,7 +34,7 @@ export default function Home() {
     codeViewerLoading,
   } = useGenerationSession()
 
-  const [leftPanelSize, setLeftPanelSize] = useState(28)
+  const [leftPanelSize, setLeftPanelSize] = useState(20)
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -84,7 +84,7 @@ export default function Home() {
               className="flex h-full w-full min-w-0 overflow-x-hidden"
               onLayout={(sizes) => setLeftPanelSize(sizes[0])}
             >
-              <ResizablePanel defaultSize={28} minSize={25} maxSize={50} className="flex min-h-0 h-full min-w-0">
+              <ResizablePanel defaultSize={20} minSize={20} className="flex min-h-0 h-full min-w-0">
                 <div className="flex w-full flex-1 flex-col h-full min-w-0 overflow-hidden">
                   <ConversationPanel
                     messages={messages}
@@ -97,7 +97,7 @@ export default function Home() {
                 </div>
               </ResizablePanel>
               <ResizableHandle withHandle className="bg-transparent" />
-              <ResizablePanel defaultSize={72} minSize={40} className="flex min-h-0 h-full min-w-0">
+              <ResizablePanel defaultSize={80} minSize={20} className="flex min-h-0 h-full min-w-0">
                 <div className="flex w-full flex-1 flex-col h-full min-w-0 overflow-hidden">
                   <Card className="flex flex-1 flex-col overflow-hidden border-border/80 bg-card/80 shadow-sm h-full min-w-0">
                     {activeTab === 'code' && (
