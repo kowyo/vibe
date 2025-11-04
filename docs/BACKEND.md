@@ -239,6 +239,11 @@ The backend provides RESTful API endpoints and WebSocket connections for managin
   - **Messages**: JSON events for status changes, generation progress, file updates
   - **Auth**: Required (via query parameters or headers)
 
+#### Reverse proxy notes
+
+- When deployed behind Traefik (see `traefik-compose/dynamic/build.yml`), WebSocket upgrade is handled automatically for `/ws/*`.
+- A middleware exists to map `/api/ws/*` → `/ws/*` if needed; prefer `/ws/*` in client configuration.
+
 ### Response Models
 
 #### ProjectGenerateRequest

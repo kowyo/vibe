@@ -42,6 +42,13 @@ This document describes the design and organization of the frontend in this repo
 - Use standard fetch with explicit caching/revalidation options (`cache: 'no-store'` or `revalidate`) when calling from server components.
 - For streaming or long-running generation tasks, use WebSocket or Server-Sent Events (SSE). The backend contains a `ws` route for real-time sessions.
 
+### Production environment variables
+
+- `NEXT_PUBLIC_BACKEND_URL=https://<your-domain>/api`
+- `NEXT_PUBLIC_BACKEND_WS_URL=wss://<your-domain>/ws`
+
+The WebSocket endpoint should point to `/ws` (not `/api/ws`). Traefik supports `/api/ws` via a middleware in this repo, but `/ws` is the recommended value.
+
 ## Hooks
 
 - Custom hooks live in `src/hooks/`. They should follow the rules of hooks and be prefixed with `use`.
