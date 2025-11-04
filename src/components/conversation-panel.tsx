@@ -133,7 +133,7 @@ export function ConversationPanel({
         <ConversationScrollButton />
       </Conversation>
 
-      <footer className="border-t border-none p-1">
+      <footer className="border-t border-none p-2">
         <PromptInput onSubmit={handleSubmit}>
           <PromptInputTextarea
             value={prompt}
