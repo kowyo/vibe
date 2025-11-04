@@ -1,22 +1,22 @@
-"use client";
+"use client"
 
-import { useState } from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
+import { useState } from "react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card } from "@/components/ui/card"
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
-import { Code2, Eye } from "lucide-react";
-import Image from "next/image";
-import { CodeViewer } from "@/components/code-viewer";
-import { PreviewWindow } from "@/components/preview-window";
-import { useGenerationSession } from "@/hooks/use-generation-session";
-import { ConversationPanel } from "@/components/conversation-panel";
-import { ProjectsSidebar } from "@/components/projects-sidebar";
-import { AuthButton } from "@/components/auth-button";
+} from "@/components/ui/resizable"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { Code2, Eye } from "lucide-react"
+import Image from "next/image"
+import { CodeViewer } from "@/components/code-viewer"
+import { PreviewWindow } from "@/components/preview-window"
+import { useGenerationSession } from "@/hooks/use-generation-session"
+import { ConversationPanel } from "@/components/conversation-panel"
+import { ProjectsSidebar } from "@/components/projects-sidebar"
+import { AuthButton } from "@/components/auth-button"
 
 export default function Home() {
   const {
@@ -36,9 +36,9 @@ export default function Home() {
     loadProject,
     resetForNewChat,
     codeViewerLoading,
-  } = useGenerationSession();
+  } = useGenerationSession()
 
-  const [leftPanelSize, setLeftPanelSize] = useState(20);
+  const [leftPanelSize, setLeftPanelSize] = useState(20)
 
   return (
     <SidebarProvider defaultOpen={false}>
@@ -140,5 +140,5 @@ export default function Home() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  );
+  )
 }

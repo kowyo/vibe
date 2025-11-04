@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { useSession, signIn, signOut } from "@/lib/auth-client";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { useSession, signIn, signOut } from "@/lib/auth-client"
+import { Loader2 } from "lucide-react"
 
 function GoogleLogo() {
   return (
@@ -30,13 +30,13 @@ function GoogleLogo() {
         fill="#EA4335"
       />
     </svg>
-  );
+  )
 }
 
-export { GoogleLogo };
+export { GoogleLogo }
 
 export function AuthButton() {
-  const { data: session, isPending } = useSession();
+  const { data: session, isPending } = useSession()
 
   if (isPending) {
     return (
@@ -44,7 +44,7 @@ export function AuthButton() {
         <Loader2 className="h-4 w-4 animate-spin mr-2" />
         Loading...
       </Button>
-    );
+    )
   }
 
   if (session?.user) {
@@ -69,7 +69,7 @@ export function AuthButton() {
           Sign Out
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -85,5 +85,5 @@ export function AuthButton() {
       <GoogleLogo />
       Sign in with Google
     </Button>
-  );
+  )
 }

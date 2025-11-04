@@ -1,11 +1,11 @@
-"use client";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { RefreshCw, ExternalLink } from "lucide-react";
+import { Button } from "@/components/ui/button"
+import { RefreshCw, ExternalLink } from "lucide-react"
 
 interface PreviewWindowProps {
-  url: string;
-  onRefresh: () => void;
+  url: string
+  onRefresh: () => void
 }
 
 export function PreviewWindow({ url, onRefresh }: PreviewWindowProps) {
@@ -18,7 +18,7 @@ export function PreviewWindow({ url, onRefresh }: PreviewWindowProps) {
           <p className="mt-1 text-xs">Generate an app to see the preview</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -62,5 +62,5 @@ export function PreviewWindow({ url, onRefresh }: PreviewWindowProps) {
         />
       </div>
     </div>
-  );
+  )
 }

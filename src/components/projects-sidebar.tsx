@@ -1,8 +1,8 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import { useSession } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react"
+import { useSession } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 import {
   Sidebar,
   SidebarContent,
@@ -15,79 +15,77 @@ import {
   SidebarMenuItem,
   SidebarRail,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+} from "@/components/ui/sidebar"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   fetchUserProjects,
   type ProjectListItem,
-} from "@/hooks/generation/services/projects-list-service";
-import { Code2, FolderOpen, Loader2, SquarePen } from "lucide-react";
-import { cn } from "@/lib/utils";
+} from "@/hooks/generation/services/projects-list-service"
+import { Code2, FolderOpen, Loader2, SquarePen } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface ProjectsSidebarProps {
-  onProjectClick?: (projectId: string) => void | Promise<void>;
-  onNewChat?: () => void;
+  onProjectClick?: (projectId: string) => void | Promise<void>
+  onNewChat?: () => void
 }
 
 export function ProjectsSidebar({
   onProjectClick,
   onNewChat,
 }: ProjectsSidebarProps) {
-  const { data: session } = useSession();
-  const router = useRouter();
-  const [projects, setProjects] = useState<ProjectListItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: session } = useSession()
+  const router = useRouter()
+  const [projects, setProjects] = useState<ProjectListItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!session?.user) {
-      setLoading(false);
-      return;
+      setLoading(false)
+      return
     }
 
     const loadProjects = async () => {
       try {
-        setLoading(true);
-        setError(null);
-        const data = await fetchUserProjects(session);
-        setProjects(data);
+        setLoading(true)
+        setError(null)
+        const data = await fetchUserProjects(session)
+        setProjects(data)
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load projects",
-        );
-        console.error("Failed to fetch projects:", err);
+        setError(err instanceof Error ? err.message : "Failed to load projects")
+        console.error("Failed to fetch projects:", err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    void loadProjects();
-  }, [session]);
+    void loadProjects()
+  }, [session])
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const date = new Date(dateString)
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       year:
         date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
-    });
-  };
+    })
+  }
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ready":
-        return "bg-green-500/10 text-green-700 dark:text-green-300 border-green-200/40";
+        return "bg-green-500/10 text-green-700 dark:text-green-300 border-green-200/40"
       case "pending":
-        return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border-yellow-200/40";
+        return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 border-yellow-200/40"
       case "error":
-        return "bg-red-500/10 text-red-700 dark:text-red-300 border-red-200/40";
+        return "bg-red-500/10 text-red-700 dark:text-red-300 border-red-200/40"
       default:
-        return "bg-muted text-muted-foreground";
+        return "bg-muted text-muted-foreground"
     }
-  };
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -106,8 +104,8 @@ export function ProjectsSidebar({
             variant="ghost"
             className="w-full h-auto py-2 justify-start gap-2 px-0 group-data-[collapsible=icon]:w-auto group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:py-0 group-data-[collapsible=icon]:px-0"
             onClick={() => {
-              onNewChat?.();
-              router.push("/");
+              onNewChat?.()
+              router.push("/")
             }}
             title="New Chat"
           >
@@ -183,7 +181,7 @@ export function ProjectsSidebar({
                       className="h-auto py-2.5 px-2"
                       onClick={() => {
                         if (onProjectClick) {
-                          void onProjectClick(project.id);
+                          void onProjectClick(project.id)
                         }
                       }}
                     >
@@ -196,7 +194,7 @@ export function ProjectsSidebar({
                             variant="outline"
                             className={cn(
                               "shrink-0 text-[10px] px-1.5 py-0 h-4 border",
-                              getStatusColor(project.status),
+                              getStatusColor(project.status)
                             )}
                           >
                             {project.status === "pending" && (
@@ -219,5 +217,5 @@ export function ProjectsSidebar({
       </SidebarContent>
       <SidebarRail />
     </Sidebar>
-  );
+  )
 }

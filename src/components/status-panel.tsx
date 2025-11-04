@@ -1,12 +1,12 @@
-"use client";
+"use client"
 
-import { Card } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { CheckCircle2, XCircle, Info, Terminal } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { CheckCircle2, XCircle, Info, Terminal } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 interface StatusPanelProps {
-  logs: Array<{ type: "info" | "error" | "success"; message: string }>;
+  logs: Array<{ type: "info" | "error" | "success"; message: string }>
 }
 
 export function StatusPanel({ logs }: StatusPanelProps) {
@@ -33,7 +33,7 @@ export function StatusPanel({ logs }: StatusPanelProps) {
                       "bg-destructive/10 text-destructive",
                     log.type === "success" &&
                       "bg-green-500/10 text-green-700 dark:text-green-400",
-                    log.type === "info" && "bg-muted text-foreground",
+                    log.type === "info" && "bg-muted text-foreground"
                   )}
                 >
                   {log.type === "error" && (
@@ -55,5 +55,5 @@ export function StatusPanel({ logs }: StatusPanelProps) {
         </div>
       </ScrollArea>
     </Card>
-  );
+  )
 }

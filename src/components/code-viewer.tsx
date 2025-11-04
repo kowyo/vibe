@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { FileCode } from "lucide-react";
-import { FileTree } from "@/components/file-tree";
-import { CodeBlockContent } from "@/components/ui/shadcn-io/code-block";
-import { useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { FileCode } from "lucide-react"
+import { FileTree } from "@/components/file-tree"
+import { CodeBlockContent } from "@/components/ui/shadcn-io/code-block"
+import { useState } from "react"
 
 interface CodeViewerProps {
-  files: Array<{ path: string; content?: string }>;
-  selectedFile: string | null;
-  onSelect: (path: string) => void;
-  loading?: boolean;
+  files: Array<{ path: string; content?: string }>
+  selectedFile: string | null
+  onSelect: (path: string) => void
+  loading?: boolean
 }
 
 // Helper function to detect language from file extension
 function getLanguageFromPath(path: string): string {
-  const ext = path.split(".").pop()?.toLowerCase();
+  const ext = path.split(".").pop()?.toLowerCase()
   const languageMap: Record<string, string> = {
     ts: "typescript",
     tsx: "tsx",
@@ -43,8 +43,8 @@ function getLanguageFromPath(path: string): string {
     dart: "dart",
     vue: "vue",
     svelte: "svelte",
-  };
-  return languageMap[ext || ""] || "text";
+  }
+  return languageMap[ext || ""] || "text"
 }
 
 export function CodeViewer({
@@ -53,7 +53,7 @@ export function CodeViewer({
   onSelect,
   loading = false,
 }: CodeViewerProps) {
-  const currentFile = files.find((f) => f.path === selectedFile);
+  const currentFile = files.find((f) => f.path === selectedFile)
 
   if (files.length === 0) {
     return (
@@ -70,7 +70,7 @@ export function CodeViewer({
           )}
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -115,5 +115,5 @@ export function CodeViewer({
         </ScrollArea>
       </div>
     </div>
-  );
+  )
 }

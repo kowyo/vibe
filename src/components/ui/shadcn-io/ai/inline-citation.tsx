@@ -1,19 +1,19 @@
-"use client";
+"use client"
 
-import { Badge } from "@repo/shadcn-ui/components/ui/badge";
+import { Badge } from "@repo/shadcn-ui/components/ui/badge"
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   type CarouselApi,
-} from "@repo/shadcn-ui/components/ui/carousel";
+} from "@repo/shadcn-ui/components/ui/carousel"
 import {
   HoverCard,
   HoverCardContent,
   HoverCardTrigger,
-} from "@repo/shadcn-ui/components/ui/hover-card";
-import { cn } from "@repo/shadcn-ui/lib/utils";
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+} from "@repo/shadcn-ui/components/ui/hover-card"
+import { cn } from "@repo/shadcn-ui/lib/utils"
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react"
 import {
   type ComponentProps,
   useCallback,
@@ -22,18 +22,18 @@ import {
   useRef,
   createContext,
   useContext,
-} from "react";
+} from "react"
 
 // Context to share carousel API with child components
-const CarouselApiContext = createContext<CarouselApi | undefined>(undefined);
+const CarouselApiContext = createContext<CarouselApi | undefined>(undefined)
 
 // Hook to access carousel API from the nearest InlineCitationCarousel parent
 const useCarouselApi = () => {
-  const api = useContext(CarouselApiContext);
-  return api;
-};
+  const api = useContext(CarouselApiContext)
+  return api
+}
 
-export type InlineCitationProps = ComponentProps<"span">;
+export type InlineCitationProps = ComponentProps<"span">
 
 export const InlineCitation = ({
   className,
@@ -43,9 +43,9 @@ export const InlineCitation = ({
     className={cn("group inline items-center gap-1", className)}
     {...props}
   />
-);
+)
 
-export type InlineCitationTextProps = ComponentProps<"span">;
+export type InlineCitationTextProps = ComponentProps<"span">
 
 export const InlineCitationText = ({
   className,
@@ -55,17 +55,17 @@ export const InlineCitationText = ({
     className={cn("transition-colors group-hover:bg-accent", className)}
     {...props}
   />
-);
+)
 
-export type InlineCitationCardProps = ComponentProps<typeof HoverCard>;
+export type InlineCitationCardProps = ComponentProps<typeof HoverCard>
 
 export const InlineCitationCard = (props: InlineCitationCardProps) => (
   <HoverCard closeDelay={0} openDelay={0} {...props} />
-);
+)
 
 export type InlineCitationCardTriggerProps = ComponentProps<typeof Badge> & {
-  sources: string[];
-};
+  sources: string[]
+}
 
 export const InlineCitationCardTrigger = ({
   sources,
@@ -88,25 +88,25 @@ export const InlineCitationCardTrigger = ({
       )}
     </Badge>
   </HoverCardTrigger>
-);
+)
 
-export type InlineCitationCardBodyProps = ComponentProps<"div">;
+export type InlineCitationCardBodyProps = ComponentProps<"div">
 
 export const InlineCitationCardBody = ({
   className,
   ...props
 }: InlineCitationCardBodyProps) => (
   <HoverCardContent className={cn("relative w-80 p-0", className)} {...props} />
-);
+)
 
-export type InlineCitationCarouselProps = ComponentProps<typeof Carousel>;
+export type InlineCitationCarouselProps = ComponentProps<typeof Carousel>
 
 export const InlineCitationCarousel = ({
   className,
   children,
   ...props
 }: InlineCitationCarouselProps) => {
-  const [api, setApi] = useState<CarouselApi>();
+  const [api, setApi] = useState<CarouselApi>()
 
   return (
     <CarouselApiContext.Provider value={api}>
@@ -114,25 +114,25 @@ export const InlineCitationCarousel = ({
         {children}
       </Carousel>
     </CarouselApiContext.Provider>
-  );
-};
+  )
+}
 
-export type InlineCitationCarouselContentProps = ComponentProps<"div">;
+export type InlineCitationCarouselContentProps = ComponentProps<"div">
 
 export const InlineCitationCarouselContent = (
-  props: InlineCitationCarouselContentProps,
-) => <CarouselContent {...props} />;
+  props: InlineCitationCarouselContentProps
+) => <CarouselContent {...props} />
 
-export type InlineCitationCarouselItemProps = ComponentProps<"div">;
+export type InlineCitationCarouselItemProps = ComponentProps<"div">
 
 export const InlineCitationCarouselItem = ({
   className,
   ...props
 }: InlineCitationCarouselItemProps) => (
   <CarouselItem className={cn("w-full space-y-2 p-4", className)} {...props} />
-);
+)
 
-export type InlineCitationCarouselHeaderProps = ComponentProps<"div">;
+export type InlineCitationCarouselHeaderProps = ComponentProps<"div">
 
 export const InlineCitationCarouselHeader = ({
   className,
@@ -141,62 +141,62 @@ export const InlineCitationCarouselHeader = ({
   <div
     className={cn(
       "flex items-center justify-between gap-2 rounded-t-md bg-secondary p-2",
-      className,
+      className
     )}
     {...props}
   />
-);
+)
 
-export type InlineCitationCarouselIndexProps = ComponentProps<"div">;
+export type InlineCitationCarouselIndexProps = ComponentProps<"div">
 
 export const InlineCitationCarouselIndex = ({
   children,
   className,
   ...props
 }: InlineCitationCarouselIndexProps) => {
-  const api = useCarouselApi();
-  const [current, setCurrent] = useState(0);
-  const [count, setCount] = useState(0);
+  const api = useCarouselApi()
+  const [current, setCurrent] = useState(0)
+  const [count, setCount] = useState(0)
 
   useEffect(() => {
     if (!api) {
-      return;
+      return
     }
 
-    setCount(api.scrollSnapList().length);
-    setCurrent(api.selectedScrollSnap() + 1);
+    setCount(api.scrollSnapList().length)
+    setCurrent(api.selectedScrollSnap() + 1)
 
     api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
+      setCurrent(api.selectedScrollSnap() + 1)
+    })
+  }, [api])
 
   return (
     <div
       className={cn(
         "flex flex-1 items-center justify-end px-3 py-1 text-muted-foreground text-xs",
-        className,
+        className
       )}
       {...props}
     >
       {children ?? `${current}/${count}`}
     </div>
-  );
-};
+  )
+}
 
-export type InlineCitationCarouselPrevProps = ComponentProps<"button">;
+export type InlineCitationCarouselPrevProps = ComponentProps<"button">
 
 export const InlineCitationCarouselPrev = ({
   className,
   ...props
 }: InlineCitationCarouselPrevProps) => {
-  const api = useCarouselApi();
+  const api = useCarouselApi()
 
   const handleClick = useCallback(() => {
     if (api) {
-      api.scrollPrev();
+      api.scrollPrev()
     }
-  }, [api]);
+  }, [api])
 
   return (
     <button
@@ -208,22 +208,22 @@ export const InlineCitationCarouselPrev = ({
     >
       <ArrowLeftIcon className="size-4 text-muted-foreground" />
     </button>
-  );
-};
+  )
+}
 
-export type InlineCitationCarouselNextProps = ComponentProps<"button">;
+export type InlineCitationCarouselNextProps = ComponentProps<"button">
 
 export const InlineCitationCarouselNext = ({
   className,
   ...props
 }: InlineCitationCarouselNextProps) => {
-  const api = useCarouselApi();
+  const api = useCarouselApi()
 
   const handleClick = useCallback(() => {
     if (api) {
-      api.scrollNext();
+      api.scrollNext()
     }
-  }, [api]);
+  }, [api])
 
   return (
     <button
@@ -235,14 +235,14 @@ export const InlineCitationCarouselNext = ({
     >
       <ArrowRightIcon className="size-4 text-muted-foreground" />
     </button>
-  );
-};
+  )
+}
 
 export type InlineCitationSourceProps = ComponentProps<"div"> & {
-  title?: string;
-  url?: string;
-  description?: string;
-};
+  title?: string
+  url?: string
+  description?: string
+}
 
 export const InlineCitationSource = ({
   title,
@@ -266,9 +266,9 @@ export const InlineCitationSource = ({
     )}
     {children}
   </div>
-);
+)
 
-export type InlineCitationQuoteProps = ComponentProps<"blockquote">;
+export type InlineCitationQuoteProps = ComponentProps<"blockquote">
 
 export const InlineCitationQuote = ({
   children,
@@ -278,10 +278,10 @@ export const InlineCitationQuote = ({
   <blockquote
     className={cn(
       "border-muted border-l-2 pl-3 text-muted-foreground text-sm italic",
-      className,
+      className
     )}
     {...props}
   >
     {children}
   </blockquote>
-);
+)
