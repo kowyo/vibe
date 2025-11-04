@@ -2,9 +2,7 @@
 
 import { FormEvent, ChangeEvent, useMemo, useState } from "react"
 import { ConversationMessage, LogEntry } from "@/hooks/use-generation-session"
-import { cn } from "@/lib/utils"
 import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -80,7 +78,7 @@ export function ConversationPanel({
   }
 
   return (
-    <Card className="flex h-full min-h-[520px] flex-col overflow-hidden">
+    <Card className="flex h-full min-h-[520px] flex-col">
       <Conversation className="flex-1">
         <ConversationContent>
           {orderedMessages.length === 0 ? (
@@ -91,49 +89,15 @@ export function ConversationPanel({
             />
           ) : (
             <div className="space-y-2">
-              {orderedMessages.map((message) => {
-                const isUser = message.role === "user"
-
-                return (
-                  <Message from={message.role} key={message.id}>
-                    <div
-                      className={cn(
-                        "flex flex-col gap-2",
-                        isUser ? "max-w-[80%] items-end" : "w-full items-start"
-                      )}
-                    >
-                      {isUser ? (
-                        <MessageContent variant="flat">
-                          <p className="whitespace-pre-wrap leading-relaxed">
-                            {message.content}
-                          </p>
-                        </MessageContent>
-                      ) : (
-                        <MessageContent variant="flat">
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
-                            <Streamdown
-                              isAnimating={message.status === "pending"}
-                            >
-                              {message.content}
-                            </Streamdown>
-                          </div>
-                        </MessageContent>
-                      )}
-                      {!isUser && message.status !== "complete" && (
-                        <Badge variant="outline" className="gap-2 text-[11px]">
-                          {message.status === "pending" && (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          )}
-                          {message.status === "error" && (
-                            <XCircle className="h-3 w-3" />
-                          )}
-                          <span className="capitalize">{message.status}</span>
-                        </Badge>
-                      )}
-                    </div>
-                  </Message>
-                )
-              })}
+              {orderedMessages.map((message) => (
+                <Message from={message.role} key={message.id}>
+                  <MessageContent variant="flat">
+                    <Streamdown>
+                      {message.content}
+                    </Streamdown>
+                  </MessageContent>
+                </Message>
+              ))}
             </div>
           )}
         </ConversationContent>
