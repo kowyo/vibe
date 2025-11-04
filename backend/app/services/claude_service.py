@@ -140,9 +140,8 @@ class ClaudeService:
         base_intro = (
             "You are a software engineer. "
             "Always scaffold the template non-interactively with: "
-            "'pnpm dlx degit vitejs/vite/packages/create-vite/template-react <project-name>'. "
-            "After scaffolding, run `pnpm install` to install the dependencies. "
-            "Then run `pnpm run build` to build the project. "
+            "'pnpm create vite <project-name> --template react --no-rolldown --no-interactive'. "
+            "After scaffolding, run `pnpm i` to install the dependencies. "
             "Only modify the necessary code to fulfill the user's instructions. "
             "Run `pnpm run build` to build the project. Your task is complete if no error occurs. "
         )
