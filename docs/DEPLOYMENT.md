@@ -115,4 +115,29 @@ websocat wss://build.kowyo.com/ws/<projectId>
 - All REST endpoints are under `/api/*`. The WebSocket endpoint is `/ws/{projectId}`.
 - The Traefik dynamic config already contains a `strip-api-prefix` middleware so `/api/ws/*` also works if you must keep `/api` in all URLs.
 
+## Environment Variables Examples
 
+### Frontend
+
+```bash
+NEXT_PUBLIC_BETTER_AUTH_URL=https://example.com
+BETTER_AUTH_SECRET=<a secure random string>
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+NEXT_PUBLIC_BACKEND_URL=https://example.com/api
+NEXT_PUBLIC_BACKEND_WS_URL=wss://example.com/ws
+```
+
+### Backend
+
+```bash
+ANTHROPIC_API_KEY=
+ANTHROPIC_BASE_URL=
+# ANTHROPIC_DEFAULT_HAIKU_MODEL=kimi-k2-instruct
+# ANTHROPIC_DEFAULT_OPUS_MODEL=kimi-k2-instruct
+# ANTHROPIC_DEFAULT_SONNET_MODEL=kimi-k2-instruct
+# ANTHROPIC_MODEL=kimi-k2-instruct
+# CLAUDE_CODE_SUBAGENT_MODEL=kimi-k2-instruct
+CLAUDE_APP_BETTER_AUTH_SECRET=<the same as BETTER_AUTH_SECRET>
+CLAUDE_APP_BETTER_AUTH_URL=https://example.com
+```
