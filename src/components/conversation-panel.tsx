@@ -92,9 +92,7 @@ export function ConversationPanel({
               {orderedMessages.map((message) => (
                 <Message from={message.role} key={message.id}>
                   <MessageContent variant="flat">
-                    <Streamdown>
-                      {message.content}
-                    </Streamdown>
+                    <Streamdown>{message.content}</Streamdown>
                   </MessageContent>
                 </Message>
               ))}
@@ -115,8 +113,7 @@ export function ConversationPanel({
           placeholder="What do you want to build today?"
         />
         <PromptInputFooter>
-          <PromptInputTools>
-          </PromptInputTools>
+          <PromptInputTools></PromptInputTools>
           <PromptInputSubmit disabled={disableSend} status={"ready"} />
         </PromptInputFooter>
       </PromptInput>
