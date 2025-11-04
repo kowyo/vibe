@@ -26,7 +26,7 @@ import {
   ConversationEmptyState,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation"
-import { Loader2, Sparkles, XCircle } from "lucide-react"
+import { Sparkles } from "lucide-react"
 import { useSession, signIn } from "@/lib/auth-client"
 import { GoogleLogo } from "@/components/auth-button"
 import { Streamdown } from "streamdown"
