@@ -52,7 +52,7 @@ export default function Home() {
           <header className="sticky top-0 z-20 bg-card/95 backdrop-blur min-w-0 w-full">
             <div className="flex h-12 w-full items-center min-w-0">
               <div
-                className="flex items-center gap-3 px-6"
+                className="flex items-center gap-3 px-4"
                 style={{ width: `${leftPanelSize}%` }}
               >
                 <Image
