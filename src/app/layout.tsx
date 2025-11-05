@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <SidebarProvider defaultOpen={true}>
+        <SidebarProvider defaultOpen={false}>
           <ProjectsSidebar />
           <SidebarInset>
             {children}
