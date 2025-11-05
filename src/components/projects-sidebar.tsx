@@ -18,12 +18,10 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { fetchUserProjects, type ProjectListItem } from "@/hooks/generation/services/projects-list-service"
 import { FolderOpen } from "lucide-react"
+import { useProjectContext } from "@/contexts/project-context"
 
-interface ProjectsSidebarProps {
-  onProjectClick?: (projectId: string) => void | Promise<void>
-}
-
-export function ProjectsSidebar({ onProjectClick }: ProjectsSidebarProps) {
+export function ProjectsSidebar() {
+  const { loadProject } = useProjectContext()
   const { data: session } = useSession()
   const [projects, setProjects] = useState<ProjectListItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -94,7 +92,7 @@ export function ProjectsSidebar({ onProjectClick }: ProjectsSidebarProps) {
               <SidebarMenu>
                 {projects.map((project) => (
                   <SidebarMenuItem key={project.id}>
-                    <SidebarMenuButton asChild onClick={() => onProjectClick?.(project.id)}>
+                    <SidebarMenuButton onClick={() => loadProject(project.id)}>
                       <span className="truncate">{project.prompt}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

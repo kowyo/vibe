@@ -12,7 +12,7 @@ import { Code2, Eye } from "lucide-react"
 import Image from "next/image"
 import { CodeViewer } from "@/components/code-viewer"
 import { PreviewWindow } from "@/components/preview-window"
-import { useGenerationSession } from "@/hooks/use-generation-session"
+import { useProjectContext } from "@/contexts/project-context"
 import { ConversationPanel } from "@/components/conversation-panel"
 import { AuthButton } from "@/components/auth-button"
 
@@ -34,7 +34,7 @@ export default function Home() {
     loadProject,
     resetForNewChat,
     codeViewerLoading,
-  } = useGenerationSession()
+  } = useProjectContext()
 
   const [leftPanelSize, setLeftPanelSize] = useState(20)
 

@@ -2,8 +2,7 @@ import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "../styles/globals.css"
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { ProjectsSidebar } from "@/components/projects-sidebar"
+import { AppShell } from "@/components/app-shell"
 
 const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
@@ -23,12 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`font-sans antialiased`}>
-        <SidebarProvider defaultOpen={false}>
-          <ProjectsSidebar />
-          <SidebarInset>
-            {children}
-          </SidebarInset>
-        </SidebarProvider>
+        <AppShell>{children}</AppShell>
         <Analytics />
       </body>
     </html>
