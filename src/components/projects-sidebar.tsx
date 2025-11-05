@@ -17,11 +17,11 @@ import {
 } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { fetchUserProjects, type ProjectListItem } from "@/hooks/generation/services/projects-list-service"
-import { FolderOpen } from "lucide-react"
+import { FolderOpen, SquarePen } from "lucide-react"
 import { useProjectContext } from "@/contexts/project-context"
 
 export function ProjectsSidebar() {
-  const { loadProject } = useProjectContext()
+  const { loadProject, resetForNewChat } = useProjectContext()
   const { data: session } = useSession()
   const [projects, setProjects] = useState<ProjectListItem[]>([])
   const [loading, setLoading] = useState(true)
@@ -60,6 +60,14 @@ export function ProjectsSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarTrigger />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={resetForNewChat}>
+              <SquarePen />
+              <span>New chat</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="group-data-[collapsible=icon]:hidden">
         <SidebarGroup>
