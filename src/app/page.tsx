@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
@@ -36,8 +36,25 @@ export default function Home() {
     codeViewerLoading,
   } = useProjectContext()
 
-  const [leftPanelSize, setLeftPanelSize] = useState(20)
+  const [leftPanelWidth, setLeftPanelWidth] = useState(0)
+  const leftPanelRef = useRef<HTMLDivElement>(null)
   const { data: session } = useSession()
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (leftPanelRef.current) {
+        setLeftPanelWidth(leftPanelRef.current.offsetWidth)
+      }
+    }
+
+    updateWidth()
+    const resizeObserver = new ResizeObserver(updateWidth)
+    if (leftPanelRef.current) {
+      resizeObserver.observe(leftPanelRef.current)
+    }
+
+    return () => resizeObserver.disconnect()
+  }, [])
 
   return (
     <div className="flex h-screen flex-col bg-background min-w-0 overflow-x-hidden">
@@ -46,7 +63,7 @@ export default function Home() {
         <div className="flex h-12 w-full items-center min-w-0">
           <div
             className="flex items-center gap-3 px-2"
-            style={{ width: `${leftPanelSize}%` }}
+            style={{ width: leftPanelWidth > 0 ? `${leftPanelWidth}px` : '20%' }}
           >
             <Image src="/mgx-logo.png" alt="MGX Logo" width={24} height={24} />
             <div>
@@ -86,14 +103,13 @@ export default function Home() {
         <ResizablePanelGroup
           direction="horizontal"
           className="flex h-full w-full min-w-0 overflow-x-hidden"
-          onLayout={(sizes) => setLeftPanelSize(sizes[0])}
         >
           <ResizablePanel
             defaultSize={20}
             minSize={20}
-            className="flex min-h-0 h-full min-w-0"
+            className="flex min-h-0 h-full min-w-[300px]"
           >
-            <div className="flex w-full flex-1 flex-col h-full min-w-0 overflow-hidden">
+            <div ref={leftPanelRef} className="flex w-full flex-1 flex-col h-full min-w-0 overflow-hidden">
               <ConversationPanel
                 messages={messages}
                 prompt={prompt}
