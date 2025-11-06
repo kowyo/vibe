@@ -7,7 +7,13 @@ export default function LoginPage() {
       <div className="flex w-full max-w-sm flex-col gap-6">
         <a href="#" className="flex items-center gap-2 self-center font-medium">
           <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <Image src="/mgx-logo.png" alt="MetaGPT X Logo" width={24} height={24} className="rounded-sm" />
+            <Image
+              src="/mgx-logo.png"
+              alt="MetaGPT X Logo"
+              width={24}
+              height={24}
+              className="rounded-sm"
+            />
           </div>
           MetaGPT X
         </a>
