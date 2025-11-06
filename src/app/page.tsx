@@ -45,7 +45,7 @@ export default function Home() {
       <header className="bg-card/95 backdrop-blur min-w-0">
         <div className="flex h-12 w-full items-center min-w-0">
           <div
-            className="flex items-center gap-3 px-4"
+            className="flex items-center gap-3 px-2"
             style={{ width: `${leftPanelSize}%` }}
           >
             <Image src="/mgx-logo.png" alt="MGX Logo" width={24} height={24} />
@@ -68,7 +68,7 @@ export default function Home() {
                 </TabsList>
               </Tabs>
             </div>
-            <div className="mr-4">
+            <div className="mr-2">
               {session?.user ? (
                 <UserMenu />
               ) : (
@@ -107,7 +107,7 @@ export default function Home() {
           <ResizablePanel
             defaultSize={80}
             minSize={20}
-            className="flex min-h-0 w min-w-0"
+            className="flex min-h-0 w min-w-0 pb-2 pr-2"
           >
             <div className="flex w-full flex-1 flex-col h-full min-w-0 overflow-hidden">
               <Card className="flex flex-1 flex-col overflow-hidden border-border/80 bg-card/80 shadow-sm h-full min-w-0">
