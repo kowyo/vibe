@@ -1,6 +1,5 @@
 "use client"
 
-import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSession, signOut } from "@/lib/auth-client"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
@@ -15,17 +14,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 export function UserMenu() {
-  const [hasMounted, setHasMounted] = useState(false)
   const { data: session } = useSession()
   const router = useRouter()
-
-  useEffect(() => {
-    setHasMounted(true)
-  }, [])
-
-  if (!hasMounted) {
-    return null
-  }
 
   if (!session?.user) {
     return null
