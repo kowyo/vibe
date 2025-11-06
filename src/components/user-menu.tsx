@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { useSession, signOut } from "@/lib/auth-client"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +42,10 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none">
           <Avatar>
-            <AvatarImage src={user.image ?? undefined} />
+            <AvatarImage
+              src={user.image ?? undefined}
+              referrerPolicy="no-referrer"
+            />
           </Avatar>
         </button>
       </DropdownMenuTrigger>
