@@ -73,7 +73,7 @@ export default function Home() {
                 <UserMenu />
               ) : (
                 <Button asChild>
-                  <Link href="/login">Login</Link>
+                  <Link href="/login">Log in</Link>
                 </Button>
               )}
             </div>
