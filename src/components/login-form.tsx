@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -19,18 +18,15 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const router = useRouter()
-  const [isLoading, setIsLoading] = useState(false)
 
   const handleLogin = async () => {
     try {
-      setIsLoading(true)
       await signIn.social({
         provider: "google",
       })
       router.push("/")
     } catch (error) {
       console.error("Login error:", error)
-      setIsLoading(false)
     }
   }
 
