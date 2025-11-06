@@ -14,7 +14,6 @@ import { CodeViewer } from "@/components/code-viewer"
 import { PreviewWindow } from "@/components/preview-window"
 import { useProjectContext } from "@/contexts/project-context"
 import { ConversationPanel } from "@/components/conversation-panel"
-import { AuthButton } from "@/components/auth-button"
 
 export default function Home() {
   const {
@@ -65,9 +64,6 @@ export default function Home() {
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
-            </div>
-            <div className="shrink-0 pr-2">
-              <AuthButton />
             </div>
           </div>
         </div>
