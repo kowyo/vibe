@@ -29,11 +29,6 @@ export function ProjectsSidebar() {
   const [projects, setProjects] = useState<ProjectListItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [hasMounted, setHasMounted] = useState(false)
-
-  useEffect(() => {
-    setHasMounted(true)
-  }, [])
 
   useEffect(() => {
     if (!session?.user) {
@@ -56,8 +51,6 @@ export function ProjectsSidebar() {
 
     void load()
   }, [session])
-
-  if (!hasMounted) return null
 
   return (
     <Sidebar collapsible="icon">

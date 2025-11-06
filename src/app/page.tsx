@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
 import {
@@ -10,11 +11,13 @@ import {
 } from "@/components/ui/resizable"
 import { Code2, Eye } from "lucide-react"
 import Image from "next/image"
+import { Button } from "@/components/ui/button"
 import { CodeViewer } from "@/components/code-viewer"
 import { PreviewWindow } from "@/components/preview-window"
 import { useProjectContext } from "@/contexts/project-context"
 import { ConversationPanel } from "@/components/conversation-panel"
-import { AuthButton } from "@/components/auth-button"
+import { UserMenu } from "@/components/user-menu"
+import { useSession } from "@/lib/auth-client"
 
 export default function Home() {
   const {
@@ -36,6 +39,7 @@ export default function Home() {
   } = useProjectContext()
 
   const [leftPanelSize, setLeftPanelSize] = useState(20)
+  const { data: session } = useSession()
 
   return (
     <div className="flex h-screen flex-col bg-background min-w-0 overflow-x-hidden">
@@ -66,8 +70,14 @@ export default function Home() {
                 </TabsList>
               </Tabs>
             </div>
-            <div className="shrink-0 pr-2">
-              <AuthButton />
+            <div className="mr-4">
+              {session?.user ? (
+                <UserMenu />
+              ) : (
+                <Button asChild>
+                  <Link href="/login">Login</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
