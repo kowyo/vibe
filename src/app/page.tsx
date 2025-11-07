@@ -57,7 +57,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="flex flex-col bg-background h-dvh">
+    <div className="flex flex-col bg-background h-screen">
       {/* Header */}
       <header className="bg-card/95 backdrop-blur">
         <div className="flex h-12 w-full items-center">
