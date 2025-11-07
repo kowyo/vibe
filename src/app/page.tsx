@@ -10,8 +10,8 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable"
 import { Code2, Eye } from "lucide-react"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { MetaGPTLogo } from "@/components/metagpt-logo"
 import { CodeViewer } from "@/components/code-viewer"
 import { PreviewWindow } from "@/components/preview-window"
 import { useProjectContext } from "@/contexts/project-context"
@@ -62,12 +62,12 @@ export default function Home() {
       <header className="bg-card/95 backdrop-blur">
         <div className="flex h-12 w-full items-center">
           <div
-            className="flex items-center gap-3 px-2"
+            className="flex items-center gap-0.5 px-2"
             style={{
               width: leftPanelWidth > 0 ? `${leftPanelWidth}px` : "20%",
             }}
           >
-            <Image src="/mgx-logo.png" alt="MGX Logo" width={24} height={24} />
+            <MetaGPTLogo className="size-6" />
             <div>
               <p className="text-sm font-semibold text-foreground">MGX</p>
             </div>

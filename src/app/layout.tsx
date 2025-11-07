@@ -10,7 +10,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] })
 export const metadata: Metadata = {
   title: "MetaGPT X",
   icons: {
-    icon: "/mgx-logo.png",
+    icon: "/metagpt-favicon.svg",
   },
 }
 
