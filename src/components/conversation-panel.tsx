@@ -59,7 +59,7 @@ export function ConversationPanel({
   }
 
   return (
-    <div className="flex h-full min-h-[520px] flex-col">
+    <div className="flex h-full flex-col">
       <Conversation className="flex-1">
         <ConversationContent>
           {orderedMessages.length === 0 ? (
