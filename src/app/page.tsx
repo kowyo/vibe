@@ -100,19 +100,13 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-1 min-h-0">
-        <ResizablePanelGroup
-          direction="horizontal"
-          className="flex w-full"
-        >
+        <ResizablePanelGroup direction="horizontal" className="flex w-full">
           <ResizablePanel
             defaultSize={20}
             minSize={20}
             className="flex min-w-[300px]"
           >
-            <div
-              ref={leftPanelRef}
-              className="flex w-full flex-1 flex-col"
-            >
+            <div ref={leftPanelRef} className="flex w-full flex-1 flex-col">
               <ConversationPanel
                 messages={messages}
                 prompt={prompt}
