@@ -57,7 +57,7 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="flex h-screen flex-col bg-background">
+    <div className="flex flex-col bg-background h-dvh">
       {/* Header */}
       <header className="bg-card/95 backdrop-blur">
         <div className="flex h-12 w-full items-center">
@@ -102,16 +102,16 @@ export default function Home() {
       <main className="flex-1">
         <ResizablePanelGroup
           direction="horizontal"
-          className="flex h-full w-full"
+          className="flex w-full"
         >
           <ResizablePanel
             defaultSize={20}
             minSize={20}
-            className="flex min-h-0 h-full min-w-[280px]"
+            className="flex min-w-[300px]"
           >
             <div
               ref={leftPanelRef}
-              className="flex w-full flex-1 flex-col h-full"
+              className="flex w-full flex-1 flex-col"
             >
               <ConversationPanel
                 messages={messages}
@@ -126,10 +126,10 @@ export default function Home() {
           <ResizablePanel
             defaultSize={80}
             minSize={20}
-            className="flex min-h-0 pb-2 pr-2"
+            className="flex pb-2 pr-2"
           >
-            <div className="flex w-full flex-1 flex-col h-full">
-              <Card className="flex flex-1 flex-col border-border/80 bg-card/80 shadow-sm h-full">
+            <div className="flex w-full flex-1 flex-col ">
+              <Card className="flex flex-1 flex-col border-border/80 bg-card/80 shadow-sm ">
                 {activeTab === "code" && (
                   <CodeViewer
                     files={filesForViewer}
