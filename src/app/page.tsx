@@ -67,7 +67,7 @@ export default function Home() {
               width: leftPanelWidth > 0 ? `${leftPanelWidth}px` : "20%",
             }}
           >
-            <MetaGPTLogo/>
+            <MetaGPTLogo />
             <div>
               <p className="text-sm font-semibold text-foreground">MGX</p>
             </div>
