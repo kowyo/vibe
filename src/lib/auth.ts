@@ -9,11 +9,14 @@ export const auth = betterAuth({
   emailAndPassword: { enabled: false },
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID || "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      clientId: process.env.GOOGLE_CLIENT_ID as string,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+    },
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID as string,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
     },
   },
-  secret:
-    process.env.BETTER_AUTH_SECRET || "your-secret-key-change-in-production",
+  secret: process.env.BETTER_AUTH_SECRET,
   plugins: [jwt()],
 })
