@@ -11,10 +11,6 @@ export const authClient = createAuthClient({
 
 export const { signIn, signOut, signUp, useSession } = authClient
 
-/**
- * Type for the session object returned by useSession hook.
- * This matches the structure returned by better-auth's useSession.
- */
 export type SessionData =
   | {
       session?: {
@@ -33,35 +29,11 @@ export type SessionData =
   | null
   | undefined
 
-/**
- * Retrieves a JWT token for authenticated API requests.
- *
- * This is the recommended way to get JWT tokens with better-auth.
- * The token is fetched via the /api/auth/token endpoint, which
- * requires an active session.
- *
- * @param session - Optional session object. If not provided, checks for active session internally.
- * @returns Promise that resolves to the JWT token string, or undefined if:
- *   - No session is active
- *   - Token retrieval fails
- *   - Token endpoint returns an error
- *
- * @example
- * ```ts
- * const { data: session } = useSession();
- * const token = await getJWTToken(session);
- * if (token) {
- *   headers['Authorization'] = `Bearer ${token}`;
- * }
- * ```
- */
-// Lightweight client-side cache and backoff to avoid hammering /api/auth/token
 let cachedToken: string | undefined
 let cachedAtMs = 0
 let inflightTokenPromise: Promise<string | undefined> | null = null
 let cooldownUntilMs = 0
 
-// How long to keep a token before re-fetching (conservative short TTL)
 const TOKEN_TTL_MS = 30_000 // 30s
 const COOL_DOWN_MS_DEFAULT = 30_000 // 30s after 429
 
@@ -87,11 +59,11 @@ export async function getJWTToken(
 
   inflightTokenPromise = (async () => {
     try {
-      const { data, error, response } = await authClient.token()
+      const { data, error } = await authClient.token()
 
       if (error) {
         // If server is rate limiting, enter cooldown but return last known token if available
-        const status = (error as any)?.status ?? response?.status
+        const status = (error as any)?.status
         if (status === 429) {
           cooldownUntilMs = Date.now() + COOL_DOWN_MS_DEFAULT
           return cachedToken // may be undefined
@@ -116,15 +88,4 @@ export async function getJWTToken(
   })()
 
   return inflightTokenPromise
-}
-
-/**
- * @deprecated Use getJWTToken() instead. This function is kept for backward compatibility
- * but may not reliably extract tokens from the session object structure.
- *
- * The session object from better-auth does not reliably include a token property,
- * and JWT tokens should be fetched via the token() API method instead.
- */
-export function getSessionToken(session: SessionData): string | undefined {
-  return session?.session?.token
 }
