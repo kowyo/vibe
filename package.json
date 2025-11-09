@@ -51,6 +51,7 @@
     "cmdk": "1.0.4",
     "date-fns": "4.1.0",
     "embla-carousel-react": "8.5.1",
+    "geist": "^1.5.1",
     "harden-react-markdown": "^1.1.5",
     "input-otp": "1.4.1",
     "katex": "^0.16.25",
