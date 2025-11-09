@@ -27,15 +27,7 @@ def build_claude_options(project_root: Path, allowed_commands: list[str]) -> Cla
     """
     print(f"Project root for Claude Agent: {project_root}")
     return ClaudeAgentOptions(
-        model="claude-haiku-4-5",
         allowed_tools=["Read", "Write", "Bash"],
         permission_mode="acceptEdits",
         cwd=str(project_root),
-        env={
-            "ANTHROPIC_DEFAULT_HAIKU_MODEL": "claude-haiku-4-5",
-            "ANTHROPIC_DEFAULT_OPUS_MODEL": "claude-haiku-4-5",
-            "ANTHROPIC_DEFAULT_SONNET_MODEL": "claude-haiku-4-5",
-            "ANTHROPIC_MODEL": "claude-haiku-4-5",
-            "CLAUDE_CODE_SUBAGENT_MODEL": "claude-haiku-4-5",
-        },
     )
