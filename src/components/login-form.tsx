@@ -55,7 +55,7 @@ export function LoginForm({
                     }}
                   >
                     {icon}
-                    <span>Sign with {name}</span>
+                    <span>Continue with {name}</span>
                   </Button>
                 </Field>
               ))}
