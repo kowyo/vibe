@@ -8,10 +8,9 @@ RUN apk add --no-cache libc6-compat && \
 WORKDIR /app
 
 FROM base AS builder
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY . .
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
     pnpm install --frozen-lockfile
-COPY . .
 RUN npx @better-auth/cli migrate --yes
 RUN --mount=type=cache,id=nextjs,target=/app/.next/cache \
     pnpm run build
