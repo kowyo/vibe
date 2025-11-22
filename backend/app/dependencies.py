@@ -166,7 +166,7 @@ def get_task_service(connection: HTTPConnection) -> TaskService:
 
 
 def get_build_service() -> BuildService:
-    return BuildService(settings.allowed_commands)
+    return BuildService()
 
 
 def get_preview_service() -> PreviewService:
@@ -174,7 +174,7 @@ def get_preview_service() -> PreviewService:
 
 
 def get_claude_service() -> ClaudeService:
-    return ClaudeService(settings.allowed_commands)
+    return ClaudeService()
 
 
 def get_fallback_generator() -> FallbackGenerator:

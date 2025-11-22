@@ -13,8 +13,8 @@ from app.tools.exceptions import CommandTimeoutError
 class BuildService:
     """Handles post-generation build steps like dependency installation."""
 
-    def __init__(self, allowed_commands: list[str]):
-        self.allowed_commands = allowed_commands
+    def __init__(self) -> None:
+        pass
 
     async def run_post_generation_steps(
         self,
@@ -53,7 +53,7 @@ class BuildService:
                 f"Warning: unable to parse package.json ({exc}); proceeding with pnpm install only."
             )
 
-        adapter = CommandAdapter(package_root, self.allowed_commands)
+        adapter = CommandAdapter(package_root)
 
         async def run_command(
             label: str,
