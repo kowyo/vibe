@@ -23,9 +23,19 @@ def build_claude_options(project_root: Path) -> ClaudeAgentOptions:
     print(f"Project root for Claude Agent: {project_root}")
     return ClaudeAgentOptions(
         allowed_tools=[
-            "Read", "Write", "Edit", "Glob", "Grep",
-            "Bash", "BashOutput", "KillShell", "WebSearch", "WebFetch",
-            "TodoWrite", "Task", "ExitPlanMode"
+            "Read",
+            "Write",
+            "Edit",
+            "Glob",
+            "Grep",
+            "Bash",
+            "BashOutput",
+            "KillShell",
+            "WebSearch",
+            "WebFetch",
+            "TodoWrite",
+            "Task",
+            "ExitPlanMode",
         ],
         permission_mode="acceptEdits",
         cwd=str(project_root),
