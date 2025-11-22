@@ -10,7 +10,7 @@ from app.services.build_service import BuildService
 
 @pytest.mark.asyncio
 async def test_post_generation_runs_pnpm_install_and_build(monkeypatch, tmp_path):
-    service = BuildService(allowed_commands=["pnpm"])
+    service = BuildService()
 
     generation_root = tmp_path / "proj" / "generated-app"
     generation_root.mkdir(parents=True)
@@ -38,9 +38,8 @@ async def test_post_generation_runs_pnpm_install_and_build(monkeypatch, tmp_path
     calls: list[tuple[str, tuple[str, ...], float | None]] = []
 
     class StubAdapter:
-        def __init__(self, base_dir, allowed_commands):
+        def __init__(self, base_dir):
             assert base_dir == generation_root
-            self.allowed_commands = allowed_commands
 
         async def run(self, command, *, args=None, cwd=None, env=None, timeout=None):
             calls.append((command, tuple(args or ()), timeout))
@@ -60,7 +59,7 @@ async def test_post_generation_runs_pnpm_install_and_build(monkeypatch, tmp_path
 
 @pytest.mark.asyncio
 async def test_post_generation_detects_nested_package_json(monkeypatch, tmp_path):
-    service = BuildService(allowed_commands=["pnpm"])
+    service = BuildService()
 
     generation_root = tmp_path / "proj" / "generated-app"
     package_root = generation_root / "todo-app"
@@ -90,9 +89,8 @@ async def test_post_generation_detects_nested_package_json(monkeypatch, tmp_path
     adapter_roots: list[Path] = []
 
     class StubAdapter:
-        def __init__(self, base_dir, allowed_commands):
+        def __init__(self, base_dir):
             adapter_roots.append(base_dir)
-            self.allowed_commands = allowed_commands
 
         async def run(self, command, *, args=None, cwd=None, env=None, timeout=None):
             calls.append((command, tuple(args or ()), timeout))

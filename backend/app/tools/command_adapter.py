@@ -7,7 +7,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
-from .exceptions import CommandTimeoutError, CommandValidationError
+from .exceptions import CommandTimeoutError
 from .path_utils import resolve_project_path
 
 
@@ -31,14 +31,11 @@ class CommandAdapter:
     def __init__(
         self,
         base_dir: Path,
-        allowed_commands: Sequence[str],
     ) -> None:
         self._base_dir = base_dir.resolve()
-        self._allowed = {command for command in allowed_commands}
 
     def _validate_command(self, command: str) -> None:
-        if command not in self._allowed:
-            raise CommandValidationError(f"Command '{command}' is not allowed")
+        pass
 
     def _resolve_cwd(self, relative_path: str | None) -> Path:
         if relative_path is None:
