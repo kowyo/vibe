@@ -1,22 +1,18 @@
 "use client"
 
-import { type ReactNode } from "react"
-import { usePathname } from "next/navigation"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
-import { ProjectsSidebar } from "@/components/projects-sidebar"
 import { ProjectProvider } from "@/contexts/project-context"
+import { ProjectsSidebar } from "@/components/projects-sidebar"
 
-interface AppShellProps {
-  children: ReactNode
-}
-
-export function AppShell({ children }: AppShellProps) {
-  const pathname = usePathname()
-
+export default function MainLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <ProjectProvider>
       <SidebarProvider defaultOpen={false}>
-        {pathname !== "/login" && <ProjectsSidebar />}
+        <ProjectsSidebar />
         <SidebarInset className="overflow-x-hidden">{children}</SidebarInset>
       </SidebarProvider>
     </ProjectProvider>
