@@ -252,6 +252,10 @@ export function useProjectActions(
         return
       }
 
+      // Close the old WebSocket first to prevent stale events from interfering
+      // with the new message
+      closeWebSocket()
+
       const turn = beginTurn(trimmedPrompt, assistantIntro, existingProjectId)
       if (!turn) {
         return
@@ -366,6 +370,7 @@ export function useProjectActions(
       addLog,
       apiBaseUrl,
       beginTurn,
+      closeWebSocket,
       resetForNewGeneration,
       session,
       startPollingHandler,
