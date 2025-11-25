@@ -10,7 +10,11 @@ import {
   PromptInputFooter,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input"
-import { Message, MessageContent } from "@/components/ai-elements/message"
+import {
+  Message,
+  MessageContent,
+  MessageResponse,
+} from "@/components/ai-elements/message"
 import {
   Conversation,
   ConversationContent,
@@ -19,7 +23,6 @@ import {
 } from "@/components/ai-elements/conversation"
 import { Sparkles } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
-import { Streamdown } from "streamdown"
 
 interface ConversationPanelProps {
   messages: ConversationMessage[]
@@ -72,8 +75,8 @@ export function ConversationPanel({
             <div className="space-y-2">
               {orderedMessages.map((message) => (
                 <Message from={message.role} key={message.id}>
-                  <MessageContent variant="flat">
-                    <Streamdown>{message.content}</Streamdown>
+                  <MessageContent>
+                    <MessageResponse>{message.content}</MessageResponse>
                   </MessageContent>
                 </Message>
               ))}
