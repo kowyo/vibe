@@ -32,13 +32,14 @@ export const beginConversationTurn = (
     updatedAt: timestamp,
     projectId: projectId ?? null,
   }
+
   const assistantMessage: ConversationMessage = {
     id: createMessageId(),
     role: "assistant",
     content: assistantIntro,
     status: "pending",
-    createdAt: timestamp,
-    updatedAt: timestamp,
+    createdAt: timestamp + 1,
+    updatedAt: timestamp + 1,
     projectId: projectId ?? null,
   }
   return { userMessage, assistantMessage }
