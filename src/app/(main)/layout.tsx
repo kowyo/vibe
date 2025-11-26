@@ -13,7 +13,7 @@ export default function MainLayout({
     <ProjectProvider>
       <SidebarProvider defaultOpen={false}>
         <ProjectsSidebar />
-        <SidebarInset className="overflow-x-hidden">{children}</SidebarInset>
+        <SidebarInset>{children}</SidebarInset>
       </SidebarProvider>
     </ProjectProvider>
   )
