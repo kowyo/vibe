@@ -38,7 +38,8 @@ export const createWebSocket = (
   projectId: string,
   wsBaseEnv: string | null,
   backendOrigin: string,
-  handlers: WebSocketMessageHandler
+  handlers: WebSocketMessageHandler,
+  filterEvent?: (generationId?: string) => boolean
 ): WebSocket | null => {
   try {
     const url = buildWsUrl(projectId, wsBaseEnv, backendOrigin)
@@ -48,7 +49,7 @@ export const createWebSocket = (
       handlers.addLog("info", "Connected to generation stream")
 
     socket.onmessage = (event) => {
-      handleWebSocketMessage(event.data, handlers)
+      handleWebSocketMessage(event.data, handlers, filterEvent)
     }
 
     socket.onerror = () =>
@@ -72,10 +73,18 @@ export const createWebSocket = (
 
 const handleWebSocketMessage = (
   raw: string,
-  handlers: WebSocketMessageHandler
+  handlers: WebSocketMessageHandler,
+  filterEvent?: (generationId?: string) => boolean
 ): void => {
   try {
     const data = JSON.parse(raw)
+    const generationId =
+      typeof data.generation_id === "string" ? data.generation_id : undefined
+
+    // Check filter if provided
+    if (filterEvent && !filterEvent(generationId)) {
+      return
+    }
 
     if (data.type === "status_snapshot") {
       const status = data.payload?.status

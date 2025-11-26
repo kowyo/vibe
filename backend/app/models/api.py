@@ -16,6 +16,7 @@ class ProjectGenerateRequest(BaseModel):
 class ProjectGenerateResponse(BaseModel):
     project_id: str
     status: ProjectStatus
+    generation_id: str | None = None
 
 
 class ProjectStatusResponse(BaseModel):

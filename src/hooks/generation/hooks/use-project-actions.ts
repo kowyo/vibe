@@ -43,6 +43,7 @@ export function useProjectActions(
     resetState,
     projectIdRef,
     activeAssistantMessageIdRef,
+    currentGenerationIdRef,
     metadataRef,
     fileContentsRef,
     pendingFetchesRef,
@@ -170,6 +171,9 @@ export function useProjectActions(
             setProjectId(data.project_id)
             if (typeof data.status === "string") {
               setProjectStatus(data.status)
+            }
+            if (typeof data.generation_id === "string") {
+              currentGenerationIdRef.current = data.generation_id
             }
             addLog(
               "success",
@@ -300,6 +304,10 @@ export function useProjectActions(
         if (userMessage && typeof userMessage === "object") {
           const serverId =
             typeof userMessage.id === "string" ? userMessage.id : userMessageId
+          
+          // Update the generation ID reference for WebSocket filtering
+          currentGenerationIdRef.current = serverId
+
           const statusFromServer =
             typeof userMessage.status === "string"
               ? userMessage.status

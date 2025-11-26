@@ -18,6 +18,7 @@ export function useProjectState() {
   // Refs for stable access in callbacks/effects
   const projectIdRef = useRef<string | null>(null)
   const activeAssistantMessageIdRef = useRef<string | null>(null)
+  const currentGenerationIdRef = useRef<string | null>(null)
   const fileContentsRef = useRef<Record<string, string>>({})
   const metadataRef = useRef<Record<string, string>>({})
   const pendingFetchesRef = useRef<Set<string>>(new Set())
@@ -74,6 +75,7 @@ export function useProjectState() {
     statusErrorLoggedRef.current = false
     filesErrorLoggedRef.current = false
     activeAssistantMessageIdRef.current = null
+    currentGenerationIdRef.current = null
     basePreviewUrlRef.current = ""
     previewUrlWithTokenRef.current = ""
     projectIdRef.current = null
@@ -123,6 +125,7 @@ export function useProjectState() {
     // Refs
     projectIdRef,
     activeAssistantMessageIdRef,
+    currentGenerationIdRef,
     fileContentsRef,
     metadataRef,
     pendingFetchesRef,
