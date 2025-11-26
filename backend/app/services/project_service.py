@@ -190,6 +190,7 @@ class ProjectService:
                             project_id=project_id,
                             type=ProjectEventType.LOG_APPENDED,
                             message=message,
+                            generation_id=user_message_id,
                         )
                     )
 
@@ -252,6 +253,7 @@ class ProjectService:
                                 type=ProjectEventType.ASSISTANT_MESSAGE,
                                 message=None,
                                 payload=payload,
+                                generation_id=user_message_id,
                             )
                         )
                     elif event_type == "tool_use":
@@ -261,6 +263,7 @@ class ProjectService:
                                 type=ProjectEventType.TOOL_USE,
                                 message=None,
                                 payload=payload,
+                                generation_id=user_message_id,
                             )
                         )
                     elif event_type == "result_message":
@@ -270,6 +273,7 @@ class ProjectService:
                                 type=ProjectEventType.RESULT_MESSAGE,
                                 message=None,
                                 payload=payload,
+                                generation_id=user_message_id,
                             )
                         )
 
@@ -307,6 +311,7 @@ class ProjectService:
                         type=ProjectEventType.STATUS_UPDATED,
                         message=f"Status changed to {ProjectStatus.RUNNING.value}",
                         payload={"status": ProjectStatus.RUNNING.value},
+                        generation_id=user_message_id,
                     )
                 )
 
@@ -353,6 +358,7 @@ class ProjectService:
                                 type=ProjectEventType.ERROR,
                                 message="Fallback generation failed",
                                 payload={"detail": error_detail},
+                                generation_id=user_message_id,
                             )
                         )
                         await emit_log(f"Fallback generator failed: {error_detail}")
@@ -412,6 +418,7 @@ class ProjectService:
                                 type=ProjectEventType.STATUS_UPDATED,
                                 message=f"Status changed to {ProjectStatus.FAILED.value}",
                                 payload={"status": ProjectStatus.FAILED.value},
+                                generation_id=user_message_id,
                             )
                         )
                     return
@@ -453,6 +460,7 @@ class ProjectService:
                             type=ProjectEventType.PREVIEW_READY,
                             message="Preview ready",
                             payload={"preview_url": preview_url},
+                            generation_id=user_message_id,
                         )
                     )
 
@@ -463,6 +471,7 @@ class ProjectService:
                         type=ProjectEventType.STATUS_UPDATED,
                         message=f"Status changed to {ProjectStatus.READY.value}",
                         payload={"status": ProjectStatus.READY.value},
+                        generation_id=user_message_id,
                     )
                 )
 

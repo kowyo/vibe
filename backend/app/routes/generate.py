@@ -27,4 +27,8 @@ async def start_generation(
         user_message_id=user_message.id,
     )
 
-    return ProjectGenerateResponse(project_id=project.id, status=project.status)
+    return ProjectGenerateResponse(
+        project_id=project.id,
+        status=project.status,
+        generation_id=user_message.id,
+    )

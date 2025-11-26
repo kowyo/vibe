@@ -28,6 +28,7 @@ export function useProjectWebSocket(
     basePreviewUrlRef,
     previewUrlWithTokenRef,
     setPreviewUrl,
+    currentGenerationIdRef,
   } = state
 
   // Preview URL management wrapper
@@ -174,12 +175,29 @@ export function useProjectWebSocket(
   const startWebSocket = useCallback(
     (id: string) => {
       closeWebSocket()
-      const socket = createWebSocket(id, wsBaseEnv, backendOrigin, wsHandlers)
+      const socket = createWebSocket(
+        id,
+        wsBaseEnv,
+        backendOrigin,
+        wsHandlers,
+        (genId) => {
+          // If we have a current generation ID, only process events that match it
+          // or events that have no ID (system events)
+          if (
+            currentGenerationIdRef.current &&
+            genId &&
+            currentGenerationIdRef.current !== genId
+          ) {
+            return false
+          }
+          return true
+        }
+      )
       if (socket) {
         wsRef.current = socket
       }
     },
-    [closeWebSocket, wsBaseEnv, backendOrigin, wsHandlers]
+    [closeWebSocket, wsBaseEnv, backendOrigin, wsHandlers, currentGenerationIdRef]
   )
 
   // Cleanup on unmount

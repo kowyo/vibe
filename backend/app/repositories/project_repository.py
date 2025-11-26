@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
@@ -40,7 +41,7 @@ class ProjectRepository:
             id=project_db.id,
             prompt=project_db.prompt,
             status=ProjectStatus(project_db.status),
-            project_dir=project_db.project_dir,
+            project_dir=Path(project_db.project_dir),
             created_at=project_db.created_at,
             updated_at=project_db.updated_at,
             preview_url=project_db.preview_url,

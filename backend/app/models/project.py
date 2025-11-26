@@ -58,3 +58,4 @@ class ProjectEvent(BaseModel):
     message: str | None = None
     payload: dict[str, Any] = Field(default_factory=dict)
     timestamp: datetime = Field(default_factory=_utcnow)
+    generation_id: str | None = None
