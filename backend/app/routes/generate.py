@@ -17,7 +17,6 @@ async def start_generation(
     project = await service.create_project(
         user_id=current_user.id,
         prompt=payload.prompt,
-        template=payload.template,
     )
     user_message = await service.record_user_message(
         project.id,

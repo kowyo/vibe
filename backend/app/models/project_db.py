@@ -17,7 +17,6 @@ class ProjectDB(Base):
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     prompt = Column(Text, nullable=False)
     status = Column(String, nullable=False, default="pending")
-    template = Column(String, nullable=True)
     project_dir = Column(String, nullable=False)  # Stored as string path
     preview_url = Column(String, nullable=True)
     project_metadata = Column(

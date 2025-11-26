@@ -49,7 +49,6 @@ class ClaudeService:
         self,
         prompt: str,
         project_root: Path,
-        template: str | None,
         emit: Callable[[dict[str, Any]], Awaitable[None]],
     ) -> ClaudeGenerationOutcome:
         """Generate code using Claude Agent SDK and emit structured messages."""
@@ -61,7 +60,7 @@ class ClaudeService:
 
         options = build_claude_options(project_root)
         async with ClaudeSDKClient(options=options) as client:  # type: ignore[arg-type]
-            await client.query(prompt=self._compose_prompt(prompt, template))
+            await client.query(prompt=self._compose_prompt(prompt))
 
             async for message in client.receive_messages():
                 if isinstance(message, AssistantMessage):
@@ -136,20 +135,13 @@ class ClaudeService:
             }
         )
 
-    def _compose_prompt(self, prompt: str, template: str | None) -> str:
+    def _compose_prompt(self, prompt: str | None) -> str:
         base_intro = (
             "You are a software engineer. "
-            "Always scaffold the template non-interactively with: "
+            "You should scaffold the template non-interactively with: "
             "'pnpm create vite <project-name> --template react --no-rolldown --no-interactive'. "
             "After scaffolding, run `pnpm i` to install the dependencies. "
             "Only modify the necessary code to fulfill the user's instructions. "
-            "Run `pnpm run build` to build the project. Your task is complete if no error occurs. "
+            "Run `pnpm run build` to build the project."
         )
-        if template:
-            return (
-                f"{base_intro}\n"
-                f"Modify the generated {template} application according to the user's "
-                f"instructions, using Vite + React conventions.\n"
-                f"User prompt: {prompt}"
-            )
         return f"{base_intro}\nUser prompt: {prompt}"

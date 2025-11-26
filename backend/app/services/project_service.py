@@ -59,7 +59,6 @@ class ProjectService:
         self,
         user_id: str,
         prompt: str,
-        template: str | None,
     ) -> Project:
         project_id = uuid4().hex
         project_dir = self.base_dir / user_id / project_id
@@ -72,7 +71,6 @@ class ProjectService:
         project = await self.repository.create_project(
             user_id=user_id,
             prompt=prompt,
-            template=template,
             project_dir=str(project_dir),
             project_id=project_id,
         )
@@ -84,7 +82,6 @@ class ProjectService:
                 message="Project created",
                 payload={
                     "status": project.status,
-                    "template": template,
                 },
             )
         )
@@ -384,7 +381,6 @@ class ProjectService:
                         outcome = await self.claude_service.generate(
                             prompt=effective_prompt,
                             project_root=generation_root,
-                            template=project.template,
                             emit=emit_claude_message,
                         )
                         preview_path = outcome.preview_path

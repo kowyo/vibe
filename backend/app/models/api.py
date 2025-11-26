@@ -11,10 +11,6 @@ from .project_message import ProjectMessage
 
 class ProjectGenerateRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=4096)
-    template: Literal["next", "vite", "react"] | None = Field(
-        default=None,
-        description="Preferred frontend template generator",
-    )
 
 
 class ProjectGenerateResponse(BaseModel):
