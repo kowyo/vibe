@@ -104,7 +104,7 @@ export default function Home() {
       <main className="flex-1 min-h-0">
         <ResizablePanelGroup direction="horizontal" className="flex w-full">
           <ResizablePanel
-            defaultSize={20}
+            defaultSize={25}
             minSize={20}
             className="flex min-w-[300px]"
           >
@@ -120,7 +120,7 @@ export default function Home() {
           </ResizablePanel>
           <ResizableHandle className="bg-transparent" />
           <ResizablePanel
-            defaultSize={80}
+            defaultSize={75}
             minSize={20}
             className="flex pb-2 pr-2"
           >
