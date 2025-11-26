@@ -40,7 +40,6 @@ class ProjectRepository:
             id=project_db.id,
             prompt=project_db.prompt,
             status=ProjectStatus(project_db.status),
-            template=project_db.template,
             project_dir=project_db.project_dir,
             created_at=project_db.created_at,
             updated_at=project_db.updated_at,
@@ -65,7 +64,6 @@ class ProjectRepository:
         self,
         user_id: str,
         prompt: str,
-        template: str | None,
         project_dir: str,
         project_id: str | None = None,
     ) -> Project:
@@ -75,7 +73,6 @@ class ProjectRepository:
             id=project_id,
             user_id=user_id,
             prompt=prompt,
-            template=template,
             project_dir=project_dir,
             status=ProjectStatus.PENDING.value,
             project_metadata={},

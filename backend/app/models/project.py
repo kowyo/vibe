@@ -43,7 +43,6 @@ class Project(BaseModel):
     id: str
     prompt: str
     status: ProjectStatus = ProjectStatus.PENDING
-    template: str | None = None
     project_dir: Path
     created_at: datetime = Field(default_factory=_utcnow)
     updated_at: datetime = Field(default_factory=_utcnow)
