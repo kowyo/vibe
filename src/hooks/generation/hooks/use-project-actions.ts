@@ -300,14 +300,6 @@ export function useProjectActions(
         if (userMessage && typeof userMessage === "object") {
           const serverId =
             typeof userMessage.id === "string" ? userMessage.id : userMessageId
-          const createdAt =
-            typeof userMessage.created_at === "string"
-              ? Date.parse(userMessage.created_at)
-              : Date.now()
-          const updatedAt =
-            typeof userMessage.updated_at === "string"
-              ? Date.parse(userMessage.updated_at)
-              : createdAt
           const statusFromServer =
             typeof userMessage.status === "string"
               ? userMessage.status
@@ -322,6 +314,9 @@ export function useProjectActions(
               if (message.id !== userMessageId) {
                 return message
               }
+              // Keep the local createdAt timestamp to maintain correct ordering
+              // within the current session. Server timestamps may differ from local
+              // timestamps, causing incorrect message ordering.
               return {
                 ...message,
                 id: serverId,
@@ -335,12 +330,7 @@ export function useProjectActions(
                     ? userMessage.content
                     : message.content,
                 status: normalizedStatus,
-                createdAt: Number.isNaN(createdAt)
-                  ? message.createdAt
-                  : createdAt,
-                updatedAt: Number.isNaN(updatedAt)
-                  ? message.updatedAt
-                  : updatedAt,
+                updatedAt: Date.now(),
               }
             })
           )
