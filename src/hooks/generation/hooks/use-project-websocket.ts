@@ -132,22 +132,38 @@ export function useProjectWebSocket(
         }
       },
       onToolUse: (payload) => {
-        const toolName = payload.name || "Tool"
-        const inputStr = payload.input
-          ? JSON.stringify(payload.input, null, 2)
-          : ""
-        const toolMessage = `🔧 Using ${toolName}${inputStr ? `:\n\`\`\`json\n${inputStr}\n\`\`\`` : ""}`
-        updateActiveAssistantMessage((msg) => ({
-          content: msg.content
-            ? `${msg.content}\n\n${toolMessage}`.trim()
-            : toolMessage,
-          status: "pending",
-        }))
+        const toolId = payload.id || `tool_${Date.now()}`
+        const toolName = payload.name || "unknown"
+        updateActiveAssistantMessage((msg) => {
+          const existingTools = msg.toolInvocations || []
+          const existingIndex = existingTools.findIndex((t) => t.id === toolId)
+          const toolInvocation = {
+            id: toolId,
+            name: toolName,
+            state: "input-available" as const,
+            input: payload.input,
+          }
+          const newTools =
+            existingIndex >= 0
+              ? existingTools.map((t, i) =>
+                  i === existingIndex ? { ...t, ...toolInvocation } : t
+                )
+              : [...existingTools, toolInvocation]
+          return {
+            toolInvocations: newTools,
+            status: "pending",
+          }
+        })
       },
       onResultMessage: (_payload) => {
         updateActiveAssistantMessage((msg) => ({
           content: msg.content,
           status: "complete",
+          toolInvocations: msg.toolInvocations?.map((tool) => ({
+            ...tool,
+            state:
+              tool.state === "input-available" ? "output-available" : tool.state,
+          })),
         }))
       },
       addLog,

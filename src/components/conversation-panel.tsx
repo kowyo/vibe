@@ -21,8 +21,15 @@ import {
   ConversationEmptyState,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation"
+import {
+  Tool,
+  ToolContent,
+  ToolHeader,
+  ToolInput,
+} from "@/components/ai-elements/tool"
 import { Sparkles } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
+import type { ToolInvocation } from "@/hooks/generation/types"
 
 interface ConversationPanelProps {
   messages: ConversationMessage[]
@@ -76,7 +83,21 @@ export function ConversationPanel({
               {orderedMessages.map((message) => (
                 <Message from={message.role} key={message.id}>
                   <MessageContent>
-                    <MessageResponse>{message.content}</MessageResponse>
+                    {message.content && (
+                      <MessageResponse>{message.content}</MessageResponse>
+                    )}
+                    {message.toolInvocations?.map((tool: ToolInvocation) => (
+                      <Tool key={tool.id}>
+                        <ToolHeader
+                          title={tool.name}
+                          type={`tool-${tool.name}`}
+                          state={tool.state}
+                        />
+                        <ToolContent>
+                          <ToolInput input={tool.input} />
+                        </ToolContent>
+                      </Tool>
+                    ))}
                   </MessageContent>
                 </Message>
               ))}
