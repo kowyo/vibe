@@ -3,6 +3,24 @@ export type LogEntry = { type: "info" | "error" | "success"; message: string }
 export type ConversationStatus = "pending" | "complete" | "error"
 export type ConversationRole = "user" | "assistant"
 
+export type ToolInvocationState =
+  | "input-streaming"
+  | "input-available"
+  | "approval-requested"
+  | "approval-responded"
+  | "output-available"
+  | "output-error"
+  | "output-denied"
+
+export type ToolInvocation = {
+  id: string
+  name: string
+  state: ToolInvocationState
+  input?: unknown
+  output?: unknown
+  errorText?: string
+}
+
 export type ConversationMessage = {
   id: string
   role: ConversationRole
@@ -11,6 +29,7 @@ export type ConversationMessage = {
   createdAt: number
   updatedAt: number
   projectId?: string | null
+  toolInvocations?: ToolInvocation[]
 }
 
 export type ViewerFile = { path: string; content?: string }

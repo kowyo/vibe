@@ -5,6 +5,7 @@ import type {
   ConversationMessage,
   ViewerFile,
   UseGenerationSessionReturn,
+  ToolInvocation,
 } from "./generation/types"
 import { refreshPreviewUrl } from "./generation/utils/preview"
 import { getApiBaseUrl } from "./generation/utils/api"
@@ -19,6 +20,7 @@ export type {
   ConversationMessage,
   ViewerFile,
   UseGenerationSessionReturn,
+  ToolInvocation,
 }
 
 export function useGenerationSession(): UseGenerationSessionReturn {
