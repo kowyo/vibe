@@ -162,7 +162,9 @@ export function useProjectWebSocket(
           toolInvocations: msg.toolInvocations?.map((tool) => ({
             ...tool,
             state:
-              tool.state === "input-available" ? "output-available" : tool.state,
+              tool.state === "input-available"
+                ? "output-available"
+                : tool.state,
           })),
         }))
       },
@@ -213,7 +215,13 @@ export function useProjectWebSocket(
         wsRef.current = socket
       }
     },
-    [closeWebSocket, wsBaseEnv, backendOrigin, wsHandlers, currentGenerationIdRef]
+    [
+      closeWebSocket,
+      wsBaseEnv,
+      backendOrigin,
+      wsHandlers,
+      currentGenerationIdRef,
+    ]
   )
 
   // Cleanup on unmount

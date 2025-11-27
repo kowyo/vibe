@@ -304,7 +304,7 @@ export function useProjectActions(
         if (userMessage && typeof userMessage === "object") {
           const serverId =
             typeof userMessage.id === "string" ? userMessage.id : userMessageId
-          
+
           // Update the generation ID reference for WebSocket filtering
           currentGenerationIdRef.current = serverId
 
