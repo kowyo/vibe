@@ -125,10 +125,14 @@ export function useProjectWebSocket(
       onAssistantMessage: (payload) => {
         const text = payload.text || ""
         if (text) {
-          updateActiveAssistantMessage((msg) => ({
-            content: msg.content ? `${msg.content}\n${text}`.trim() : text,
-            status: "pending",
-          }))
+          updateActiveAssistantMessage((msg) => {
+            const existingParts = msg.contentParts || []
+            return {
+              content: msg.content ? `${msg.content}\n${text}`.trim() : text,
+              contentParts: [...existingParts, { type: "text" as const, text }],
+              status: "pending",
+            }
+          })
         }
       },
       onToolUse: (payload) => {
@@ -136,6 +140,7 @@ export function useProjectWebSocket(
         const toolName = payload.name || "unknown"
         updateActiveAssistantMessage((msg) => {
           const existingTools = msg.toolInvocations || []
+          const existingParts = msg.contentParts || []
           const existingIndex = existingTools.findIndex((t) => t.id === toolId)
           const toolInvocation = {
             id: toolId,
@@ -149,8 +154,17 @@ export function useProjectWebSocket(
                   i === existingIndex ? { ...t, ...toolInvocation } : t
                 )
               : [...existingTools, toolInvocation]
+          // Add to contentParts only if it's a new tool (not an update)
+          const newParts =
+            existingIndex >= 0
+              ? existingParts
+              : [
+                  ...existingParts,
+                  { type: "tool_use" as const, ...toolInvocation },
+                ]
           return {
             toolInvocations: newTools,
+            contentParts: newParts,
             status: "pending",
           }
         })
@@ -166,6 +180,11 @@ export function useProjectWebSocket(
                 ? "output-available"
                 : tool.state,
           })),
+          contentParts: msg.contentParts?.map((part) =>
+            part.type === "tool_use" && part.state === "input-available"
+              ? { ...part, state: "output-available" as const }
+              : part
+          ),
         }))
       },
       addLog,

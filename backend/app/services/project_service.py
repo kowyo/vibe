@@ -148,6 +148,7 @@ class ProjectService:
 
                 assistant_message_id: str | None = None
                 assistant_content: str = ""
+                content_parts: list[dict[str, Any]] = []
                 result_metadata: dict[str, Any] | None = None
                 message_completed = False
                 message_failed = False
@@ -176,12 +177,17 @@ class ProjectService:
                     elif status == ProjectMessageStatus.ERROR:
                         message_failed = True
 
-                    payload = metadata if metadata is not None else result_metadata
+                    payload = metadata.copy() if metadata is not None else (
+                        result_metadata.copy() if result_metadata else {}
+                    )
+                    # Include content parts in metadata for ordered UI reconstruction
+                    if content_parts:
+                        payload["content_parts"] = content_parts
                     if assistant_message_id:
                         await repo.update_message_status(
                             assistant_message_id,
                             status,
-                            metadata=payload,
+                            metadata=payload if payload else None,
                         )
 
                 async def emit_log(message: str) -> None:
@@ -205,10 +211,24 @@ class ProjectService:
                             assistant_content = merge_content(
                                 assistant_content, text, separator="\n"
                             )
+                            # Track text part for ordered reconstruction
+                            content_parts.append({
+                                "type": "text",
+                                "text": text.strip(),
+                            })
                             await persist_content()
                     elif event_type == "tool_use":
+                        tool_id = payload.get("id") or f"tool_{len(content_parts)}"
                         tool_name = payload.get("name") or "tool"
                         tool_input = payload.get("input")
+                        # Track tool part for ordered reconstruction
+                        content_parts.append({
+                            "type": "tool_use",
+                            "id": tool_id,
+                            "name": tool_name,
+                            "state": "output-available",
+                            "input": tool_input,
+                        })
                         details = ""
                         if tool_input is not None:
                             try:
