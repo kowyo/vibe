@@ -472,6 +472,15 @@ export function useProjectActions(
                       ? statusValue
                       : "complete"
 
+                  // Extract content parts from metadata if present
+                  const metadata = message.metadata
+                  const contentParts =
+                    metadata &&
+                    typeof metadata === "object" &&
+                    Array.isArray(metadata.content_parts)
+                      ? metadata.content_parts
+                      : undefined
+
                   return {
                     id:
                       typeof message.id === "string"
@@ -489,6 +498,7 @@ export function useProjectActions(
                       typeof message.project_id === "string"
                         ? message.project_id
                         : id,
+                    contentParts,
                   }
                 })
                 .filter(

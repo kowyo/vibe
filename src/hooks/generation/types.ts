@@ -21,6 +21,10 @@ export type ToolInvocation = {
   errorText?: string
 }
 
+export type ContentPart =
+  | { type: "text"; text: string }
+  | ({ type: "tool_use" } & ToolInvocation)
+
 export type ConversationMessage = {
   id: string
   role: ConversationRole
@@ -30,6 +34,7 @@ export type ConversationMessage = {
   updatedAt: number
   projectId?: string | null
   toolInvocations?: ToolInvocation[]
+  contentParts?: ContentPart[]
 }
 
 export type ViewerFile = { path: string; content?: string }

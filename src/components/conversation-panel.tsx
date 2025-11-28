@@ -29,7 +29,7 @@ import {
 } from "@/components/ai-elements/tool"
 import { Sparkles } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
-import type { ToolInvocation } from "@/hooks/generation/types"
+import type { ToolInvocation, ContentPart } from "@/hooks/generation/types"
 
 interface ConversationPanelProps {
   messages: ConversationMessage[]
@@ -53,6 +53,55 @@ export function ConversationPanel({
     [messages]
   )
   const disableSend = isGenerating || !prompt.trim()
+
+  const renderMessageContent = (message: ConversationMessage) => {
+    // If we have ordered content parts (from loaded messages), render them in order
+    if (message.contentParts && message.contentParts.length > 0) {
+      return message.contentParts.map((part: ContentPart, index: number) => {
+        if (part.type === "text") {
+          return part.text ? (
+            <MessageResponse key={`text-${index}`}>{part.text}</MessageResponse>
+          ) : null
+        }
+        if (part.type === "tool_use") {
+          return (
+            <Tool key={part.id}>
+              <ToolHeader
+                title={part.name}
+                type={`tool-${part.name}`}
+                state={part.state}
+              />
+              <ToolContent>
+                <ToolInput input={part.input} />
+              </ToolContent>
+            </Tool>
+          )
+        }
+        return null
+      })
+    }
+
+    // Fallback: render content first, then tool invocations (for live messages)
+    return (
+      <>
+        {message.content && (
+          <MessageResponse>{message.content}</MessageResponse>
+        )}
+        {message.toolInvocations?.map((tool: ToolInvocation) => (
+          <Tool key={tool.id}>
+            <ToolHeader
+              title={tool.name}
+              type={`tool-${tool.name}`}
+              state={tool.state}
+            />
+            <ToolContent>
+              <ToolInput input={tool.input} />
+            </ToolContent>
+          </Tool>
+        ))}
+      </>
+    )
+  }
 
   const handleSubmit = (
     message: { text?: string; files?: any[] },
@@ -83,21 +132,7 @@ export function ConversationPanel({
               {orderedMessages.map((message) => (
                 <Message from={message.role} key={message.id}>
                   <MessageContent>
-                    {message.content && (
-                      <MessageResponse>{message.content}</MessageResponse>
-                    )}
-                    {message.toolInvocations?.map((tool: ToolInvocation) => (
-                      <Tool key={tool.id}>
-                        <ToolHeader
-                          title={tool.name}
-                          type={`tool-${tool.name}`}
-                          state={tool.state}
-                        />
-                        <ToolContent>
-                          <ToolInput input={tool.input} />
-                        </ToolContent>
-                      </Tool>
-                    ))}
+                    {renderMessageContent(message)}
                   </MessageContent>
                 </Message>
               ))}
