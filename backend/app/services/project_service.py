@@ -222,7 +222,11 @@ class ProjectService:
                             )
                             await persist_content()
                     elif event_type == "tool_use":
-                        tool_id = val if (val := payload.get("id")) is not None else f"tool_{len(content_parts)}"
+                        tool_id = (
+                            val
+                            if (val := payload.get("id")) is not None
+                            else f"tool_{len(content_parts)}"
+                        )
                         tool_name = val if (val := payload.get("name")) is not None else "tool"
                         tool_input = payload.get("input")
                         # Track tool part for ordered reconstruction
@@ -252,10 +256,7 @@ class ProjectService:
                         # Update tool state to "output-available" when result arrives
                         tool_use_id = payload.get("tool_use_id")
                         for part in content_parts:
-                            if (
-                                part.get("type") == "tool_use"
-                                and part.get("id") == tool_use_id
-                            ):
+                            if part.get("type") == "tool_use" and part.get("id") == tool_use_id:
                                 part["state"] = "output-available"
                                 part["output"] = payload.get("content")
                                 part["is_error"] = payload.get("is_error", False)
@@ -264,7 +265,10 @@ class ProjectService:
                     elif event_type == "result_message":
                         # Transition any remaining tool states to "output-available" on completion
                         for part in content_parts:
-                            if part.get("type") == "tool_use" and part.get("state") == "input-available":
+                            if (
+                                part.get("type") == "tool_use"
+                                and part.get("state") == "input-available"
+                            ):
                                 part["state"] = "output-available"
 
                         cost = payload.get("total_cost_usd")
