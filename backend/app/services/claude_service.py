@@ -12,14 +12,18 @@ try:  # pragma: no cover - import guarded for environments without SDK
         ClaudeSDKClient,
         ResultMessage,
         TextBlock,
+        ToolResultBlock,
         ToolUseBlock,
+        UserMessage,
     )
 except ImportError:  # pragma: no cover - SDK not installed
     ClaudeSDKClient = None  # type: ignore[assignment]
     AssistantMessage = None  # type: ignore[assignment,misc]
     ResultMessage = None  # type: ignore[assignment,misc]
     TextBlock = None  # type: ignore[assignment,misc]
+    ToolResultBlock = None  # type: ignore[assignment,misc]
     ToolUseBlock = None  # type: ignore[assignment,misc]
+    UserMessage = None  # type: ignore[assignment,misc]
 
 from app.tools.builders import build_claude_options
 
@@ -88,6 +92,8 @@ class ClaudeService:
 
                 if isinstance(message, AssistantMessage):
                     await self._emit_assistant_message(message, emit)
+                elif isinstance(message, UserMessage):
+                    await self._emit_user_message(message, emit)
                 elif isinstance(message, ResultMessage):
                     await self._emit_result_message(message, emit)
                     break
@@ -135,6 +141,37 @@ class ClaudeService:
                     "payload": payload,
                 }
             )
+
+    async def _emit_user_message(
+        self,
+        message: Any,
+        emit: Callable[[dict[str, Any]], Awaitable[None]],
+    ) -> None:
+        """Emit tool result events from UserMessage."""
+        for block in getattr(message, "content", []):
+            if isinstance(block, ToolResultBlock):
+                # Extract content from ToolResultBlock
+                content = getattr(block, "content", None)
+                if isinstance(content, list):
+                    # Content is a list of blocks, extract text
+                    text_parts = []
+                    for item in content:
+                        if isinstance(item, dict) and item.get("type") == "text":
+                            text_parts.append(item.get("text", ""))
+                        elif hasattr(item, "text"):
+                            text_parts.append(item.text)
+                    content = "\n".join(text_parts) if text_parts else str(content)
+
+                await emit(
+                    {
+                        "type": "tool_result",
+                        "payload": {
+                            "tool_use_id": getattr(block, "tool_use_id", None),
+                            "content": content,
+                            "is_error": getattr(block, "is_error", False),
+                        },
+                    }
+                )
 
     async def _emit_result_message(
         self,

@@ -169,6 +169,42 @@ export function useProjectWebSocket(
           }
         })
       },
+      onToolResult: (payload) => {
+        const toolUseId = payload.tool_use_id
+        if (!toolUseId) return
+
+        updateActiveAssistantMessage((msg) => {
+          const existingTools = msg.toolInvocations || []
+          const existingParts = msg.contentParts || []
+
+          // Update tool state in toolInvocations
+          const newTools = existingTools.map((tool) =>
+            tool.id === toolUseId
+              ? {
+                  ...tool,
+                  state: "output-available" as const,
+                  output: payload.content,
+                }
+              : tool
+          )
+
+          // Update tool state in contentParts
+          const newParts = existingParts.map((part) =>
+            part.type === "tool_use" && part.id === toolUseId
+              ? {
+                  ...part,
+                  state: "output-available" as const,
+                  output: payload.content,
+                }
+              : part
+          )
+
+          return {
+            toolInvocations: newTools,
+            contentParts: newParts,
+          }
+        })
+      },
       onResultMessage: (_payload) => {
         updateActiveAssistantMessage((msg) => ({
           content: msg.content,
