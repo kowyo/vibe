@@ -17,7 +17,7 @@ interface PreviewWindowProps {
 export function PreviewWindow({ url, onRefresh }: PreviewWindowProps) {
   if (!url) {
     return (
-      <div className="flex h-full items-center justify-center text-muted-foreground min-w-0 w-full">
+      <div className="flex h-full items-center justify-center text-muted-foreground min-w-0 w-full rounded-lg border bg-card">
         <div className="text-center">
           <ExternalLink className="mx-auto mb-3 h-12 w-12 opacity-50" />
           <p className="text-sm">No preview available</p>
