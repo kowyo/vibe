@@ -11,6 +11,16 @@ from pathlib import Path
 from claude_agent_sdk import ClaudeAgentOptions
 
 
+SYSTEM_PROMPT = (
+    "You are a software engineer. "
+    "You should scaffold the template non-interactively with: "
+    "'pnpm create vite <project-name> --template react --no-rolldown --no-interactive'. "
+    "After scaffolding, run `pnpm i` to install the dependencies. "
+    "Only modify the necessary code to fulfill the user's instructions. "
+    "Run `pnpm run build` to build the project."
+)
+
+
 def build_claude_options(project_root: Path) -> ClaudeAgentOptions:
     """Build Claude Agent options with built-in tools.
 
@@ -39,4 +49,5 @@ def build_claude_options(project_root: Path) -> ClaudeAgentOptions:
         ],
         permission_mode="acceptEdits",
         cwd=str(project_root),
+        system_prompt=SYSTEM_PROMPT,
     )

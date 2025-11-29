@@ -60,7 +60,7 @@ class ClaudeService:
 
         options = build_claude_options(project_root)
         async with ClaudeSDKClient(options=options) as client:  # type: ignore[arg-type]
-            await client.query(prompt=self._compose_prompt(prompt))
+            await client.query(prompt=prompt)
 
             async for message in client.receive_messages():
                 if isinstance(message, AssistantMessage):
@@ -135,13 +135,3 @@ class ClaudeService:
             }
         )
 
-    def _compose_prompt(self, prompt: str | None) -> str:
-        base_intro = (
-            "You are a software engineer. "
-            "You should scaffold the template non-interactively with: "
-            "'pnpm create vite <project-name> --template react --no-rolldown --no-interactive'. "
-            "After scaffolding, run `pnpm i` to install the dependencies. "
-            "Only modify the necessary code to fulfill the user's instructions. "
-            "Run `pnpm run build` to build the project."
-        )
-        return f"{base_intro}\nUser prompt: {prompt}"
