@@ -10,7 +10,6 @@ from pathlib import Path
 
 from claude_agent_sdk import ClaudeAgentOptions
 
-
 SYSTEM_PROMPT = (
     "You are a software engineer. "
     "You should scaffold the template non-interactively with: "
