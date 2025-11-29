@@ -29,6 +29,7 @@ class ClaudeGenerationOutcome:
     """Result payload describing the outcome of a Claude generation run."""
 
     preview_path: str | None = None
+    session_id: str | None = None  # Claude Agent SDK session ID for resumption
 
 
 class ClaudeServiceUnavailable(RuntimeError):
@@ -50,26 +51,51 @@ class ClaudeService:
         prompt: str,
         project_root: Path,
         emit: Callable[[dict[str, Any]], Awaitable[None]],
+        *,
+        session_id: str | None = None,
     ) -> ClaudeGenerationOutcome:
-        """Generate code using Claude Agent SDK and emit structured messages."""
+        """Generate code using Claude Agent SDK and emit structured messages.
+
+        Args:
+            prompt: The user prompt to send to Claude.
+            project_root: The project directory where Claude will operate.
+            emit: Callback to emit structured messages.
+            session_id: Optional session ID to resume a previous conversation.
+
+        Returns:
+            ClaudeGenerationOutcome with preview_path and session_id.
+        """
         if not self.is_available:
             raise ClaudeServiceUnavailable("Claude API key is not configured")
 
         if ClaudeSDKClient is None:  # pragma: no cover - defensive guard
             raise ClaudeServiceUnavailable("Claude Agent SDK is not installed")
 
-        options = build_claude_options(project_root)
+        options = build_claude_options(project_root, resume_session_id=session_id)
+        captured_session_id: str | None = None
+
         async with ClaudeSDKClient(options=options) as client:  # type: ignore[arg-type]
             await client.query(prompt=prompt)
 
             async for message in client.receive_messages():
+                # Capture session_id from init message
+                if (
+                    hasattr(message, "subtype")
+                    and message.subtype == "init"
+                    and hasattr(message, "data")
+                ):
+                    captured_session_id = message.data.get("session_id")
+
                 if isinstance(message, AssistantMessage):
                     await self._emit_assistant_message(message, emit)
                 elif isinstance(message, ResultMessage):
                     await self._emit_result_message(message, emit)
                     break
 
-        return ClaudeGenerationOutcome(preview_path="index.html")
+        return ClaudeGenerationOutcome(
+            preview_path="index.html",
+            session_id=captured_session_id,
+        )
 
     async def _emit_assistant_message(
         self,

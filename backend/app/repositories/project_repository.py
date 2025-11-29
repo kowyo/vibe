@@ -45,6 +45,7 @@ class ProjectRepository:
             created_at=project_db.created_at,
             updated_at=project_db.updated_at,
             preview_url=project_db.preview_url,
+            session_id=project_db.session_id,
             metadata=project_db.project_metadata or {},
         )
 
@@ -140,6 +141,18 @@ class ProjectRepository:
             raise ProjectNotFoundError(project_id)
 
         project_db.prompt = prompt
+        project_db.updated_at = datetime.now(UTC)
+        await self.session.commit()
+        await self.session.refresh(project_db)
+        return self._project_db_to_model(project_db)
+
+    async def update_project_session_id(self, project_id: str, session_id: str) -> Project:
+        result = await self.session.execute(select(ProjectDB).where(ProjectDB.id == project_id))
+        project_db = result.scalar_one_or_none()
+        if not project_db:
+            raise ProjectNotFoundError(project_id)
+
+        project_db.session_id = session_id
         project_db.updated_at = datetime.now(UTC)
         await self.session.commit()
         await self.session.refresh(project_db)
