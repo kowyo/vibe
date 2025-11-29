@@ -126,7 +126,7 @@ export default function Home() {
           >
             <div className="flex w-full flex-1 flex-col ">
               {activeTab === "code" && (
-                <Card className="flex flex-1 flex-col border-border/80 bg-card/80 shadow-sm ">
+                <Card className="flex flex-1 flex-col min-w-0 w-full border-border/80 bg-card/80 shadow-sm">
                   <CodeViewer
                     files={filesForViewer}
                     selectedFile={selectedFile}
