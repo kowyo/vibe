@@ -32,6 +32,7 @@ class ProjectEventType(str, Enum):
     ERROR = "error"
     ASSISTANT_MESSAGE = "assistant_message"
     TOOL_USE = "tool_use"
+    TOOL_RESULT = "tool_result"
     RESULT_MESSAGE = "result_message"
 
 

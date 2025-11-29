@@ -18,6 +18,11 @@ export type WebSocketMessageHandler = {
     stop_reason?: string
   }) => void
   onToolUse: (payload: { id?: string; name?: string; input?: unknown }) => void
+  onToolResult: (payload: {
+    tool_use_id?: string
+    content?: string
+    is_error?: boolean
+  }) => void
   onResultMessage: (payload: {
     total_cost_usd?: number
     stop_reason?: string
@@ -138,6 +143,11 @@ const handleWebSocketMessage = (
 
     if (data.type === "tool_use" && data.payload) {
       handlers.onToolUse(data.payload)
+      return
+    }
+
+    if (data.type === "tool_result" && data.payload) {
+      handlers.onToolResult(data.payload)
       return
     }
 

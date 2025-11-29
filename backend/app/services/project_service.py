@@ -226,12 +226,13 @@ class ProjectService:
                         tool_name = payload.get("name") or "tool"
                         tool_input = payload.get("input")
                         # Track tool part for ordered reconstruction
+                        # Initial state is "input-available" to match frontend websocket behavior
                         content_parts.append(
                             {
                                 "type": "tool_use",
                                 "id": tool_id,
                                 "name": tool_name,
-                                "state": "output-available",
+                                "state": "input-available",
                                 "input": tool_input,
                             }
                         )
@@ -247,7 +248,25 @@ class ProjectService:
                             assistant_content, tool_message, separator="\n\n"
                         )
                         await persist_content()
+                    elif event_type == "tool_result":
+                        # Update tool state to "output-available" when result arrives
+                        tool_use_id = payload.get("tool_use_id")
+                        for part in content_parts:
+                            if (
+                                part.get("type") == "tool_use"
+                                and part.get("id") == tool_use_id
+                            ):
+                                part["state"] = "output-available"
+                                part["output"] = payload.get("content")
+                                part["is_error"] = payload.get("is_error", False)
+                                break
+                        await persist_content()
                     elif event_type == "result_message":
+                        # Transition any remaining tool states to "output-available" on completion
+                        for part in content_parts:
+                            if part.get("type") == "tool_use" and part.get("state") == "input-available":
+                                part["state"] = "output-available"
+
                         cost = payload.get("total_cost_usd")
                         usage = payload.get("usage") or {}
                         summary_parts: list[str] = []
@@ -287,6 +306,16 @@ class ProjectService:
                             ProjectEvent(
                                 project_id=project_id,
                                 type=ProjectEventType.TOOL_USE,
+                                message=None,
+                                payload=payload,
+                                generation_id=user_message_id,
+                            )
+                        )
+                    elif event_type == "tool_result":
+                        await self.notification_service.publish_event(
+                            ProjectEvent(
+                                project_id=project_id,
+                                type=ProjectEventType.TOOL_RESULT,
                                 message=None,
                                 payload=payload,
                                 generation_id=user_message_id,
