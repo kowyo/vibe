@@ -136,7 +136,7 @@ export function useProjectWebSocket(
         }
       },
       onToolUse: (payload) => {
-        const toolId = payload.id || `tool_${Date.now()}`
+        const toolId = payload.id || crypto.randomUUID()
         const toolName = payload.name || "unknown"
         updateActiveAssistantMessage((msg) => {
           const existingTools = msg.toolInvocations || []
