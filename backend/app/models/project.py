@@ -47,6 +47,7 @@ class Project(BaseModel):
     created_at: datetime = Field(default_factory=_utcnow)
     updated_at: datetime = Field(default_factory=_utcnow)
     preview_url: str | None = None
+    session_id: str | None = None  # Claude Agent SDK session ID for resumption
     metadata: dict[str, Any] = Field(default_factory=dict)
 
 

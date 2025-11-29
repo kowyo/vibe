@@ -414,8 +414,12 @@ class ProjectService:
                             prompt=effective_prompt,
                             project_root=generation_root,
                             emit=emit_claude_message,
+                            session_id=project.session_id,
                         )
                         preview_path = outcome.preview_path
+                        # Persist session_id for future conversation resumption
+                        if outcome.session_id and outcome.session_id != project.session_id:
+                            await repo.update_project_session_id(project_id, outcome.session_id)
                         await emit_log("Claude generation finished.")
                     else:
                         preview_path = await run_fallback(

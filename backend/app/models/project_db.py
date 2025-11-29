@@ -19,6 +19,7 @@ class ProjectDB(Base):
     status = Column(String, nullable=False, default="pending")
     project_dir = Column(String, nullable=False)  # Stored as string path
     preview_url = Column(String, nullable=True)
+    session_id = Column(String, nullable=True)  # Claude Agent SDK session ID for resumption
     project_metadata = Column(
         "metadata", JSON, nullable=False, default=dict
     )  # Column name "metadata" in DB, but attribute is project_metadata
