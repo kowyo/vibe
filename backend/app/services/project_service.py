@@ -222,8 +222,8 @@ class ProjectService:
                             )
                             await persist_content()
                     elif event_type == "tool_use":
-                        tool_id = payload.get("id") or f"tool_{len(content_parts)}"
-                        tool_name = payload.get("name") or "tool"
+                        tool_id = val if (val := payload.get("id")) is not None else f"tool_{len(content_parts)}"
+                        tool_name = val if (val := payload.get("name")) is not None else "tool"
                         tool_input = payload.get("input")
                         # Track tool part for ordered reconstruction
                         # Initial state is "input-available" to match frontend websocket behavior
