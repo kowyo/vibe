@@ -1,8 +1,6 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
-
 from app.models.project import ProjectStatus
 from app.models.project_db import Base
 from app.repositories.project_repository import ProjectRepository
@@ -13,6 +11,7 @@ from app.services.notification_service import NotificationService
 from app.services.preview_service import PreviewService
 from app.services.project_service import ProjectService
 from app.services.task_service import TaskService
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 
 @pytest.fixture

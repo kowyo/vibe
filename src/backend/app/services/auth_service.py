@@ -3,14 +3,13 @@ from __future__ import annotations
 import asyncio
 
 import jwt
+from app.config import settings
+from app.models.user import User
 from fastapi import HTTPException, status
 from jwt import PyJWKClient
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.config import settings
-from app.models.user import User
 
 
 class AuthService:

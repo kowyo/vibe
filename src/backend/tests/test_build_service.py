@@ -2,9 +2,8 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
-import pytest
-
 import app.services.build_service as build_service_module
+import pytest
 from app.services.build_service import BuildService
 
 

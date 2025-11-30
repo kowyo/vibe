@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
+from app.database import Base
 from sqlalchemy import Column, DateTime, String
 from sqlalchemy.orm import relationship
-
-from app.database import Base
 
 
 class User(Base):
