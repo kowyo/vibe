@@ -38,8 +38,8 @@ jobs:
 
       - name: Format Python code
         uses: astral-sh/ruff-action@v3
-      - run: ruff check --fix backend/
-      - run: ruff format backend/
+      - run: ruff check --fix src/backend/
+      - run: ruff format src/backend/
 
       - name: Commit and push changes
         run: |
