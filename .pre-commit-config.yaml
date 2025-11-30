@@ -1,0 +1,61 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: no-commit-to-branch
+        args: ['--branch', 'main']
+
+  - repo: local
+    hooks:
+      - id: frontend-lint
+        name: Frontend Lint
+        entry: bun run lint
+        language: system
+        files: \.(ts|tsx|js|jsx)$
+        pass_filenames: false
+        
+      - id: frontend-format
+        name: Frontend Format
+        entry: bun run format
+        language: system
+        files: \.(ts|tsx|js|jsx)$
+        pass_filenames: false
+        
+      - id: frontend-knip
+        name: Frontend Dead Code Check
+        entry: bun run knip
+        language: system
+        pass_filenames: false
+        
+      - id: frontend-test
+        name: Frontend Tests
+        entry: bun run test --run
+        language: system
+        pass_filenames: false
+        
+      - id: backend-lint
+        name: Backend Lint
+        entry: bash -c 'cd backend && uv run ruff check .'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+        
+      - id: backend-type-check
+        name: Backend Type Check
+        entry: bash -c 'cd backend && uv run mypy .'
+        language: system
+        files: ^backend/.*\.py$
+        pass_filenames: false
+        
+      - id: backend-test
+        name: Backend Tests
+        entry: bash -c 'cd backend && uv run pytest'
+        language: system
+        pass_filenames: false

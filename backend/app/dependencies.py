@@ -41,13 +41,9 @@ def _extract_token_from_request(
     if token_param:
         return token_param
 
-    # Try cookie (better-auth might set session token in cookie)
-    # Better-auth typically uses cookie name patterns like:
-    # - "better-auth.session_token"
-    # - "better-auth.sessionToken"
-    # - "session_token" (without prefix in some configurations)
+    # Try cookie extraction with simplified logic
     if cookie:
-        # The cookie header might contain multiple cookies, parse it
+        # Parse cookies safely
         cookies_dict = {}
         for cookie_part in cookie.split(";"):
             cookie_part = cookie_part.strip()
@@ -56,25 +52,15 @@ def _extract_token_from_request(
                 name = name.strip()
                 cookies_dict[name] = value
 
-        # Try common better-auth cookie name patterns (in order of likelihood)
-        cookie_patterns = [
+        # Check for better-auth session token patterns
+        auth_patterns = [
             "better-auth.session_token",
-            "better-auth.sessionToken",
+            "better-auth.sessionToken", 
             "session_token",
             "sessionToken",
         ]
-
-        # Also check for cookies that contain both "session" and "token" in the name
-        for name, value in cookies_dict.items():
-            name_lower = name.lower()
-            has_session_pattern = any(
-                pattern in name_lower for pattern in ["better-auth", "session"]
-            )
-            if has_session_pattern and "token" in name_lower:
-                return value
-
-        # Fallback: try exact matches
-        for pattern in cookie_patterns:
+        
+        for pattern in auth_patterns:
             if pattern in cookies_dict:
                 return cookies_dict[pattern]
 

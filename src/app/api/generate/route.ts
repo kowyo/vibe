@@ -1,157 +1,91 @@
 import { NextResponse } from "next/server"
+import { authClient } from "@/lib/auth-client"
 
-// Mock API endpoint that simulates Claude Agent backend
+// Input validation schema
+const MAX_PROMPT_LENGTH = 1000
+const MIN_PROMPT_LENGTH = 10
+
+function validatePrompt(prompt: unknown): string {
+  if (typeof prompt !== 'string') {
+    throw new Error('Prompt must be a string')
+  }
+  
+  const trimmed = prompt.trim()
+  
+  if (trimmed.length < MIN_PROMPT_LENGTH) {
+    throw new Error(`Prompt must be at least ${MIN_PROMPT_LENGTH} characters long`)
+  }
+  
+  if (trimmed.length > MAX_PROMPT_LENGTH) {
+    throw new Error(`Prompt must not exceed ${MAX_PROMPT_LENGTH} characters`)
+  }
+  
+  // Basic XSS prevention - remove script tags and dangerous patterns
+  const sanitized = trimmed
+    .replace(/<script[^>]*>.*?<\/script>/gi, '')
+    .replace(/javascript:/gi, '')
+    .replace(/on\w+\s*=/gi, '')
+  
+  return sanitized
+}
+
 export async function POST(request: Request) {
   try {
-    const { prompt } = await request.json()
-
-    // Simulate processing delay
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-
-    // Generate mock response based on prompt
-    const mockFiles = [
-      {
-        path: "src/App.tsx",
-        content: `import React, { useState } from 'react'
-import './App.css'
-
-function App() {
-  const [items, setItems] = useState<string[]>([])
-  const [input, setInput] = useState('')
-
-  const handleAdd = () => {
-    if (input.trim()) {
-      setItems([...items, input])
-      setInput('')
+    // Get the current session
+    const session = await authClient.getSession()
+    
+    if (!session?.session?.token) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 }
+      )
     }
-  }
 
-  const handleDelete = (index: number) => {
-    setItems(items.filter((_, i) => i !== index))
-  }
+    const body = await request.json()
+    
+    // Validate input
+    let prompt: string
+    try {
+      prompt = validatePrompt(body.prompt)
+    } catch (error) {
+      return NextResponse.json(
+        { error: error instanceof Error ? error.message: "Invalid prompt" },
+        { status: 400 }
+      )
+    }
 
-  return (
-    <div className="app">
-      <h1>${prompt.slice(0, 50)}...</h1>
-      <div className="input-container">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
-          placeholder="Enter item..."
-        />
-        <button onClick={handleAdd}>Add</button>
-      </div>
-      <ul className="items-list">
-        {items.map((item, index) => (
-          <li key={index}>
-            <span>{item}</span>
-            <button onClick={() => handleDelete(index)}>Delete</button>
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-}
-
-export default App`,
+    // Call the backend API
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'
+    
+    const response = await fetch(`${backendUrl}/api/generate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session.session.token}`,
       },
-      {
-        path: "src/App.css",
-        content: `.app {
-  max-width: 600px;
-  margin: 50px auto;
-  padding: 20px;
-  font-family: system-ui, -apple-system, sans-serif;
-}
-
-h1 {
-  color: #333;
-  margin-bottom: 20px;
-}
-
-.input-container {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-input {
-  flex: 1;
-  padding: 10px;
-  border: 2px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-}
-
-button {
-  padding: 10px 20px;
-  background: #0070f3;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-button:hover {
-  background: #0051cc;
-}
-
-.items-list {
-  list-style: none;
-  padding: 0;
-}
-
-.items-list li {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px;
-  margin-bottom: 8px;
-  background: #f5f5f5;
-  border-radius: 6px;
-}
-
-.items-list button {
-  background: #ff4444;
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.items-list button:hover {
-  background: #cc0000;
-}`,
-      },
-      {
-        path: "package.json",
-        content: `{
-  "name": "generated-app",
-  "version": "1.0.0",
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
-  },
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build"
-  }
-}`,
-      },
-    ]
-
-    // Mock preview URL (in production, this would be a real preview server)
-    const previewUrl = `https://stackblitz.com/edit/react-${Date.now()}?embed=1&file=src/App.tsx`
-
-    return NextResponse.json({
-      files: mockFiles,
-      preview_url: previewUrl,
-      project_id: `project-${Date.now()}`,
+      body: JSON.stringify({ prompt }),
     })
-  } catch {
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+      return NextResponse.json(
+        { error: errorData.error || 'Failed to generate project' },
+        { status: response.status }
+      )
+    }
+
+    const data = await response.json()
+    
+    return NextResponse.json({
+      files: data.files,
+      preview_url: data.preview_url,
+      project_id: data.id,
+    })
+    
+  } catch (error) {
+    console.error('Generate API error:', error)
     return NextResponse.json(
-      { error: "Failed to generate app" },
+      { error: "Internal server error" },
       { status: 500 }
     )
   }

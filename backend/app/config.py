@@ -29,7 +29,6 @@ class Settings(BaseSettings):
     preview_scheme: str = "http"
     preview_host: str | None = None
     better_auth_secret: str = Field(
-        default="your-secret-key-change-in-production",
         description="Secret key for better-auth JWT verification",
     )
     better_auth_url: str = Field(

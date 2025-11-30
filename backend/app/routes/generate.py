@@ -8,7 +8,29 @@ from app.models.api import ProjectGenerateRequest, ProjectGenerateResponse
 router = APIRouter(prefix="/generate", tags=["generation"])
 
 
-@router.post("", response_model=ProjectGenerateResponse, status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "",
+    response_model=ProjectGenerateResponse,
+    status_code=status.HTTP_202_ACCEPTED,
+    summary="Start project generation",
+    description="Create a new project and start AI generation based on the provided prompt",
+    responses={
+        202: {
+            "description": "Project generation started successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "project_id": "proj_123",
+                        "status": "generating",
+                        "generation_id": "gen_456"
+                    }
+                }
+            }
+        },
+        401: {"description": "Authentication required"},
+        422: {"description": "Validation error"},
+    }
+)
 async def start_generation(
     payload: ProjectGenerateRequest,
     service: ProjectServiceDep,

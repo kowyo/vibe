@@ -37,8 +37,20 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     app = FastAPI(
         title="Claude App Builder Backend",
+        description="AI-powered web application builder that transforms natural language prompts into fully functional web applications",
         version="0.1.0",
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
         lifespan=lifespan,
+        contact={
+            "name": "Support",
+            "email": "support@claude-app-builder.com",
+        },
+        license_info={
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT",
+        },
     )
 
     app.add_middleware(
