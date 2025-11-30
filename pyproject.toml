@@ -52,7 +52,7 @@ strict = true
 plugins = []
 
 [tool.hatch.build.targets.wheel]
-packages = ["app"]
+packages = ["src/backend/app"]
 
 [tool.hatch.build.targets.sdist]
-include = ["app", "pyproject.toml"]
+include = ["src/backend/app", "pyproject.toml"]
