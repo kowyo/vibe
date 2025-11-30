@@ -12,7 +12,7 @@ class Settings(BaseSettings):
 
     model_config = SettingsConfigDict(
         env_prefix="CLAUDE_APP_",
-        env_file=Path(__file__).parent.parent.parent / ".env",
+        env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
     )
