@@ -6,8 +6,6 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
-
 from app.models.api import ProjectFileEntry
 from app.models.project import (
     Project,
@@ -28,6 +26,7 @@ from app.services.notification_service import NotificationService
 from app.services.preview_service import PreviewService
 from app.services.task_service import TaskService
 from app.tools.file_adapter import FileAdapter
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 
 class ProjectService:

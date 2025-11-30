@@ -5,9 +5,6 @@ from pathlib import Path
 from typing import Any
 from uuid import uuid4
 
-from sqlalchemy import func, select
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models.message_db import ProjectMessageDB
 from app.models.project import (
     Project,
@@ -19,6 +16,8 @@ from app.models.project_message import (
     ProjectMessageRole,
     ProjectMessageStatus,
 )
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class ProjectNotFoundError(Exception):
