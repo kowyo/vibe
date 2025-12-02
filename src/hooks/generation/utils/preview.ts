@@ -1,7 +1,4 @@
-export const toAbsolutePreviewUrl = async (
-  raw: string,
-  backendOrigin: string
-): Promise<string> => {
+export const toAbsolutePreviewUrl = async (raw: string, backendOrigin: string): Promise<string> => {
   if (!raw) {
     return ""
   }
