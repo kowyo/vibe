@@ -60,7 +60,7 @@ class AuthService:
         except Exception as exc:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail=f"Token verification failed: {str(exc)}",
+                detail="Token verification failed",
             ) from exc
 
     async def get_user_from_token(self, token: str, db: AsyncSession) -> User:
