@@ -34,52 +34,34 @@ class AuthService:
 
     async def verify_token(self, token: str) -> dict:
         """Verify JWT token and return payload."""
-        # Run the synchronous JWT verification in a thread pool to avoid blocking
-        # the async event loop during the HTTP request to fetch JWKS
-        loop = asyncio.get_event_loop()
+        return await asyncio.to_thread(self._verify_token_sync, token)
 
-        def _verify_sync():
-            try:
-                # Get the signing key from JWKS using PyJWKClient
-                signing_key = self.jwks_client.get_signing_key_from_jwt(token)
-
-                # Decode token without verification to fail fast on malformed tokens
-                jwt.decode(token, options={"verify_signature": False})
-
-                # Better-auth uses the baseURL as issuer and audience
-                issuer = self.better_auth_url
-
-                # Verify and decode the token
-                payload = jwt.decode(
-                    token,
-                    signing_key.key,
-                    algorithms=["EdDSA"],  # Ed25519 uses EdDSA algorithm
-                    audience=issuer,
-                    issuer=issuer,
-                    options={"verify_signature": True},
-                )
-                return payload
-            except ExpiredSignatureError as e:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Token has expired",
-                ) from e
-            except InvalidTokenError as e:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail=f"Invalid token: {str(e)}",
-                ) from e
-            except Exception as e:
-                import traceback
-
-                traceback.print_exc()
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail=f"Token verification failed: {str(e)}",
-                ) from e
-
-        # Run the synchronous function in a thread pool
-        return await loop.run_in_executor(None, _verify_sync)
+    def _verify_token_sync(self, token: str) -> dict:
+        try:
+            signing_key = self.jwks_client.get_signing_key_from_jwt(token)
+            issuer = self.better_auth_url
+            return jwt.decode(
+                token,
+                signing_key.key,
+                algorithms=["EdDSA"],
+                audience=issuer,
+                issuer=issuer,
+            )
+        except ExpiredSignatureError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token has expired",
+            ) from exc
+        except InvalidTokenError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Invalid token: {str(exc)}",
+            ) from exc
+        except Exception as exc:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"Token verification failed: {str(exc)}",
+            ) from exc
 
     async def get_user_from_token(self, token: str, db: AsyncSession) -> User:
         """Get user from token, creating user if not exists."""

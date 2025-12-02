@@ -4,15 +4,10 @@ import type { WebSocketMessageHandler } from "../services/websocket"
 import { getBackendOrigin, getWsBaseUrl } from "../utils/api"
 import { toAbsolutePreviewUrl } from "../utils/preview"
 import type { useProjectState } from "./use-project-state"
-import type { SessionData } from "@/lib/auth-client"
 
 type ProjectState = ReturnType<typeof useProjectState>
 
-export function useProjectWebSocket(
-  state: ProjectState,
-  apiBaseUrl: string,
-  session: SessionData | null
-) {
+export function useProjectWebSocket(state: ProjectState, apiBaseUrl: string) {
   const wsRef = useRef<WebSocket | null>(null)
   const wsBaseEnv = useMemo(() => getWsBaseUrl(), [])
   const backendOrigin = useMemo(() => getBackendOrigin(apiBaseUrl), [apiBaseUrl])
@@ -22,8 +17,6 @@ export function useProjectWebSocket(
     addLog,
     updateActiveAssistantMessage,
     setActiveTab,
-    basePreviewUrlRef,
-    previewUrlWithTokenRef,
     setPreviewUrl,
     currentGenerationIdRef,
   } = state
@@ -32,19 +25,11 @@ export function useProjectWebSocket(
   const updatePreview = useCallback(
     async (raw?: string | null) => {
       if (!raw) {
-        basePreviewUrlRef.current = ""
-        previewUrlWithTokenRef.current = ""
         setPreviewUrl("")
         return
       }
       try {
-        const url = await toAbsolutePreviewUrl(
-          raw,
-          backendOrigin,
-          session,
-          basePreviewUrlRef,
-          previewUrlWithTokenRef
-        )
+        const url = await toAbsolutePreviewUrl(raw, backendOrigin)
         setPreviewUrl(url)
       } catch (error) {
         console.error("Error updating preview URL:", error)
@@ -65,7 +50,7 @@ export function useProjectWebSocket(
         }
       }
     },
-    [backendOrigin, session, basePreviewUrlRef, previewUrlWithTokenRef, setPreviewUrl]
+    [backendOrigin, setPreviewUrl]
   )
 
   const wsHandlers: WebSocketMessageHandler = useMemo(

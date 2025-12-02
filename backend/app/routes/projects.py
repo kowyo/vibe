@@ -301,9 +301,7 @@ async def fetch_preview_asset(
 
     if selected_path.suffix.lower() == ".html":
         text = await asyncio.to_thread(selected_path.read_text, encoding="utf-8")
-        # Get token from request state (set by get_current_user dependency)
-        auth_token = getattr(request.state, "auth_token", None)
-        rewritten = service.preview_service.rewrite_preview_html(text, token=auth_token)
+        rewritten = service.preview_service.rewrite_preview_html(text)
         return Response(rewritten.encode("utf-8"), media_type=media_type)
 
     content = await asyncio.to_thread(selected_path.read_bytes)

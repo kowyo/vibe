@@ -87,7 +87,7 @@ class PreviewService:
         candidate = parent / "assets" / relative.name
         return candidate
 
-    def rewrite_preview_html(self, document: str, token: str | None = None) -> str:
+    def rewrite_preview_html(self, document: str) -> str:
         """Rewrite absolute asset references to relative ones for iframe previews."""
 
         def _replace(match: re.Match[str]) -> str:
@@ -104,11 +104,6 @@ class PreviewService:
 
             # Rewrite to relative path
             rewritten_path = f"./{stripped}"
-
-            # Append token as query parameter if provided
-            if token:
-                separator = "&" if "?" in rewritten_path else "?"
-                rewritten_path = f"{rewritten_path}{separator}token={token}"
 
             return f"{match.group('prefix')}{rewritten_path}"
 
