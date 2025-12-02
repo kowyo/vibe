@@ -73,19 +73,8 @@ import {
 } from "@icons-pack/react-simple-icons"
 import { useControllableState } from "@radix-ui/react-use-controllable-state"
 import { CheckIcon, CopyIcon } from "lucide-react"
-import type {
-  ComponentProps,
-  HTMLAttributes,
-  ReactElement,
-  ReactNode,
-} from "react"
-import {
-  cloneElement,
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-} from "react"
+import type { ComponentProps, HTMLAttributes, ReactElement, ReactNode } from "react"
+import { cloneElement, createContext, useContext, useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -290,48 +279,29 @@ export const CodeBlock = ({
 
   return (
     <CodeBlockContext.Provider value={{ value, onValueChange, data }}>
-      <div
-        className={cn("size-full overflow-hidden rounded-md border", className)}
-        {...props}
-      />
+      <div className={cn("size-full overflow-hidden rounded-md border", className)} {...props} />
     </CodeBlockContext.Provider>
   )
 }
 
 export type CodeBlockHeaderProps = HTMLAttributes<HTMLDivElement>
 
-export const CodeBlockHeader = ({
-  className,
-  ...props
-}: CodeBlockHeaderProps) => (
+export const CodeBlockHeader = ({ className, ...props }: CodeBlockHeaderProps) => (
   <div
-    className={cn(
-      "flex flex-row items-center border-b bg-secondary p-1",
-      className
-    )}
+    className={cn("flex flex-row items-center border-b bg-secondary p-1", className)}
     {...props}
   />
 )
 
-export type CodeBlockFilesProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  "children"
-> & {
+export type CodeBlockFilesProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
   children: (item: CodeBlockData) => ReactNode
 }
 
-export const CodeBlockFiles = ({
-  className,
-  children,
-  ...props
-}: CodeBlockFilesProps) => {
+export const CodeBlockFiles = ({ className, children, ...props }: CodeBlockFilesProps) => {
   const { data } = useContext(CodeBlockContext)
 
   return (
-    <div
-      className={cn("flex grow flex-row items-center gap-2", className)}
-      {...props}
-    >
+    <div className={cn("flex grow flex-row items-center gap-2", className)} {...props}>
       {data.map(children)}
     </div>
   )
@@ -383,36 +353,22 @@ export const CodeBlockSelect = (props: CodeBlockSelectProps) => {
 
 export type CodeBlockSelectTriggerProps = ComponentProps<typeof SelectTrigger>
 
-export const CodeBlockSelectTrigger = ({
-  className,
-  ...props
-}: CodeBlockSelectTriggerProps) => (
+export const CodeBlockSelectTrigger = ({ className, ...props }: CodeBlockSelectTriggerProps) => (
   <SelectTrigger
-    className={cn(
-      "w-fit border-none text-muted-foreground text-xs shadow-none",
-      className
-    )}
+    className={cn("w-fit border-none text-muted-foreground text-xs shadow-none", className)}
     {...props}
   />
 )
 
 export type CodeBlockSelectValueProps = ComponentProps<typeof SelectValue>
 
-export const CodeBlockSelectValue = (props: CodeBlockSelectValueProps) => (
-  <SelectValue {...props} />
-)
+export const CodeBlockSelectValue = (props: CodeBlockSelectValueProps) => <SelectValue {...props} />
 
-export type CodeBlockSelectContentProps = Omit<
-  ComponentProps<typeof SelectContent>,
-  "children"
-> & {
+export type CodeBlockSelectContentProps = Omit<ComponentProps<typeof SelectContent>, "children"> & {
   children: (item: CodeBlockData) => ReactNode
 }
 
-export const CodeBlockSelectContent = ({
-  children,
-  ...props
-}: CodeBlockSelectContentProps) => {
+export const CodeBlockSelectContent = ({ children, ...props }: CodeBlockSelectContentProps) => {
   const { data } = useContext(CodeBlockContext)
 
   return <SelectContent {...props}>{data.map(children)}</SelectContent>
@@ -420,10 +376,7 @@ export const CodeBlockSelectContent = ({
 
 export type CodeBlockSelectItemProps = ComponentProps<typeof SelectItem>
 
-export const CodeBlockSelectItem = ({
-  className,
-  ...props
-}: CodeBlockSelectItemProps) => (
+export const CodeBlockSelectItem = ({ className, ...props }: CodeBlockSelectItemProps) => (
   <SelectItem className={cn("text-sm", className)} {...props} />
 )
 
@@ -447,11 +400,7 @@ export const CodeBlockCopyButton = ({
   const code = data.find((item) => item.language === value)?.code
 
   const copyToClipboard = () => {
-    if (
-      typeof window === "undefined" ||
-      !navigator.clipboard.writeText ||
-      !code
-    ) {
+    if (typeof window === "undefined" || !navigator.clipboard.writeText || !code) {
       return
     }
 
@@ -504,10 +453,7 @@ const CodeBlockFallback = ({ children, ...props }: CodeBlockFallbackProps) => (
   </div>
 )
 
-export type CodeBlockBodyProps = Omit<
-  HTMLAttributes<HTMLDivElement>,
-  "children"
-> & {
+export type CodeBlockBodyProps = Omit<HTMLAttributes<HTMLDivElement>, "children"> & {
   children: (item: CodeBlockData) => ReactNode
 }
 
@@ -598,10 +544,7 @@ export const CodeBlockContent = ({
         setHighlightedCode(html)
         setIsLoading(false)
       } catch (error) {
-        console.error(
-          `Failed to highlight code for language "${language}":`,
-          error
-        )
+        console.error(`Failed to highlight code for language "${language}":`, error)
         setIsLoading(false)
       }
     }
@@ -613,7 +556,5 @@ export const CodeBlockContent = ({
     return <CodeBlockFallback {...props}>{children}</CodeBlockFallback>
   }
 
-  return (
-    <div dangerouslySetInnerHTML={{ __html: highlightedCode }} {...props} />
-  )
+  return <div dangerouslySetInnerHTML={{ __html: highlightedCode }} {...props} />
 }

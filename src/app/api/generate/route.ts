@@ -150,9 +150,6 @@ button:hover {
       project_id: `project-${Date.now()}`,
     })
   } catch {
-    return NextResponse.json(
-      { error: "Failed to generate app" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Failed to generate app" }, { status: 500 })
   }
 }

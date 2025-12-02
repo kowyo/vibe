@@ -15,10 +15,7 @@ export function useProjectWebSocket(
 ) {
   const wsRef = useRef<WebSocket | null>(null)
   const wsBaseEnv = useMemo(() => getWsBaseUrl(), [])
-  const backendOrigin = useMemo(
-    () => getBackendOrigin(apiBaseUrl),
-    [apiBaseUrl]
-  )
+  const backendOrigin = useMemo(() => getBackendOrigin(apiBaseUrl), [apiBaseUrl])
 
   const {
     setProjectStatus,
@@ -68,13 +65,7 @@ export function useProjectWebSocket(
         }
       }
     },
-    [
-      backendOrigin,
-      session,
-      basePreviewUrlRef,
-      previewUrlWithTokenRef,
-      setPreviewUrl,
-    ]
+    [backendOrigin, session, basePreviewUrlRef, previewUrlWithTokenRef, setPreviewUrl]
   )
 
   const wsHandlers: WebSocketMessageHandler = useMemo(
@@ -89,17 +80,9 @@ export function useProjectWebSocket(
       },
       onStatusUpdated: (status) => {
         setProjectStatus(status)
-        addLog(
-          status === "ready" ? "success" : "info",
-          `Status changed to ${status}`
-        )
+        addLog(status === "ready" ? "success" : "info", `Status changed to ${status}`)
         updateActiveAssistantMessage(() => ({
-          status:
-            status === "failed"
-              ? "error"
-              : status === "ready"
-                ? "complete"
-                : "pending",
+          status: status === "failed" ? "error" : status === "ready" ? "complete" : "pending",
         }))
       },
       onLogAppended: (message) => {
@@ -112,9 +95,7 @@ export function useProjectWebSocket(
       onError: (message) => {
         addLog("error", message)
         updateActiveAssistantMessage((msg) => ({
-          content: msg.content
-            ? `${msg.content}\n\n❌ Error: ${message}`
-            : message,
+          content: msg.content ? `${msg.content}\n\n❌ Error: ${message}` : message,
           status: "error",
         }))
         setProjectStatus("failed")
@@ -150,18 +131,13 @@ export function useProjectWebSocket(
           }
           const newTools =
             existingIndex >= 0
-              ? existingTools.map((t, i) =>
-                  i === existingIndex ? { ...t, ...toolInvocation } : t
-                )
+              ? existingTools.map((t, i) => (i === existingIndex ? { ...t, ...toolInvocation } : t))
               : [...existingTools, toolInvocation]
           // Add to contentParts only if it's a new tool (not an update)
           const newParts =
             existingIndex >= 0
               ? existingParts
-              : [
-                  ...existingParts,
-                  { type: "tool_use" as const, ...toolInvocation },
-                ]
+              : [...existingParts, { type: "tool_use" as const, ...toolInvocation }]
           return {
             toolInvocations: newTools,
             contentParts: newParts,
@@ -211,10 +187,7 @@ export function useProjectWebSocket(
           status: "complete",
           toolInvocations: msg.toolInvocations?.map((tool) => ({
             ...tool,
-            state:
-              tool.state === "input-available"
-                ? "output-available"
-                : tool.state,
+            state: tool.state === "input-available" ? "output-available" : tool.state,
           })),
           contentParts: msg.contentParts?.map((part) =>
             part.type === "tool_use" && part.state === "input-available"
@@ -229,13 +202,7 @@ export function useProjectWebSocket(
       setActiveTab,
       updatePreview,
     }),
-    [
-      addLog,
-      updateActiveAssistantMessage,
-      setProjectStatus,
-      setActiveTab,
-      updatePreview,
-    ]
+    [addLog, updateActiveAssistantMessage, setProjectStatus, setActiveTab, updatePreview]
   )
 
   const closeWebSocket = useCallback(() => {
@@ -248,35 +215,19 @@ export function useProjectWebSocket(
   const startWebSocket = useCallback(
     (id: string) => {
       closeWebSocket()
-      const socket = createWebSocket(
-        id,
-        wsBaseEnv,
-        backendOrigin,
-        wsHandlers,
-        (genId) => {
-          // If we have a current generation ID, only process events that match it
-          // or events that have no ID (system events)
-          if (
-            currentGenerationIdRef.current &&
-            genId &&
-            currentGenerationIdRef.current !== genId
-          ) {
-            return false
-          }
-          return true
+      const socket = createWebSocket(id, wsBaseEnv, backendOrigin, wsHandlers, (genId) => {
+        // If we have a current generation ID, only process events that match it
+        // or events that have no ID (system events)
+        if (currentGenerationIdRef.current && genId && currentGenerationIdRef.current !== genId) {
+          return false
         }
-      )
+        return true
+      })
       if (socket) {
         wsRef.current = socket
       }
     },
-    [
-      closeWebSocket,
-      wsBaseEnv,
-      backendOrigin,
-      wsHandlers,
-      currentGenerationIdRef,
-    ]
+    [closeWebSocket, wsBaseEnv, backendOrigin, wsHandlers, currentGenerationIdRef]
   )
 
   // Cleanup on unmount

@@ -10,23 +10,14 @@ import {
   PromptInputFooter,
   PromptInputTools,
 } from "@/components/ai-elements/prompt-input"
-import {
-  Message,
-  MessageContent,
-  MessageResponse,
-} from "@/components/ai-elements/message"
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message"
 import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation"
-import {
-  Tool,
-  ToolContent,
-  ToolHeader,
-  ToolInput,
-} from "@/components/ai-elements/tool"
+import { Tool, ToolContent, ToolHeader, ToolInput } from "@/components/ai-elements/tool"
 import { Sparkles } from "lucide-react"
 import { useSession } from "@/lib/auth-client"
 import type { ToolInvocation, ContentPart } from "@/hooks/generation/types"
@@ -66,11 +57,7 @@ export function ConversationPanel({
         if (part.type === "tool_use") {
           return (
             <Tool key={part.id}>
-              <ToolHeader
-                title={part.name}
-                type={`tool-${part.name}`}
-                state={part.state}
-              />
+              <ToolHeader title={part.name} type={`tool-${part.name}`} state={part.state} />
               <ToolContent>
                 <ToolInput input={part.input} />
               </ToolContent>
@@ -84,16 +71,10 @@ export function ConversationPanel({
     // Fallback: render content first, then tool invocations (for live messages)
     return (
       <>
-        {message.content && (
-          <MessageResponse>{message.content}</MessageResponse>
-        )}
+        {message.content && <MessageResponse>{message.content}</MessageResponse>}
         {message.toolInvocations?.map((tool: ToolInvocation) => (
           <Tool key={tool.id}>
-            <ToolHeader
-              title={tool.name}
-              type={`tool-${tool.name}`}
-              state={tool.state}
-            />
+            <ToolHeader title={tool.name} type={`tool-${tool.name}`} state={tool.state} />
             <ToolContent>
               <ToolInput input={tool.input} />
             </ToolContent>
@@ -131,9 +112,7 @@ export function ConversationPanel({
             <div className="space-y-2">
               {orderedMessages.map((message) => (
                 <Message from={message.role} key={message.id}>
-                  <MessageContent>
-                    {renderMessageContent(message)}
-                  </MessageContent>
+                  <MessageContent>{renderMessageContent(message)}</MessageContent>
                 </Message>
               ))}
             </div>
@@ -146,9 +125,7 @@ export function ConversationPanel({
         <PromptInputTextarea
           name="message"
           value={prompt}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-            onPromptChange(e.target.value)
-          }
+          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onPromptChange(e.target.value)}
           disabled={isGenerating}
           placeholder="What do you want to build today?"
         />

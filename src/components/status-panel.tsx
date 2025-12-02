@@ -29,25 +29,15 @@ export function StatusPanel({ logs }: StatusPanelProps) {
                   key={index}
                   className={cn(
                     "flex items-start gap-3 rounded-md p-3 text-sm",
-                    log.type === "error" &&
-                      "bg-destructive/10 text-destructive",
-                    log.type === "success" &&
-                      "bg-green-500/10 text-green-700 dark:text-green-400",
+                    log.type === "error" && "bg-destructive/10 text-destructive",
+                    log.type === "success" && "bg-green-500/10 text-green-700 dark:text-green-400",
                     log.type === "info" && "bg-muted text-foreground"
                   )}
                 >
-                  {log.type === "error" && (
-                    <XCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                  )}
-                  {log.type === "success" && (
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-                  )}
-                  {log.type === "info" && (
-                    <Info className="mt-0.5 h-4 w-4 shrink-0" />
-                  )}
-                  <span className="font-mono text-xs leading-relaxed">
-                    {log.message}
-                  </span>
+                  {log.type === "error" && <XCircle className="mt-0.5 h-4 w-4 shrink-0" />}
+                  {log.type === "success" && <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />}
+                  {log.type === "info" && <Info className="mt-0.5 h-4 w-4 shrink-0" />}
+                  <span className="font-mono text-xs leading-relaxed">{log.message}</span>
                 </div>
               ))}
             </div>

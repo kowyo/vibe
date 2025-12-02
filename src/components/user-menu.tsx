@@ -38,10 +38,7 @@ export function UserMenu() {
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 rounded-full hover:opacity-80 transition-opacity focus:outline-none">
           <Avatar>
-            <AvatarImage
-              src={user.image ?? undefined}
-              referrerPolicy="no-referrer"
-            />
+            <AvatarImage src={user.image ?? undefined} referrerPolicy="no-referrer" />
           </Avatar>
         </button>
       </DropdownMenuTrigger>

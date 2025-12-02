@@ -23,10 +23,7 @@ export const fetchProjectStatus = async (
 
     if (!response.ok) {
       if (!statusErrorLoggedRef.current) {
-        handlers.addLog(
-          "error",
-          `Failed to fetch status (status ${response.status})`
-        )
+        handlers.addLog("error", `Failed to fetch status (status ${response.status})`)
         statusErrorLoggedRef.current = true
       }
       return
@@ -74,23 +71,17 @@ export const startPolling = (
   statusErrorLoggedRef: React.RefObject<boolean>,
   pollingRef: React.RefObject<number | null>
 ): void => {
-  pollProject(projectId, handlers, fileHandlers, statusErrorLoggedRef).catch(
-    () => {
-      // errors surfaced via logging inside helpers
-    }
-  )
+  pollProject(projectId, handlers, fileHandlers, statusErrorLoggedRef).catch(() => {
+    // errors surfaced via logging inside helpers
+  })
   pollingRef.current = window.setInterval(() => {
-    pollProject(projectId, handlers, fileHandlers, statusErrorLoggedRef).catch(
-      () => {
-        // errors surfaced via logging inside helpers
-      }
-    )
+    pollProject(projectId, handlers, fileHandlers, statusErrorLoggedRef).catch(() => {
+      // errors surfaced via logging inside helpers
+    })
   }, 3000)
 }
 
-export const stopPolling = (
-  pollingRef: React.RefObject<number | null>
-): void => {
+export const stopPolling = (pollingRef: React.RefObject<number | null>): void => {
   if (pollingRef.current !== null) {
     window.clearInterval(pollingRef.current)
     pollingRef.current = null

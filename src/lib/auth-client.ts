@@ -37,9 +37,7 @@ let cooldownUntilMs = 0
 const TOKEN_TTL_MS = 30_000 // 30s
 const COOL_DOWN_MS_DEFAULT = 30_000 // 30s after 429
 
-export async function getJWTToken(
-  session?: SessionData
-): Promise<string | undefined> {
+export async function getJWTToken(session?: SessionData): Promise<string | undefined> {
   if (!session?.session) return undefined
 
   const now = Date.now()

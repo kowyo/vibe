@@ -55,13 +55,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   const fileService = useFileService(state, apiBaseUrl, session)
 
   // 4. Actions (API interactions)
-  const actions = useProjectActions(
-    state,
-    websocket,
-    fileService,
-    apiBaseUrl,
-    session
-  )
+  const actions = useProjectActions(state, websocket, fileService, apiBaseUrl, session)
   const { triggerGeneration, loadProject, resetForNewChat } = actions
 
   // Derived state
@@ -79,18 +73,13 @@ export function useGenerationSession(): UseGenerationSessionReturn {
       setSelectedFile(null)
       return
     }
-    if (
-      !selectedFile ||
-      !filesForViewer.some((file) => file.path === selectedFile)
-    ) {
+    if (!selectedFile || !filesForViewer.some((file) => file.path === selectedFile)) {
       setSelectedFile(filesForViewer[0].path)
     }
   }, [filesForViewer, selectedFile, setSelectedFile])
 
   const codeViewerLoading =
-    projectId !== null &&
-    filesForViewer.length === 0 &&
-    projectStatus !== "failed"
+    projectId !== null && filesForViewer.length === 0 && projectStatus !== "failed"
 
   const handleGenerate = useCallback(async () => {
     await triggerGeneration(prompt, { clearPrompt: true })

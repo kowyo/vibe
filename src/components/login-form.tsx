@@ -5,11 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Field, FieldGroup } from "@/components/ui/field"
 import { signIn } from "@/lib/auth-client"
-import {
-  GoogleIcon,
-  GitHubIcon,
-  MicrosoftIcon,
-} from "@/components/social-icons"
+import { GoogleIcon, GitHubIcon, MicrosoftIcon } from "@/components/social-icons"
 
 const socialProviders = [
   {
@@ -29,10 +25,7 @@ const socialProviders = [
   },
 ]
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
+export function LoginForm({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>

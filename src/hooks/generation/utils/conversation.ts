@@ -1,10 +1,7 @@
 import type { ConversationMessage, ConversationStatus } from "../types"
 
 export const createMessageId = () => {
-  if (
-    typeof crypto !== "undefined" &&
-    typeof crypto.randomUUID === "function"
-  ) {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID()
   }
   return `msg_${Math.random().toString(36).slice(2, 10)}_${Date.now()}`

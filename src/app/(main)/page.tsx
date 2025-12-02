@@ -4,11 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import Link from "next/link"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card } from "@/components/ui/card"
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable"
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Code2, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MetaGPTLogo } from "@/components/social-icons"
@@ -103,11 +99,7 @@ export default function Home() {
       {/* Main Content */}
       <main className="flex-1 min-h-0">
         <ResizablePanelGroup direction="horizontal" className="flex w-full">
-          <ResizablePanel
-            defaultSize={25}
-            minSize={20}
-            className="flex min-w-[300px]"
-          >
+          <ResizablePanel defaultSize={25} minSize={20} className="flex min-w-[300px]">
             <div ref={leftPanelRef} className="flex w-full flex-1 flex-col">
               <ConversationPanel
                 messages={messages}
@@ -119,11 +111,7 @@ export default function Home() {
             </div>
           </ResizablePanel>
           <ResizableHandle className="bg-transparent" />
-          <ResizablePanel
-            defaultSize={75}
-            minSize={20}
-            className="flex pb-2 pr-2"
-          >
+          <ResizablePanel defaultSize={75} minSize={20} className="flex pb-2 pr-2">
             <div className="flex w-full flex-1 flex-col ">
               {activeTab === "code" && (
                 <Card className="flex flex-1 flex-col min-w-0 w-full border-border/80 bg-card/80 shadow-sm">
@@ -136,10 +124,7 @@ export default function Home() {
                 </Card>
               )}
               {activeTab === "preview" && (
-                <PreviewWindow
-                  url={previewUrl}
-                  onRefresh={handleRefreshPreview}
-                />
+                <PreviewWindow url={previewUrl} onRefresh={handleRefreshPreview} />
               )}
             </div>
           </ResizablePanel>

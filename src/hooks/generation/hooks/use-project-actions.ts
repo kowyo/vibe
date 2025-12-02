@@ -3,11 +3,7 @@ import { beginConversationTurn } from "../utils/conversation"
 import { getAuthHeaders } from "../utils/api"
 import { startPolling, stopPolling } from "../services/project-service"
 import type { ProjectServiceHandlers } from "../services/project-service"
-import type {
-  ConversationStatus,
-  ConversationMessage,
-  InlineGeneratedFile,
-} from "../types"
+import type { ConversationStatus, ConversationMessage, InlineGeneratedFile } from "../types"
 import type { useProjectState } from "./use-project-state"
 import type { useProjectWebSocket } from "./use-project-websocket"
 import type { useFileService } from "./use-file-service"
@@ -85,16 +81,8 @@ export function useProjectActions(
   )
 
   const beginTurn = useCallback(
-    (
-      userContent: string,
-      assistantIntro = "",
-      projectIdValue?: string | null
-    ) => {
-      const result = beginConversationTurn(
-        userContent,
-        assistantIntro,
-        projectIdValue
-      )
+    (userContent: string, assistantIntro = "", projectIdValue?: string | null) => {
+      const result = beginConversationTurn(userContent, assistantIntro, projectIdValue)
       if (!result) {
         return null
       }
@@ -121,10 +109,7 @@ export function useProjectActions(
   }, [resetForNewGeneration, resetFullState])
 
   const triggerGeneration = useCallback(
-    async (
-      rawPrompt: string,
-      options?: { clearPrompt?: boolean; assistantIntro?: string }
-    ) => {
+    async (rawPrompt: string, options?: { clearPrompt?: boolean; assistantIntro?: string }) => {
       const trimmedPrompt = rawPrompt.trim()
       if (!trimmedPrompt) {
         addLog("error", "Please enter a prompt")
@@ -175,10 +160,7 @@ export function useProjectActions(
             if (typeof data.generation_id === "string") {
               currentGenerationIdRef.current = data.generation_id
             }
-            addLog(
-              "success",
-              `Generation request accepted (project ${data.project_id})`
-            )
+            addLog("success", `Generation request accepted (project ${data.project_id})`)
             updateAssistantMessage(assistantMessageId, {
               status: "pending",
               projectId: data.project_id,
@@ -189,9 +171,7 @@ export function useProjectActions(
             return
           }
 
-          const inlineFiles: InlineGeneratedFile[] = Array.isArray(data.files)
-            ? data.files
-            : []
+          const inlineFiles: InlineGeneratedFile[] = Array.isArray(data.files) ? data.files : []
           if (inlineFiles.length > 0) {
             const nextOrder = inlineFiles
               .map((file) => file?.path)
@@ -209,10 +189,7 @@ export function useProjectActions(
             setFileContents(contents)
             setSelectedFile(uniquePaths[0] ?? null)
             addLog("success", `Generated ${inlineFiles.length} files`)
-            if (
-              typeof data.preview_url === "string" &&
-              data.preview_url.trim()
-            ) {
+            if (typeof data.preview_url === "string" && data.preview_url.trim()) {
               updatePreview(data.preview_url)
               addLog("success", "Preview server started")
               setActiveTab("preview")
@@ -223,10 +200,7 @@ export function useProjectActions(
                 `Generated ${inlineFiles.length} file${inlineFiles.length === 1 ? "" : "s"}.`
               )
             }
-            if (
-              typeof data.preview_url === "string" &&
-              data.preview_url.trim()
-            ) {
+            if (typeof data.preview_url === "string" && data.preview_url.trim()) {
               summarySegments.push("Preview is ready in the right panel.")
             }
             updateAssistantMessage(assistantMessageId, {
@@ -238,15 +212,9 @@ export function useProjectActions(
 
           throw new Error("Unexpected response from backend")
         } catch (error) {
-          addLog(
-            "error",
-            error instanceof Error ? error.message : "An error occurred"
-          )
+          addLog("error", error instanceof Error ? error.message : "An error occurred")
           updateAssistantMessage(assistantMessageId, {
-            content:
-              error instanceof Error
-                ? error.message
-                : "An unexpected error occurred.",
+            content: error instanceof Error ? error.message : "An unexpected error occurred.",
             status: "error",
           })
         } finally {
@@ -275,21 +243,18 @@ export function useProjectActions(
 
       try {
         const headers = await getAuthHeaders(session)
-        const response = await fetch(
-          `${apiBaseUrl}/projects/${existingProjectId}/messages`,
-          {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              ...headers,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              content: trimmedPrompt,
-              assistant_intro: assistantIntro,
-            }),
-          }
-        )
+        const response = await fetch(`${apiBaseUrl}/projects/${existingProjectId}/messages`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            ...headers,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            content: trimmedPrompt,
+            assistant_intro: assistantIntro,
+          }),
+        })
 
         if (!response.ok) {
           throw new Error(`Update failed (status ${response.status})`)
@@ -302,16 +267,13 @@ export function useProjectActions(
 
         const userMessage = data.user_message
         if (userMessage && typeof userMessage === "object") {
-          const serverId =
-            typeof userMessage.id === "string" ? userMessage.id : userMessageId
+          const serverId = typeof userMessage.id === "string" ? userMessage.id : userMessageId
 
           // Update the generation ID reference for WebSocket filtering
           currentGenerationIdRef.current = serverId
 
           const statusFromServer =
-            typeof userMessage.status === "string"
-              ? userMessage.status
-              : "complete"
+            typeof userMessage.status === "string" ? userMessage.status : "complete"
           const normalizedStatus: ConversationStatus =
             statusFromServer === "pending" || statusFromServer === "error"
               ? statusFromServer
@@ -333,8 +295,7 @@ export function useProjectActions(
                     ? userMessage.project_id
                     : existingProjectId,
                 content:
-                  typeof userMessage.content === "string" &&
-                  userMessage.content.length > 0
+                  typeof userMessage.content === "string" && userMessage.content.length > 0
                     ? userMessage.content
                     : message.content,
                 status: normalizedStatus,
@@ -353,8 +314,7 @@ export function useProjectActions(
         setActiveTab("code")
         addLog("success", "Update accepted")
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to send update"
+        const message = error instanceof Error ? error.message : "Failed to send update"
         addLog("error", message)
         updateAssistantMessage(assistantMessageId, {
           content: message,
@@ -404,14 +364,11 @@ export function useProjectActions(
 
       try {
         const headers = await getAuthHeaders(session)
-        const statusResponse = await fetch(
-          `${apiBaseUrl}/projects/${id}/status`,
-          {
-            cache: "no-store",
-            credentials: "include",
-            headers,
-          }
-        )
+        const statusResponse = await fetch(`${apiBaseUrl}/projects/${id}/status`, {
+          cache: "no-store",
+          credentials: "include",
+          headers,
+        })
 
         if (!statusResponse.ok) {
           throw new Error(`Failed to load project: ${statusResponse.status}`)
@@ -423,27 +380,19 @@ export function useProjectActions(
           setProjectStatus(statusData.status)
         }
 
-        if (
-          typeof statusData.preview_url === "string" &&
-          statusData.preview_url
-        ) {
+        if (typeof statusData.preview_url === "string" && statusData.preview_url) {
           await updatePreview(statusData.preview_url)
         }
 
-        const messagesResponse = await fetch(
-          `${apiBaseUrl}/projects/${id}/messages`,
-          {
-            cache: "no-store",
-            credentials: "include",
-            headers,
-          }
-        )
+        const messagesResponse = await fetch(`${apiBaseUrl}/projects/${id}/messages`, {
+          cache: "no-store",
+          credentials: "include",
+          headers,
+        })
 
         if (messagesResponse.ok) {
           const messagesData = await messagesResponse.json()
-          const mappedMessages: ConversationMessage[] = Array.isArray(
-            messagesData?.messages
-          )
+          const mappedMessages: ConversationMessage[] = Array.isArray(messagesData?.messages)
             ? messagesData.messages
                 .map((message: any): ConversationMessage | null => {
                   if (!message || typeof message !== "object") {
@@ -457,20 +406,12 @@ export function useProjectActions(
                     typeof message.updated_at === "string"
                       ? Date.parse(message.updated_at)
                       : createdAtRaw
-                  const createdAt = Number.isNaN(createdAtRaw)
-                    ? Date.now()
-                    : createdAtRaw
-                  const updatedAt = Number.isNaN(updatedAtRaw)
-                    ? createdAt
-                    : updatedAtRaw
+                  const createdAt = Number.isNaN(createdAtRaw) ? Date.now() : createdAtRaw
+                  const updatedAt = Number.isNaN(updatedAtRaw) ? createdAt : updatedAtRaw
                   const statusValue =
-                    typeof message.status === "string"
-                      ? message.status
-                      : "complete"
+                    typeof message.status === "string" ? message.status : "complete"
                   const normalizedStatus: ConversationStatus =
-                    statusValue === "pending" || statusValue === "error"
-                      ? statusValue
-                      : "complete"
+                    statusValue === "pending" || statusValue === "error" ? statusValue : "complete"
 
                   // Extract content parts from metadata if present
                   const metadata = message.metadata
@@ -482,29 +423,18 @@ export function useProjectActions(
                       : undefined
 
                   return {
-                    id:
-                      typeof message.id === "string"
-                        ? message.id
-                        : `msg-${id}-${createdAt}`,
+                    id: typeof message.id === "string" ? message.id : `msg-${id}-${createdAt}`,
                     role: message.role === "assistant" ? "assistant" : "user",
-                    content:
-                      typeof message.content === "string"
-                        ? message.content
-                        : "",
+                    content: typeof message.content === "string" ? message.content : "",
                     status: normalizedStatus,
                     createdAt,
                     updatedAt,
-                    projectId:
-                      typeof message.project_id === "string"
-                        ? message.project_id
-                        : id,
+                    projectId: typeof message.project_id === "string" ? message.project_id : id,
                     contentParts,
                   }
                 })
-                .filter(
-                  (
-                    message: ConversationMessage | null
-                  ): message is ConversationMessage => Boolean(message)
+                .filter((message: ConversationMessage | null): message is ConversationMessage =>
+                  Boolean(message)
                 )
             : []
 
@@ -512,13 +442,8 @@ export function useProjectActions(
 
           const pendingAssistant = [...mappedMessages]
             .reverse()
-            .find(
-              (message) =>
-                message.role === "assistant" && message.status === "pending"
-            )
-          activeAssistantMessageIdRef.current = pendingAssistant
-            ? pendingAssistant.id
-            : null
+            .find((message) => message.role === "assistant" && message.status === "pending")
+          activeAssistantMessageIdRef.current = pendingAssistant ? pendingAssistant.id : null
         } else {
           activeAssistantMessageIdRef.current = null
         }
@@ -535,8 +460,7 @@ export function useProjectActions(
 
         addLog("success", `Project ${id} loaded`)
       } catch (error) {
-        const message =
-          error instanceof Error ? error.message : "Failed to load project"
+        const message = error instanceof Error ? error.message : "Failed to load project"
         addLog("error", message)
         setMessages([
           {

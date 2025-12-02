@@ -46,12 +46,7 @@ function getLanguageFromPath(path: string): string {
   return languageMap[ext || ""] || "text"
 }
 
-export function CodeViewer({
-  files,
-  selectedFile,
-  onSelect,
-  loading = false,
-}: CodeViewerProps) {
+export function CodeViewer({ files, selectedFile, onSelect, loading = false }: CodeViewerProps) {
   const currentFile = files.find((f) => f.path === selectedFile)
 
   if (files.length === 0) {
@@ -76,11 +71,7 @@ export function CodeViewer({
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               Files
             </p>
-            <FileTree
-              files={files}
-              selectedFile={selectedFile}
-              onSelect={onSelect}
-            />
+            <FileTree files={files} selectedFile={selectedFile} onSelect={onSelect} />
           </div>
         </ScrollArea>
       </div>

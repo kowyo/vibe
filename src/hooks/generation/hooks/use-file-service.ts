@@ -29,23 +29,14 @@ export function useFileService(
       setFileOrder: (order: string[]) => {
         setFileOrder(order)
       },
-      setFileContents: (
-        updater: (prev: Record<string, string>) => Record<string, string>
-      ) => {
+      setFileContents: (updater: (prev: Record<string, string>) => Record<string, string>) => {
         setFileContents(updater)
       },
       getFileContents: () => fileContentsRef.current,
       getApiBaseUrl: () => apiBaseUrl,
       getAuthHeaders: async () => getAuthHeaders(session),
     }),
-    [
-      addLog,
-      apiBaseUrl,
-      session,
-      setFileOrder,
-      setFileContents,
-      fileContentsRef,
-    ]
+    [addLog, apiBaseUrl, session, setFileOrder, setFileContents, fileContentsRef]
   )
 
   const fetchProjectFilesHandler = useCallback(async () => {

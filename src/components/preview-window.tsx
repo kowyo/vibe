@@ -35,16 +35,10 @@ export function PreviewWindow({ url, onRefresh }: PreviewWindowProps) {
     <WebPreview defaultUrl={url} className="h-full min-w-0 w-full">
       <WebPreviewNavigation>
         <WebPreviewUrl />
-        <WebPreviewNavigationButton
-          onClick={onRefresh}
-          tooltip="Refresh preview"
-        >
+        <WebPreviewNavigationButton onClick={onRefresh} tooltip="Refresh preview">
           <RefreshCw className="h-4 w-4" />
         </WebPreviewNavigationButton>
-        <WebPreviewNavigationButton
-          onClick={handleOpenExternal}
-          tooltip="Open in new tab"
-        >
+        <WebPreviewNavigationButton onClick={handleOpenExternal} tooltip="Open in new tab">
           <ExternalLink className="h-4 w-4" />
         </WebPreviewNavigationButton>
       </WebPreviewNavigation>

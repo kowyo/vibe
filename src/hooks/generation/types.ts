@@ -21,9 +21,7 @@ export type ToolInvocation = {
   errorText?: string
 }
 
-export type ContentPart =
-  | { type: "text"; text: string }
-  | ({ type: "tool_use" } & ToolInvocation)
+export type ContentPart = { type: "text"; text: string } | ({ type: "tool_use" } & ToolInvocation)
 
 export type ConversationMessage = {
   id: string

@@ -86,9 +86,7 @@ function TreeNode({
       <div
         className={cn(
           "flex items-center gap-1 px-2 py-1.5 text-sm rounded-md transition-colors cursor-pointer group",
-          isSelected && isFile
-            ? "bg-primary text-primary-foreground"
-            : "hover:bg-muted"
+          isSelected && isFile ? "bg-primary text-primary-foreground" : "hover:bg-muted"
         )}
         style={{ marginLeft: `${level * 16}px` }}
         onClick={() => {
@@ -101,10 +99,7 @@ function TreeNode({
       >
         {!isFile && (
           <ChevronRight
-            className={cn(
-              "h-4 w-4 shrink-0 transition-transform",
-              isExpanded && "rotate-90"
-            )}
+            className={cn("h-4 w-4 shrink-0 transition-transform", isExpanded && "rotate-90")}
           />
         )}
         {isFile && <div className="w-4" />}

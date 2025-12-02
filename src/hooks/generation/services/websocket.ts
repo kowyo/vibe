@@ -3,26 +3,15 @@ import type { ConversationMessage } from "../types"
 import { buildWsUrl } from "../utils/api"
 
 export type WebSocketMessageHandler = {
-  onStatusSnapshot: (
-    status: string | undefined,
-    previewUrl: string | undefined
-  ) => void
+  onStatusSnapshot: (status: string | undefined, previewUrl: string | undefined) => void
   onStatusUpdated: (status: string) => void
   onLogAppended: (message: string) => void
   onPreviewReady: (previewUrl: string) => void
   onError: (message: string) => void
   onProjectCreated: (message: string) => void
-  onAssistantMessage: (payload: {
-    text?: string
-    model?: string
-    stop_reason?: string
-  }) => void
+  onAssistantMessage: (payload: { text?: string; model?: string; stop_reason?: string }) => void
   onToolUse: (payload: { id?: string; name?: string; input?: unknown }) => void
-  onToolResult: (payload: {
-    tool_use_id?: string
-    content?: string
-    is_error?: boolean
-  }) => void
+  onToolResult: (payload: { tool_use_id?: string; content?: string; is_error?: boolean }) => void
   onResultMessage: (payload: {
     total_cost_usd?: number
     stop_reason?: string
@@ -50,15 +39,13 @@ export const createWebSocket = (
     const url = buildWsUrl(projectId, wsBaseEnv, backendOrigin)
     const socket = new WebSocket(url)
 
-    socket.onopen = () =>
-      handlers.addLog("info", "Connected to generation stream")
+    socket.onopen = () => handlers.addLog("info", "Connected to generation stream")
 
     socket.onmessage = (event) => {
       handleWebSocketMessage(event.data, handlers, filterEvent)
     }
 
-    socket.onerror = () =>
-      handlers.addLog("error", "WebSocket connection error")
+    socket.onerror = () => handlers.addLog("error", "WebSocket connection error")
 
     socket.onclose = (event) => {
       if (event.code !== 1000) {
@@ -83,8 +70,7 @@ const handleWebSocketMessage = (
 ): void => {
   try {
     const data = JSON.parse(raw)
-    const generationId =
-      typeof data.generation_id === "string" ? data.generation_id : undefined
+    const generationId = typeof data.generation_id === "string" ? data.generation_id : undefined
 
     // Check filter if provided
     if (filterEvent && !filterEvent(generationId)) {

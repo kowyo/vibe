@@ -1,9 +1,7 @@
 import { getJWTToken, type SessionData } from "@/lib/auth-client"
 
 export const getApiBaseUrl = () => {
-  return (
-    process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000/api"
-  ).replace(/\/$/, "")
+  return (process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://127.0.0.1:8000/api").replace(/\/$/, "")
 }
 
 export const getBackendOrigin = (apiBaseUrl: string) => {
@@ -21,9 +19,7 @@ export const getWsBaseUrl = () => {
   return raw ? raw.replace(/\/$/, "") : null
 }
 
-export const getAuthHeaders = async (
-  session: SessionData
-): Promise<Record<string, string>> => {
+export const getAuthHeaders = async (session: SessionData): Promise<Record<string, string>> => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   }
@@ -33,9 +29,7 @@ export const getAuthHeaders = async (
   if (token) {
     headers["Authorization"] = `Bearer ${token}`
   } else if (!session?.session) {
-    console.warn(
-      "No session found, requests will fail if authentication is required"
-    )
+    console.warn("No session found, requests will fail if authentication is required")
     // Continue without token - backend can try to use cookies as fallback
   }
   // If session exists but token fetch failed, continue without token

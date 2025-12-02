@@ -13,11 +13,7 @@ const ProjectContext = createContext<ProjectContextValue | null>(null)
 export function ProjectProvider({ children }: { children: ReactNode }) {
   const session = useGenerationSession()
 
-  return (
-    <ProjectContext.Provider value={session}>
-      {children}
-    </ProjectContext.Provider>
-  )
+  return <ProjectContext.Provider value={session}>{children}</ProjectContext.Provider>
 }
 
 export function useProjectContext() {

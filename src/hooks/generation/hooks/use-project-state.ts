@@ -49,9 +49,7 @@ export function useProjectState() {
     ) => {
       if (!id) return
       setMessages((previous) =>
-        previous.map((message) =>
-          message.id === id ? updateMessage(message, patch) : message
-        )
+        previous.map((message) => (message.id === id ? updateMessage(message, patch) : message))
       )
     },
     []

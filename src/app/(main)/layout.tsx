@@ -4,11 +4,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { ProjectProvider } from "@/contexts/project-context"
 import { ProjectsSidebar } from "@/components/projects-sidebar"
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <ProjectProvider>
       <SidebarProvider defaultOpen={false}>
