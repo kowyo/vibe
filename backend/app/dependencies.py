@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from http.cookies import CookieError, SimpleCookie
 from typing import Annotated
 
 from fastapi import Depends, Header, HTTPException, Query, Request, status
@@ -49,13 +48,18 @@ def _extract_token_from_request(
     if not cookie:
         return None
 
-    try:
-        jar = SimpleCookie()
-        jar.load(cookie)
-        cookies = {name: morsel.value for name, morsel in jar.items()}
-    except CookieError:
-        # Malformed cookie header - gracefully return None
-        return None
+    cookies: dict[str, str] = {}
+    for cookie_part in cookie.split(";"):
+        cookie_part = cookie_part.strip()
+        if "=" in cookie_part:
+            try:
+                name, value = cookie_part.split("=", 1)
+                name = name.strip()
+                if name:  # Skip empty names
+                    cookies[name] = value
+            except ValueError:
+                # Skip malformed parts
+                continue
 
     for key in TOKEN_COOKIE_KEYS:
         if key in cookies:
