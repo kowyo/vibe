@@ -52,14 +52,10 @@ def _extract_token_from_request(
     for cookie_part in cookie.split(";"):
         cookie_part = cookie_part.strip()
         if "=" in cookie_part:
-            try:
-                name, value = cookie_part.split("=", 1)
-                name = name.strip()
-                if name:  # Skip empty names
-                    cookies[name] = value
-            except ValueError:
-                # Skip malformed parts
-                continue
+            name, value = cookie_part.split("=", 1)
+            name = name.strip()
+            if name:  # Skip empty names
+                cookies[name] = value
 
     for key in TOKEN_COOKIE_KEYS:
         if key in cookies:
