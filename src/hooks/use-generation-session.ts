@@ -49,7 +49,7 @@ export function useGenerationSession(): UseGenerationSessionReturn {
   } = state
 
   // 2. WebSocket Management
-  const websocket = useProjectWebSocket(state, apiBaseUrl, session)
+  const websocket = useProjectWebSocket(state, apiBaseUrl)
 
   // 3. File Service
   const fileService = useFileService(state, apiBaseUrl, session)

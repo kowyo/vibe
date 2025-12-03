@@ -22,61 +22,49 @@ from app.services.task_service import TaskService
 AsyncDBSession = Annotated[AsyncSession, Depends(get_db)]
 
 
+TOKEN_COOKIE_KEYS = (
+    "better-auth.session_token",
+    "better-auth.sessionToken",
+    "session_token",
+    "sessionToken",
+)
+
+
 def _extract_token_from_request(
     authorization: str | None = None,
     cookie: str | None = None,
     token_param: str | None = None,
 ) -> str | None:
     """Extract JWT token from Authorization header, cookie, or query parameter."""
-    # Try Authorization header first (Bearer token)
-    if authorization:
-        try:
-            scheme, token = authorization.split(" ", 1)
-            if scheme.lower() == "bearer":
-                return token
-        except ValueError:
-            pass
 
-    # Try query parameter (for preview assets)
+    if authorization:
+        parts = authorization.split()
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            return parts[1]
+
     if token_param:
         return token_param
 
-    # Try cookie (better-auth might set session token in cookie)
-    # Better-auth typically uses cookie name patterns like:
-    # - "better-auth.session_token"
-    # - "better-auth.sessionToken"
-    # - "session_token" (without prefix in some configurations)
-    if cookie:
-        # The cookie header might contain multiple cookies, parse it
-        cookies_dict = {}
-        for cookie_part in cookie.split(";"):
-            cookie_part = cookie_part.strip()
-            if "=" in cookie_part:
-                name, value = cookie_part.split("=", 1)
-                name = name.strip()
-                cookies_dict[name] = value
+    if not cookie:
+        return None
 
-        # Try common better-auth cookie name patterns (in order of likelihood)
-        cookie_patterns = [
-            "better-auth.session_token",
-            "better-auth.sessionToken",
-            "session_token",
-            "sessionToken",
-        ]
+    cookies: dict[str, str] = {}
+    for cookie_part in cookie.split(";"):
+        cookie_part = cookie_part.strip()
+        if "=" in cookie_part:
+            name, value = cookie_part.split("=", 1)
+            name = name.strip()
+            if name:  # Skip empty names
+                cookies[name] = value
 
-        # Also check for cookies that contain both "session" and "token" in the name
-        for name, value in cookies_dict.items():
-            name_lower = name.lower()
-            has_session_pattern = any(
-                pattern in name_lower for pattern in ["better-auth", "session"]
-            )
-            if has_session_pattern and "token" in name_lower:
-                return value
+    for key in TOKEN_COOKIE_KEYS:
+        if key in cookies:
+            return cookies[key]
 
-        # Fallback: try exact matches
-        for pattern in cookie_patterns:
-            if pattern in cookies_dict:
-                return cookies_dict[pattern]
+    for name, value in cookies.items():
+        normalized = name.lower()
+        if "token" in normalized and ("session" in normalized or "better-auth" in normalized):
+            return value
 
     return None
 

@@ -1,12 +1,4 @@
-import { getJWTToken, type SessionData } from "@/lib/auth-client"
-
-export const toAbsolutePreviewUrl = async (
-  raw: string,
-  backendOrigin: string,
-  session: SessionData,
-  basePreviewUrlRef: React.RefObject<string>,
-  previewUrlWithTokenRef: React.RefObject<string>
-): Promise<string> => {
+export const toAbsolutePreviewUrl = async (raw: string, backendOrigin: string): Promise<string> => {
   if (!raw) {
     return ""
   }
@@ -21,32 +13,7 @@ export const toAbsolutePreviewUrl = async (
       url = new URL(raw, backendOrigin)
     }
 
-    // Remove any existing token parameter first
-    url.searchParams.delete("token")
-
-    // Get base URL without token for comparison
-    const baseUrl = url.toString()
-
-    // Only regenerate URL with token if the base URL changed
-    if (baseUrl !== basePreviewUrlRef.current) {
-      basePreviewUrlRef.current = baseUrl
-
-      // Add token for authentication (iframes need explicit auth)
-      const token = await getJWTToken(session)
-      if (token) {
-        url.searchParams.set("token", token)
-        const urlWithToken = url.toString()
-        previewUrlWithTokenRef.current = urlWithToken
-        return urlWithToken
-      }
-
-      // If no token, use base URL
-      previewUrlWithTokenRef.current = baseUrl
-      return baseUrl
-    }
-
-    // Base URL hasn't changed, return cached URL with token
-    return previewUrlWithTokenRef.current || baseUrl
+    return url.toString()
   } catch {
     return raw
   }

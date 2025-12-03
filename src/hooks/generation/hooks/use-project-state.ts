@@ -24,8 +24,6 @@ export function useProjectState() {
   const pendingFetchesRef = useRef<Set<string>>(new Set())
   const statusErrorLoggedRef = useRef(false)
   const filesErrorLoggedRef = useRef(false)
-  const basePreviewUrlRef = useRef<string>("")
-  const previewUrlWithTokenRef = useRef<string>("")
 
   // Sync refs
   useEffect(() => {
@@ -74,8 +72,6 @@ export function useProjectState() {
     filesErrorLoggedRef.current = false
     activeAssistantMessageIdRef.current = null
     currentGenerationIdRef.current = null
-    basePreviewUrlRef.current = ""
-    previewUrlWithTokenRef.current = ""
     projectIdRef.current = null
 
     setProjectId(null)
@@ -129,8 +125,6 @@ export function useProjectState() {
     pendingFetchesRef,
     statusErrorLoggedRef,
     filesErrorLoggedRef,
-    basePreviewUrlRef,
-    previewUrlWithTokenRef,
 
     // Helpers
     addLog,
