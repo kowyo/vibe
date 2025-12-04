@@ -11,7 +11,7 @@ RUN apt-get update && \
 COPY . .
 RUN --mount=type=cache,id=bun,target=/root/.bun/install/cache \
     bun install --frozen-lockfile
-RUN bunx --bun @better-auth/cli migrate --yes
+RUN npx @better-auth/cli@latest migrate
 RUN --mount=type=cache,id=nextjs,target=/app/.next/cache \
     bun run build
 
