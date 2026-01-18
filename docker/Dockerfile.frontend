@@ -8,7 +8,7 @@ RUN apt-get update && \
     curl -fsSL https://deb.nodesource.com/setup_24.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
-COPY . .
+COPY frontend/ .
 RUN --mount=type=cache,id=bun,target=/root/.bun/install/cache \
     bun install --frozen-lockfile
 RUN npx @better-auth/cli@latest migrate

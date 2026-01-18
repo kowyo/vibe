@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently 'bun dev:frontend' 'bun dev:backend'",
     "dev:frontend": "bun --bun next dev",
-    "dev:backend": "cd backend && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload",
+    "dev:backend": "cd ../backend && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
     "lint": "oxlint .",

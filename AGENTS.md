@@ -4,6 +4,14 @@
 
 This project is an AI-powered web application builder that transforms natural language prompts into fully functional web applications with instant live preview.
 
+## Project Structure
+
+- `frontend/`: Next.js frontend application.
+- `backend/`: FastAPI backend application.
+- `docker/`: Docker configuration files.
+- `AGENTS.md`: Project documentation.
+- `LICENSE`: Project license.
+
 ## Core Functionality
 
 **Natural Language Prompt Input** - Users describe their desired application in a text box and click Generate to start the AI-powered code generation process.

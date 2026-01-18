@@ -1,32 +1,33 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # dependencies
-/node_modules
+**/node_modules
+**/.venv
 
 # next.js
-/.next/
-/out/
+frontend/.next/
+frontend/out/
 
 # production
-/build
+**/build
+**/dist
 
 # debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-.pnpm-debug.log*
+*.log*
 
 # env files
 .env
 .env.local
+**/.env*
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
 # Database
-better-auth_migrations/
+**/better-auth_migrations/
 *.db
+**/*.db
+**/*.db-journal
