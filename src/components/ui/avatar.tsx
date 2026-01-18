@@ -38,4 +38,4 @@ function AvatarFallback({
   )
 }
 
-export { Avatar, AvatarImage,  }
+export { Avatar, AvatarImage }

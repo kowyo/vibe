@@ -339,11 +339,7 @@ type PromptInputAttachmentsProps = Omit<HTMLAttributes<HTMLDivElement>, "childre
   children: (attachment: FileUIPart & { id: string }) => ReactNode
 }
 
-function PromptInputAttachments({
-  children,
-  className,
-  ...props
-}: PromptInputAttachmentsProps) {
+function PromptInputAttachments({ children, className, ...props }: PromptInputAttachmentsProps) {
   const attachments = usePromptInputAttachments()
 
   if (!attachments.files.length) {
@@ -866,9 +862,7 @@ const PromptInputButton = ({
 }
 
 type PromptInputActionMenuProps = ComponentProps<typeof DropdownMenu>
-const PromptInputActionMenu = (props: PromptInputActionMenuProps) => (
-  <DropdownMenu {...props} />
-)
+const PromptInputActionMenu = (props: PromptInputActionMenuProps) => <DropdownMenu {...props} />
 
 type PromptInputActionMenuTriggerProps = PromptInputButtonProps
 
@@ -893,10 +887,9 @@ const PromptInputActionMenuContent = ({
 )
 
 type PromptInputActionMenuItemProps = ComponentProps<typeof DropdownMenuItem>
-const PromptInputActionMenuItem = ({
-  className,
-  ...props
-}: PromptInputActionMenuItemProps) => <DropdownMenuItem className={cn(className)} {...props} />
+const PromptInputActionMenuItem = ({ className, ...props }: PromptInputActionMenuItemProps) => (
+  <DropdownMenuItem className={cn(className)} {...props} />
+)
 
 // Note: Actions that perform side-effects (like opening a file dialog)
 // are provided in opt-in modules (e.g., prompt-input-attachments).
@@ -1093,10 +1086,7 @@ const PromptInputSelect = (props: PromptInputSelectProps) => <Select {...props} 
 
 type PromptInputSelectTriggerProps = ComponentProps<typeof SelectTrigger>
 
-const PromptInputSelectTrigger = ({
-  className,
-  ...props
-}: PromptInputSelectTriggerProps) => (
+const PromptInputSelectTrigger = ({ className, ...props }: PromptInputSelectTriggerProps) => (
   <SelectTrigger
     className={cn(
       "border-none bg-transparent font-medium text-muted-foreground shadow-none transition-colors",
@@ -1109,10 +1099,9 @@ const PromptInputSelectTrigger = ({
 
 type PromptInputSelectContentProps = ComponentProps<typeof SelectContent>
 
-const PromptInputSelectContent = ({
-  className,
-  ...props
-}: PromptInputSelectContentProps) => <SelectContent className={cn(className)} {...props} />
+const PromptInputSelectContent = ({ className, ...props }: PromptInputSelectContentProps) => (
+  <SelectContent className={cn(className)} {...props} />
+)
 
 type PromptInputSelectItemProps = ComponentProps<typeof SelectItem>
 
@@ -1220,7 +1209,6 @@ const PromptInputCommandItem = ({ className, ...props }: PromptInputCommandItemP
 
 type PromptInputCommandSeparatorProps = ComponentProps<typeof CommandSeparator>
 
-const PromptInputCommandSeparator = ({
-  className,
-  ...props
-}: PromptInputCommandSeparatorProps) => <CommandSeparator className={cn(className)} {...props} />
+const PromptInputCommandSeparator = ({ className, ...props }: PromptInputCommandSeparatorProps) => (
+  <CommandSeparator className={cn(className)} {...props} />
+)

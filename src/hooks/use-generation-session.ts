@@ -15,13 +15,7 @@ import { useFileService } from "./generation/hooks/use-file-service"
 import { useProjectActions } from "./generation/hooks/use-project-actions"
 
 // Re-export types for backward compatibility
-export type {
-  
-  ConversationMessage,
-  
-  UseGenerationSessionReturn,
-  
-}
+export type { ConversationMessage, UseGenerationSessionReturn }
 
 export function useGenerationSession(): UseGenerationSessionReturn {
   const { data: session } = useSession()

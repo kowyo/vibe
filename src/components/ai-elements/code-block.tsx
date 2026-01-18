@@ -49,11 +49,7 @@ const lineNumberTransformer: ShikiTransformer = {
   },
 }
 
-async function highlightCode(
-  code: string,
-  language: BundledLanguage,
-  showLineNumbers = false
-) {
+async function highlightCode(code: string, language: BundledLanguage, showLineNumbers = false) {
   const transformers: ShikiTransformer[] = showLineNumbers ? [lineNumberTransformer] : []
 
   return await Promise.all([
