@@ -3,9 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently 'bun dev:frontend' 'bun dev:backend'",
-    "dev:frontend": "bun --bun next dev",
-    "dev:backend": "cd ../backend && uv run uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload",
+    "dev": "bun --bun next dev",
     "build": "bun --bun next build",
     "start": "bun --bun next start",
     "lint": "oxlint .",
@@ -51,7 +49,6 @@
     "@types/node": "^25.0.9",
     "@types/react": "^19.2.8",
     "@types/react-dom": "^19.2.3",
-    "concurrently": "^9.2.1",
     "knip": "^5.81.0",
     "oxfmt": "^0.16.0",
     "oxlint": "^1.39.0",
