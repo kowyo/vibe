@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
-import { CheckIcon, CopyIcon } from "lucide-react"
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { CheckIcon, CopyIcon } from "lucide-react";
 import {
   type ComponentProps,
   createContext,
@@ -11,22 +11,22 @@ import {
   useEffect,
   useRef,
   useState,
-} from "react"
-import { type BundledLanguage, codeToHtml, type ShikiTransformer } from "shiki"
+} from "react";
+import { type BundledLanguage, codeToHtml, type ShikiTransformer } from "shiki";
 
 type CodeBlockProps = HTMLAttributes<HTMLDivElement> & {
-  code: string
-  language: BundledLanguage
-  showLineNumbers?: boolean
-}
+  code: string;
+  language: BundledLanguage;
+  showLineNumbers?: boolean;
+};
 
 type CodeBlockContextType = {
-  code: string
-}
+  code: string;
+};
 
 const CodeBlockContext = createContext<CodeBlockContextType>({
   code: "",
-})
+});
 
 const lineNumberTransformer: ShikiTransformer = {
   name: "line-numbers",
@@ -45,12 +45,18 @@ const lineNumberTransformer: ShikiTransformer = {
         ],
       },
       children: [{ type: "text", value: String(line) }],
-    })
+    });
   },
-}
+};
 
-async function highlightCode(code: string, language: BundledLanguage, showLineNumbers = false) {
-  const transformers: ShikiTransformer[] = showLineNumbers ? [lineNumberTransformer] : []
+export async function highlightCode(
+  code: string,
+  language: BundledLanguage,
+  showLineNumbers = false
+) {
+  const transformers: ShikiTransformer[] = showLineNumbers
+    ? [lineNumberTransformer]
+    : [];
 
   return await Promise.all([
     codeToHtml(code, {
@@ -63,7 +69,7 @@ async function highlightCode(code: string, language: BundledLanguage, showLineNu
       theme: "one-dark-pro",
       transformers,
     }),
-  ])
+  ]);
 }
 
 export const CodeBlock = ({
@@ -74,60 +80,62 @@ export const CodeBlock = ({
   children,
   ...props
 }: CodeBlockProps) => {
-  const [html, setHtml] = useState<string>("")
-  const [darkHtml, setDarkHtml] = useState<string>("")
-  const mounted = useRef(false)
+  const [html, setHtml] = useState<string>("");
+  const [darkHtml, setDarkHtml] = useState<string>("");
+  const mounted = useRef(false);
 
   useEffect(() => {
     highlightCode(code, language, showLineNumbers).then(([light, dark]) => {
       if (!mounted.current) {
-        setHtml(light)
-        setDarkHtml(dark)
-        mounted.current = true
+        setHtml(light);
+        setDarkHtml(dark);
+        mounted.current = true;
       }
-    })
+    });
 
     return () => {
-      mounted.current = false
-    }
-  }, [code, language, showLineNumbers])
+      mounted.current = false;
+    };
+  }, [code, language, showLineNumbers]);
 
   return (
     <CodeBlockContext.Provider value={{ code }}>
       <div
         className={cn(
-          "group relative min-w-0 overflow-hidden rounded-md border bg-background text-foreground",
+          "group relative w-full overflow-hidden rounded-md border bg-background text-foreground",
           className
         )}
         {...props}
       >
         <div className="relative">
           <div
-            className="overflow-x-auto dark:hidden [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
+            className="overflow-auto dark:hidden [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: "this is needed."
             dangerouslySetInnerHTML={{ __html: html }}
           />
           <div
-            className="hidden overflow-x-auto dark:block [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
+            className="hidden overflow-auto dark:block [&>pre]:m-0 [&>pre]:bg-background! [&>pre]:p-4 [&>pre]:text-foreground! [&>pre]:text-sm [&_code]:font-mono [&_code]:text-sm"
             // biome-ignore lint/security/noDangerouslySetInnerHtml: "this is needed."
             dangerouslySetInnerHTML={{ __html: darkHtml }}
           />
           {children && (
-            <div className="absolute top-2 right-2 flex items-center gap-2">{children}</div>
+            <div className="absolute top-2 right-2 flex items-center gap-2">
+              {children}
+            </div>
           )}
         </div>
       </div>
     </CodeBlockContext.Provider>
-  )
-}
+  );
+};
 
-type CodeBlockCopyButtonProps = ComponentProps<typeof Button> & {
-  onCopy?: () => void
-  onError?: (error: Error) => void
-  timeout?: number
-}
+export type CodeBlockCopyButtonProps = ComponentProps<typeof Button> & {
+  onCopy?: () => void;
+  onError?: (error: Error) => void;
+  timeout?: number;
+};
 
-const CodeBlockCopyButton = ({
+export const CodeBlockCopyButton = ({
   onCopy,
   onError,
   timeout = 2000,
@@ -135,26 +143,26 @@ const CodeBlockCopyButton = ({
   className,
   ...props
 }: CodeBlockCopyButtonProps) => {
-  const [isCopied, setIsCopied] = useState(false)
-  const { code } = useContext(CodeBlockContext)
+  const [isCopied, setIsCopied] = useState(false);
+  const { code } = useContext(CodeBlockContext);
 
   const copyToClipboard = async () => {
     if (typeof window === "undefined" || !navigator?.clipboard?.writeText) {
-      onError?.(new Error("Clipboard API not available"))
-      return
+      onError?.(new Error("Clipboard API not available"));
+      return;
     }
 
     try {
-      await navigator.clipboard.writeText(code)
-      setIsCopied(true)
-      onCopy?.()
-      setTimeout(() => setIsCopied(false), timeout)
+      await navigator.clipboard.writeText(code);
+      setIsCopied(true);
+      onCopy?.();
+      setTimeout(() => setIsCopied(false), timeout);
     } catch (error) {
-      onError?.(error as Error)
+      onError?.(error as Error);
     }
-  }
+  };
 
-  const Icon = isCopied ? CheckIcon : CopyIcon
+  const Icon = isCopied ? CheckIcon : CopyIcon;
 
   return (
     <Button
@@ -166,5 +174,5 @@ const CodeBlockCopyButton = ({
     >
       {children ?? <Icon size={14} />}
     </Button>
-  )
-}
+  );
+};

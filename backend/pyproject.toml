@@ -1,7 +1,7 @@
 [project]
-name = "claude-app-builder-backend"
+name = "vibe"
 version = "0.1.0"
-description = "FastAPI backend for the Claude-powered web application builder"
+description = ""
 requires-python = ">=3.11"
 dependencies = [
     "fastapi>=0.111.0",

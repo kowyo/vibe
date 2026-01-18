@@ -75,4 +75,9 @@ function ButtonGroupSeparator({
   )
 }
 
-export { ButtonGroup, ButtonGroupText }
+export {
+  ButtonGroup,
+  ButtonGroupSeparator,
+  ButtonGroupText,
+  buttonGroupVariants,
+}

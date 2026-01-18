@@ -3,7 +3,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { FileCode } from "lucide-react"
 import { FileTree } from "@/components/file-tree"
-import { CodeBlockContent } from "@/components/ui/shadcn-io/code-block"
+import { CodeBlock, CodeBlockCopyButton } from "@/components/ai-elements/code-block"
 
 interface CodeViewerProps {
   files: Array<{ path: string; content?: string }>
@@ -83,13 +83,13 @@ export function CodeViewer({ files, selectedFile, onSelect, loading = false }: C
             <div className="p-2 min-w-0">
               <div className="mb-4 flex items-center justify-between gap-2 text-sm text-muted-foreground min-w-0"></div>
               <div className="overflow-x-auto">
-                <CodeBlockContent
+                <CodeBlock
+                  code={currentFile.content ?? "(Loading content...)"}
                   language={getLanguageFromPath(currentFile.path) as any}
-                  syntaxHighlighting={true}
-                  className="rounded-lg bg-muted text-xs leading-relaxed min-w-0 [&>pre]:bg-transparent [&>pre]:p-0 [&>code]:bg-transparent [&>code]:text-foreground [&>code]:whitespace-pre-wrap [&>code]:wrap-break-word"
+                  className="rounded-lg bg-muted text-xs leading-relaxed min-w-0"
                 >
-                  {currentFile.content ?? "(Loading content...)"}
-                </CodeBlockContent>
+                  <CodeBlockCopyButton />
+                </CodeBlock>
               </div>
             </div>
           ) : (
