@@ -69,19 +69,19 @@ export function ProjectsSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarGroupContent>
-            {!session?.user ? (
+            {loading ? (
+              <div className="space-y-2 p-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            ) : !session?.user ? (
               <div className="flex flex-col items-center justify-center p-8 text-center">
                 <FolderOpen className="mb-3 h-8 w-8 text-muted-foreground" />
                 <p className="text-sm font-medium text-foreground">Sign in to view projects</p>
                 <p className="mt-1 text-xs text-muted-foreground">
                   Your projects will appear here once you sign in.
                 </p>
-              </div>
-            ) : loading ? (
-              <div className="space-y-2 p-2">
-                {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="h-10 w-full" />
-                ))}
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center p-8 text-center">

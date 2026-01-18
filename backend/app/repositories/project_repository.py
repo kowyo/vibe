@@ -16,7 +16,7 @@ from app.models.project_message import (
     ProjectMessageRole,
     ProjectMessageStatus,
 )
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -247,3 +247,49 @@ class ProjectRepository:
         await self.session.commit()
         await self.session.refresh(message_db)
         return self._message_db_to_model(message_db)
+
+    async def delete_project(self, project_id: str, user_id: str | None = None) -> bool:
+        """Delete a project and its messages."""
+        # Check if project exists and belongs to user if specified
+        query = select(ProjectDB).where(ProjectDB.id == project_id)
+        if user_id:
+            query = query.where(ProjectDB.user_id == user_id)
+
+        result = await self.session.execute(query)
+        project_db = result.scalar_one_or_none()
+
+        if not project_db:
+            return False
+
+        # Delete messages first due to potential foreign key constraints if they were strictly enforced
+        # (Though we're not seeing explicit FK constraints in the model snippets, it's good practice)
+        await self.session.execute(
+            delete(ProjectMessageDB).where(ProjectMessageDB.project_id == project_id)
+        )
+        await self.session.delete(project_db)
+        await self.session.commit()
+        return True
+
+    async def delete_all_user_projects(self, user_id: str) -> int:
+        """Delete all projects and their messages for a specific user."""
+        # Get all project IDs for the user
+        result = await self.session.execute(
+            select(ProjectDB.id).where(ProjectDB.user_id == user_id)
+        )
+        project_ids = [row[0] for row in result.all()]
+
+        if not project_ids:
+            return 0
+
+        # Delete all messages for these projects
+        await self.session.execute(
+            delete(ProjectMessageDB).where(ProjectMessageDB.project_id.in_(project_ids))
+        )
+
+        # Delete the projects
+        await self.session.execute(
+            delete(ProjectDB).where(ProjectDB.user_id == user_id)
+        )
+
+        await self.session.commit()
+        return len(project_ids)

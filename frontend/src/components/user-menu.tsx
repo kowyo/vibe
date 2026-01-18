@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation"
 import { useSession, signOut } from "@/lib/auth-client"
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
-import { LogOut } from "lucide-react"
+import { LogOut, Settings } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import Link from "next/link"
 
 export function UserMenu() {
   const { data: session } = useSession()
@@ -50,6 +51,12 @@ export function UserMenu() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <Link href="/settings">
+            <Settings />
+            Settings
+          </Link>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleSignOut}>
           <LogOut />
           Log out

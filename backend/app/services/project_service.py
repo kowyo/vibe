@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import shutil
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -585,3 +586,38 @@ class ProjectService:
         )
         await self.task_service.track_task(task)
         return task
+
+    async def delete_project(self, project_id: str, user_id: str) -> bool:
+        """Delete a project, its messages, and its files."""
+        try:
+            project = await self.repository.get_project(project_id, user_id)
+        except ProjectNotFoundError:
+            return False
+
+        # Delete database records
+        await self.repository.delete_project(project_id, user_id)
+
+        # Delete physical files
+        def _delete_files() -> None:
+            if project.project_dir.exists():
+                shutil.rmtree(project.project_dir)
+
+        await asyncio.to_thread(_delete_files)
+        return True
+
+    async def delete_all_user_projects(self, user_id: str) -> int:
+        """Delete all projects, their messages, and their files for a user."""
+        # Get all projects before deleting from DB to know which directories to remove
+        projects = await self.repository.list_user_projects(user_id, limit=1000)
+
+        # Delete database records
+        count = await self.repository.delete_all_user_projects(user_id)
+
+        # Delete physical files
+        def _delete_all_files() -> None:
+            user_dir = self.base_dir / user_id
+            if user_dir.exists():
+                shutil.rmtree(user_dir)
+
+        await asyncio.to_thread(_delete_all_files)
+        return count

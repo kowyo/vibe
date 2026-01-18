@@ -334,3 +334,29 @@ async def fetch_preview_asset(
 
     content = await asyncio.to_thread(selected_path.read_bytes)
     return Response(content, media_type=media_type)
+
+
+@router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_project(
+    project_id: str,
+    service: ProjectServiceDep,
+    current_user: CurrentUser,
+):
+    """Delete a single project."""
+    success = await service.delete_project(project_id, user_id=current_user.id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project {project_id} not found",
+        )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_all_projects(
+    service: ProjectServiceDep,
+    current_user: CurrentUser,
+):
+    """Delete all projects for the current user."""
+    await service.delete_all_user_projects(user_id=current_user.id)
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

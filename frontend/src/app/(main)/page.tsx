@@ -34,7 +34,7 @@ export default function Home() {
 
   const [leftPanelWidth, setLeftPanelWidth] = useState(0)
   const leftPanelRef = useRef<HTMLDivElement>(null)
-  const { data: session } = useSession()
+  const { data: session, isPending } = useSession()
 
   useEffect(() => {
     const updateWidth = () => {
@@ -84,7 +84,9 @@ export default function Home() {
               </TabsList>
             </Tabs>
             <div className="mr-2">
-              {session?.user ? (
+              {isPending ? (
+                <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
+              ) : session?.user ? (
                 <UserMenu />
               ) : (
                 <Button asChild>

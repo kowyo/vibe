@@ -33,3 +33,18 @@ export const fetchUserProjects = async (
   const data: ProjectListResponse = await response.json()
   return data.projects
 }
+
+export const deleteAllProjects = async (session: SessionData | null): Promise<void> => {
+  const apiBaseUrl = getApiBaseUrl()
+  const headers = await getAuthHeaders(session || null)
+
+  const response = await fetch(`${apiBaseUrl}/projects`, {
+    method: "DELETE",
+    credentials: "include",
+    headers,
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete projects: ${response.status}`)
+  }
+}
