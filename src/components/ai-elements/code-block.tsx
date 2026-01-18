@@ -49,7 +49,7 @@ const lineNumberTransformer: ShikiTransformer = {
   },
 }
 
-export async function highlightCode(
+async function highlightCode(
   code: string,
   language: BundledLanguage,
   showLineNumbers = false
@@ -125,13 +125,13 @@ export const CodeBlock = ({
   )
 }
 
-export type CodeBlockCopyButtonProps = ComponentProps<typeof Button> & {
+type CodeBlockCopyButtonProps = ComponentProps<typeof Button> & {
   onCopy?: () => void
   onError?: (error: Error) => void
   timeout?: number
 }
 
-export const CodeBlockCopyButton = ({
+const CodeBlockCopyButton = ({
   onCopy,
   onError,
   timeout = 2000,

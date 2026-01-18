@@ -9,7 +9,7 @@ import { ChevronDownIcon } from "lucide-react"
 import type { ComponentProps, ReactNode } from "react"
 import { createContext, useContext, useEffect, useState } from "react"
 
-export type WebPreviewContextValue = {
+type WebPreviewContextValue = {
   url: string
   setUrl: (url: string) => void
   consoleOpen: boolean
@@ -26,7 +26,7 @@ const useWebPreview = () => {
   return context
 }
 
-export type WebPreviewProps = ComponentProps<"div"> & {
+type WebPreviewProps = ComponentProps<"div"> & {
   defaultUrl?: string
   onUrlChange?: (url: string) => void
 }
@@ -65,7 +65,7 @@ export const WebPreview = ({
   )
 }
 
-export type WebPreviewNavigationProps = ComponentProps<"div">
+type WebPreviewNavigationProps = ComponentProps<"div">
 
 export const WebPreviewNavigation = ({
   className,
@@ -77,7 +77,7 @@ export const WebPreviewNavigation = ({
   </div>
 )
 
-export type WebPreviewNavigationButtonProps = ComponentProps<typeof Button> & {
+type WebPreviewNavigationButtonProps = ComponentProps<typeof Button> & {
   tooltip?: string
 }
 
@@ -109,7 +109,7 @@ export const WebPreviewNavigationButton = ({
   </TooltipProvider>
 )
 
-export type WebPreviewUrlProps = ComponentProps<typeof Input>
+type WebPreviewUrlProps = ComponentProps<typeof Input>
 
 export const WebPreviewUrl = ({ value, onChange, onKeyDown, ...props }: WebPreviewUrlProps) => {
   const { url, setUrl } = useWebPreview()
@@ -145,7 +145,7 @@ export const WebPreviewUrl = ({ value, onChange, onKeyDown, ...props }: WebPrevi
   )
 }
 
-export type WebPreviewBodyProps = ComponentProps<"iframe"> & {
+type WebPreviewBodyProps = ComponentProps<"iframe"> & {
   loading?: ReactNode
 }
 
@@ -166,7 +166,7 @@ export const WebPreviewBody = ({ className, loading, src, ...props }: WebPreview
   )
 }
 
-export type WebPreviewConsoleProps = ComponentProps<"div"> & {
+type WebPreviewConsoleProps = ComponentProps<"div"> & {
   logs?: Array<{
     level: "log" | "warn" | "error"
     message: string
@@ -174,7 +174,7 @@ export type WebPreviewConsoleProps = ComponentProps<"div"> & {
   }>
 }
 
-export const WebPreviewConsole = ({
+const WebPreviewConsole = ({
   className,
   logs = [],
   children,

@@ -10,7 +10,7 @@ export interface ProjectListItem {
   updated_at: string
 }
 
-export interface ProjectListResponse {
+interface ProjectListResponse {
   projects: ProjectListItem[]
 }
 

@@ -9,7 +9,7 @@ export type FileServiceHandlers = {
   getAuthHeaders: () => Promise<Record<string, string>>
 }
 
-export const fetchFileContent = async (
+const fetchFileContent = async (
   projectId: string,
   path: string,
   handlers: FileServiceHandlers,

@@ -1,6 +1,6 @@
 import type { ConversationMessage, ConversationStatus } from "../types"
 
-export const createMessageId = () => {
+const createMessageId = () => {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
     return crypto.randomUUID()
   }

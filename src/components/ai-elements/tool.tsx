@@ -16,13 +16,13 @@ import type { ComponentProps, ReactNode } from "react"
 import { isValidElement } from "react"
 import { CodeBlock } from "./code-block"
 
-export type ToolProps = ComponentProps<typeof Collapsible>
+type ToolProps = ComponentProps<typeof Collapsible>
 
 export const Tool = ({ className, ...props }: ToolProps) => (
   <Collapsible className={cn("not-prose mb-4 min-w-0 rounded-md border", className)} {...props} />
 )
 
-export type ToolHeaderProps = {
+type ToolHeaderProps = {
   title?: string
   type: ToolUIPart["type"]
   state: ToolUIPart["state"]
@@ -72,7 +72,7 @@ export const ToolHeader = ({ className, title, type, state, ...props }: ToolHead
   </CollapsibleTrigger>
 )
 
-export type ToolContentProps = ComponentProps<typeof CollapsibleContent>
+type ToolContentProps = ComponentProps<typeof CollapsibleContent>
 
 export const ToolContent = ({ className, ...props }: ToolContentProps) => (
   <CollapsibleContent
@@ -84,7 +84,7 @@ export const ToolContent = ({ className, ...props }: ToolContentProps) => (
   />
 )
 
-export type ToolInputProps = ComponentProps<"div"> & {
+type ToolInputProps = ComponentProps<"div"> & {
   input: ToolUIPart["input"]
 }
 
@@ -99,12 +99,12 @@ export const ToolInput = ({ className, input, ...props }: ToolInputProps) => (
   </div>
 )
 
-export type ToolOutputProps = ComponentProps<"div"> & {
+type ToolOutputProps = ComponentProps<"div"> & {
   output: ToolUIPart["output"]
   errorText: ToolUIPart["errorText"]
 }
 
-export const ToolOutput = ({ className, output, errorText, ...props }: ToolOutputProps) => {
+const ToolOutput = ({ className, output, errorText, ...props }: ToolOutputProps) => {
   if (!(output || errorText)) {
     return null
   }

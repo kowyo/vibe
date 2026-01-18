@@ -7,7 +7,7 @@ export type ProjectServiceHandlers = {
   getAuthHeaders: () => Promise<Record<string, string>>
 }
 
-export const fetchProjectStatus = async (
+const fetchProjectStatus = async (
   projectId: string,
   handlers: ProjectServiceHandlers,
   statusErrorLoggedRef: React.RefObject<boolean>
@@ -48,7 +48,7 @@ export const fetchProjectStatus = async (
   }
 }
 
-export const pollProject = async (
+const pollProject = async (
   projectId: string,
   handlers: ProjectServiceHandlers,
   fileHandlers: {

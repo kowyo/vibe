@@ -16,11 +16,11 @@ import { useProjectActions } from "./generation/hooks/use-project-actions"
 
 // Re-export types for backward compatibility
 export type {
-  LogEntry,
+  
   ConversationMessage,
-  ViewerFile,
+  
   UseGenerationSessionReturn,
-  ToolInvocation,
+  
 }
 
 export function useGenerationSession(): UseGenerationSessionReturn {
