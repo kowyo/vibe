@@ -25,7 +25,7 @@ bun dev
 ```bash
 cd backend
 uv sync
-uv run uvicorn app.main:app --reload
+uv run dev
 ```
 
 ## Core Functionality
