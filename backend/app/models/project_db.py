@@ -13,16 +13,22 @@ class ProjectDB(Base):
     __tablename__ = "projects"
 
     id = Column(String, primary_key=True, index=True)
-    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id = Column(
+        String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
     prompt = Column(Text, nullable=False)
     status = Column(String, nullable=False, default="pending")
     project_dir = Column(String, nullable=False)  # Stored as string path
     preview_url = Column(String, nullable=True)
-    session_id = Column(String, nullable=True)  # Claude Agent SDK session ID for resumption
+    session_id = Column(
+        String, nullable=True
+    )  # Claude Agent SDK session ID for resumption
     project_metadata = Column(
         "metadata", JSON, nullable=False, default=dict
     )  # Column name "metadata" in DB, but attribute is project_metadata
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
     updated_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),

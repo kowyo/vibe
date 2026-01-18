@@ -63,7 +63,9 @@ def _extract_token_from_request(
 
     for name, value in cookies.items():
         normalized = name.lower()
-        if "token" in normalized and ("session" in normalized or "better-auth" in normalized):
+        if "token" in normalized and (
+            "session" in normalized or "better-auth" in normalized
+        ):
             return value
 
     return None
@@ -175,7 +177,9 @@ def get_project_repository(db: AsyncDBSession) -> ProjectRepository:
 
 def get_project_service(
     repository: Annotated[ProjectRepository, Depends(get_project_repository)],
-    notification_service: Annotated[NotificationService, Depends(get_notification_service)],
+    notification_service: Annotated[
+        NotificationService, Depends(get_notification_service)
+    ],
     task_service: Annotated[TaskService, Depends(get_task_service)],
     build_service: Annotated[BuildService, Depends(get_build_service)],
     preview_service: Annotated[PreviewService, Depends(get_preview_service)],

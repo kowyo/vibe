@@ -62,7 +62,9 @@ async def get_project_status(
     try:
         project = await service.get_project(project_id, user_id=current_user.id)
     except ProjectNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
     return ProjectStatusResponse(
         project_id=project.id,
@@ -82,7 +84,9 @@ async def get_project_messages(
     try:
         await service.get_project(project_id, user_id=current_user.id)
     except ProjectNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
     messages = await service.list_messages(project_id)
     return ProjectMessagesResponse(project_id=project_id, messages=messages)
@@ -102,7 +106,9 @@ async def create_project_message(
     try:
         project = await service.get_project(project_id, user_id=current_user.id)
     except ProjectNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
     if project.status == ProjectStatus.RUNNING:
         raise HTTPException(
@@ -148,7 +154,9 @@ async def list_project_files(
         await service.get_project(project_id, user_id=current_user.id)
         files = await service.list_files(project_id)
     except ProjectNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
     return ProjectFilesResponse(project_id=project_id, files=files)
 
@@ -163,27 +171,37 @@ async def get_project_file_content(
     try:
         project = await service.get_project(project_id, user_id=current_user.id)
     except ProjectNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
     preview_root = (project.project_dir / "generated-app").resolve()
 
     try:
         absolute = resolve_project_path(preview_root, file_path)
     except PathValidationError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
     try:
         relative = absolute.relative_to(preview_root)
-    except ValueError as exc:  # pragma: no cover - defensive guard for symlinked tmp dirs
+    except (
+        ValueError
+    ) as exc:  # pragma: no cover - defensive guard for symlinked tmp dirs
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="File not found",
         ) from exc
     if "node_modules" in relative.parts:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
 
     if not await asyncio.to_thread(absolute.exists):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="File not found"
+        )
     if absolute.is_dir():
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -260,9 +278,13 @@ async def get_project_preview(
     try:
         project = await service.get_project(project_id, user_id=current_user.id)
     except ProjectNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
 
-    return ProjectPreviewResponse(project_id=project.id, preview_url=project.preview_url)
+    return ProjectPreviewResponse(
+        project_id=project.id, preview_url=project.preview_url
+    )
 
 
 @router.get("/{project_id}/preview/{asset_path:path}")
@@ -278,21 +300,27 @@ async def fetch_preview_asset(
         try:
             project = await service.get_project(project_id, user_id=current_user.id)
         except ProjectNotFoundError as exc:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+            ) from exc
     else:
         # If no authentication, still allow access but don't validate ownership
         # This is needed for Docker/iframe scenarios where cookies might not be forwarded
         try:
             project = await service.get_project(project_id, user_id=None)
         except ProjectNotFoundError as exc:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+            ) from exc
 
     try:
         selected_path, media_type = await service.preview_service.resolve_asset_path(
             project.project_dir, asset_path
         )
     except FileNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)
+        ) from exc
     except IsADirectoryError as exc:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

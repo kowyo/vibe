@@ -30,7 +30,9 @@ class NotificationService:
             history = list(self._history.get(project_id, []))
         return Subscription(queue=queue, history=history)
 
-    async def unsubscribe(self, project_id: str, queue: asyncio.Queue[ProjectEvent]) -> None:
+    async def unsubscribe(
+        self, project_id: str, queue: asyncio.Queue[ProjectEvent]
+    ) -> None:
         async with self._lock:
             subscribers = self._subscribers.get(project_id)
             if not subscribers:

@@ -65,7 +65,9 @@ class PreviewService:
     def __init__(self, api_prefix: str):
         self.api_prefix = api_prefix
 
-    def build_preview_url(self, project_id: str, preview_path: str | None) -> str | None:
+    def build_preview_url(
+        self, project_id: str, preview_path: str | None
+    ) -> str | None:
         if not preview_path:
             return None
         normalized = preview_path.lstrip("/")
@@ -126,7 +128,9 @@ class PreviewService:
         preview_root = (project_dir / "generated-app").resolve()
 
         try:
-            requested_path = resolve_project_path(preview_root, asset_path or "index.html")
+            requested_path = resolve_project_path(
+                preview_root, asset_path or "index.html"
+            )
         except PathValidationError as exc:
             raise FileNotFoundError(str(exc)) from exc
 
@@ -135,12 +139,16 @@ class PreviewService:
         except ValueError as exc:
             raise FileNotFoundError("Asset not found") from exc
 
-        candidate_paths: list[tuple[Path, Path]] = [(requested_path, requested_relative)]
+        candidate_paths: list[tuple[Path, Path]] = [
+            (requested_path, requested_relative)
+        ]
 
         fallback_relative = self._asset_fallback_path(requested_relative)
         if fallback_relative is not None:
             try:
-                fallback_path = resolve_project_path(preview_root, fallback_relative.as_posix())
+                fallback_path = resolve_project_path(
+                    preview_root, fallback_relative.as_posix()
+                )
             except PathValidationError:
                 fallback_path = None
             else:
@@ -168,5 +176,7 @@ class PreviewService:
         if is_directory:
             raise IsADirectoryError("Cannot serve directory")
 
-        media_type = mimetypes.guess_type(selected_path.name)[0] or "application/octet-stream"
+        media_type = (
+            mimetypes.guess_type(selected_path.name)[0] or "application/octet-stream"
+        )
         return selected_path, media_type

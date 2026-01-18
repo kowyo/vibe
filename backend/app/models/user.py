@@ -16,7 +16,9 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     name = Column(String, nullable=True)
     image = Column(String, nullable=True)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
     updated_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
@@ -25,4 +27,6 @@ class User(Base):
     )
 
     # Relationship to projects (one-to-many)
-    projects = relationship("ProjectDB", back_populates="user", cascade="all, delete-orphan")
+    projects = relationship(
+        "ProjectDB", back_populates="user", cascade="all, delete-orphan"
+    )

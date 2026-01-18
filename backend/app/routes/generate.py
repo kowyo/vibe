@@ -8,7 +8,9 @@ from app.models.api import ProjectGenerateRequest, ProjectGenerateResponse
 router = APIRouter(prefix="/generate", tags=["generation"])
 
 
-@router.post("", response_model=ProjectGenerateResponse, status_code=status.HTTP_202_ACCEPTED)
+@router.post(
+    "", response_model=ProjectGenerateResponse, status_code=status.HTTP_202_ACCEPTED
+)
 async def start_generation(
     payload: ProjectGenerateRequest,
     service: ProjectServiceDep,

@@ -14,7 +14,9 @@ class FallbackGenerationOutcome:
 class FallbackGenerator:
     """Simple fallback generator that scaffolds a minimal static web app."""
 
-    async def generate(self, project_root: Path, prompt: str) -> FallbackGenerationOutcome:
+    async def generate(
+        self, project_root: Path, prompt: str
+    ) -> FallbackGenerationOutcome:
         adapter = FileAdapter(project_root)
         await adapter.write_text(
             "index.html",

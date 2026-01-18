@@ -53,20 +53,30 @@ class FileAdapter:
     ) -> None:
         path = self._resolve(relative_path)
         if path.exists() and not overwrite:
-            raise PathValidationError(f"Refusing to overwrite existing file '{relative_path}'")
+            raise PathValidationError(
+                f"Refusing to overwrite existing file '{relative_path}'"
+            )
         await asyncio.to_thread(path.parent.mkdir, parents=True, exist_ok=True)
         await asyncio.to_thread(path.write_text, content, encoding=encoding)
 
-    async def create_directory(self, relative_path: str, *, exist_ok: bool = True) -> None:
+    async def create_directory(
+        self, relative_path: str, *, exist_ok: bool = True
+    ) -> None:
         path = self._resolve(relative_path)
         await asyncio.to_thread(path.mkdir, parents=True, exist_ok=exist_ok)
 
-    async def list_directory(self, relative_path: str | None = None) -> list[DirectoryListingEntry]:
+    async def list_directory(
+        self, relative_path: str | None = None
+    ) -> list[DirectoryListingEntry]:
         target = self._base_dir if not relative_path else self._resolve(relative_path)
         if not target.exists():
-            raise PathValidationError(f"Directory '{relative_path or '.'}' does not exist")
+            raise PathValidationError(
+                f"Directory '{relative_path or '.'}' does not exist"
+            )
         if not target.is_dir():
-            raise PathValidationError(f"Path '{relative_path or '.'}' is not a directory")
+            raise PathValidationError(
+                f"Path '{relative_path or '.'}' is not a directory"
+            )
 
         skip_dirs = {"node_modules", ".pnpm", ".git"}
 
@@ -75,7 +85,9 @@ class FileAdapter:
             for dirpath, dirnames, filenames in os.walk(target, topdown=True):
                 current_dir = Path(dirpath)
                 relative_dir = current_dir.relative_to(self._base_dir)
-                if relative_dir.parts and any(part in skip_dirs for part in relative_dir.parts):
+                if relative_dir.parts and any(
+                    part in skip_dirs for part in relative_dir.parts
+                ):
                     dirnames[:] = []
                     continue
 
@@ -90,7 +102,9 @@ class FileAdapter:
                             path=str(relative),
                             is_dir=True,
                             size=None,
-                            updated_at=datetime.fromtimestamp(stat_result.st_mtime, UTC),
+                            updated_at=datetime.fromtimestamp(
+                                stat_result.st_mtime, UTC
+                            ),
                         )
                     )
 
@@ -105,7 +119,9 @@ class FileAdapter:
                             path=str(relative),
                             is_dir=False,
                             size=stat_result.st_size,
-                            updated_at=datetime.fromtimestamp(stat_result.st_mtime, UTC),
+                            updated_at=datetime.fromtimestamp(
+                                stat_result.st_mtime, UTC
+                            ),
                         )
                     )
 
@@ -114,7 +130,9 @@ class FileAdapter:
 
         return await asyncio.to_thread(_collect)
 
-    async def to_project_entries(self, relative_path: str | None = None) -> list[ProjectFileEntry]:
+    async def to_project_entries(
+        self, relative_path: str | None = None
+    ) -> list[ProjectFileEntry]:
         listings = await self.list_directory(relative_path)
         return [
             ProjectFileEntry(
@@ -134,4 +152,6 @@ class FileAdapter:
         encoding: str = "utf-8",
     ) -> None:
         for relative_path, content in files:
-            await self.write_text(relative_path, content, overwrite=overwrite, encoding=encoding)
+            await self.write_text(
+                relative_path, content, overwrite=overwrite, encoding=encoding
+            )

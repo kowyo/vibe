@@ -109,8 +109,12 @@ class ProjectRepository:
         projects_db = result.scalars().all()
         return [self._project_db_to_model(p) for p in projects_db]
 
-    async def update_project_status(self, project_id: str, status: ProjectStatus) -> Project:
-        result = await self.session.execute(select(ProjectDB).where(ProjectDB.id == project_id))
+    async def update_project_status(
+        self, project_id: str, status: ProjectStatus
+    ) -> Project:
+        result = await self.session.execute(
+            select(ProjectDB).where(ProjectDB.id == project_id)
+        )
         project_db = result.scalar_one_or_none()
         if not project_db:
             raise ProjectNotFoundError(project_id)
@@ -121,8 +125,12 @@ class ProjectRepository:
         await self.session.refresh(project_db)
         return self._project_db_to_model(project_db)
 
-    async def update_project_preview_url(self, project_id: str, preview_url: str) -> Project:
-        result = await self.session.execute(select(ProjectDB).where(ProjectDB.id == project_id))
+    async def update_project_preview_url(
+        self, project_id: str, preview_url: str
+    ) -> Project:
+        result = await self.session.execute(
+            select(ProjectDB).where(ProjectDB.id == project_id)
+        )
         project_db = result.scalar_one_or_none()
         if not project_db:
             raise ProjectNotFoundError(project_id)
@@ -134,7 +142,9 @@ class ProjectRepository:
         return self._project_db_to_model(project_db)
 
     async def update_project_prompt(self, project_id: str, prompt: str) -> Project:
-        result = await self.session.execute(select(ProjectDB).where(ProjectDB.id == project_id))
+        result = await self.session.execute(
+            select(ProjectDB).where(ProjectDB.id == project_id)
+        )
         project_db = result.scalar_one_or_none()
         if not project_db:
             raise ProjectNotFoundError(project_id)
@@ -145,8 +155,12 @@ class ProjectRepository:
         await self.session.refresh(project_db)
         return self._project_db_to_model(project_db)
 
-    async def update_project_session_id(self, project_id: str, session_id: str) -> Project:
-        result = await self.session.execute(select(ProjectDB).where(ProjectDB.id == project_id))
+    async def update_project_session_id(
+        self, project_id: str, session_id: str
+    ) -> Project:
+        result = await self.session.execute(
+            select(ProjectDB).where(ProjectDB.id == project_id)
+        )
         project_db = result.scalar_one_or_none()
         if not project_db:
             raise ProjectNotFoundError(project_id)
@@ -199,7 +213,9 @@ class ProjectRepository:
         )
         return [self._message_db_to_model(m) for m in result.scalars().all()]
 
-    async def update_message_content(self, message_id: str, content: str) -> ProjectMessage | None:
+    async def update_message_content(
+        self, message_id: str, content: str
+    ) -> ProjectMessage | None:
         result = await self.session.execute(
             select(ProjectMessageDB).where(ProjectMessageDB.id == message_id)
         )

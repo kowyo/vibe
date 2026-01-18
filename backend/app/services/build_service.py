@@ -69,11 +69,15 @@ class BuildService:
                 await emit(f"{label} timed out after {int(timeout)} seconds.")
                 raise exc
 
-            stdout_message = self._format_command_output(f"{label} stdout", result.stdout)
+            stdout_message = self._format_command_output(
+                f"{label} stdout", result.stdout
+            )
             if stdout_message:
                 await emit(stdout_message)
 
-            stderr_message = self._format_command_output(f"{label} stderr", result.stderr)
+            stderr_message = self._format_command_output(
+                f"{label} stderr", result.stderr
+            )
             if stderr_message:
                 await emit(stderr_message)
 
@@ -84,7 +88,9 @@ class BuildService:
 
         await run_command("Running pnpm install", "pnpm", ["install"])
 
-        scripts = package_data.get("scripts") if isinstance(package_data, dict) else None
+        scripts = (
+            package_data.get("scripts") if isinstance(package_data, dict) else None
+        )
         if isinstance(scripts, dict) and "build" in scripts:
             await run_command(
                 "Running pnpm run build",
@@ -106,7 +112,9 @@ class BuildService:
         ]
 
         prefix: Path | None = (
-            None if package_root == generation_root else package_root.relative_to(generation_root)
+            None
+            if package_root == generation_root
+            else package_root.relative_to(generation_root)
         )
 
         for candidate in preview_candidates:
@@ -143,7 +151,9 @@ class BuildService:
                 if any(part in skip_dirs for part in relative_parent.parts):
                     continue
                 depth = len(relative_parent.parts)
-                candidates.append((depth, relative_parent.as_posix(), package_path.parent))
+                candidates.append(
+                    (depth, relative_parent.as_posix(), package_path.parent)
+                )
 
             if not candidates:
                 return None

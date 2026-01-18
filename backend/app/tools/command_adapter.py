@@ -61,7 +61,9 @@ class CommandAdapter:
             env=process_env,
         )
         try:
-            stdout_bytes, stderr_bytes = await asyncio.wait_for(process.communicate(), timeout)
+            stdout_bytes, stderr_bytes = await asyncio.wait_for(
+                process.communicate(), timeout
+            )
         except TimeoutError as exc:
             process.kill()
             raise CommandTimeoutError(

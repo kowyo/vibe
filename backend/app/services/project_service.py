@@ -152,7 +152,9 @@ class ProjectService:
                 message_completed = False
                 message_failed = False
 
-                def merge_content(existing: str, addition: str, *, separator: str = "\n") -> str:
+                def merge_content(
+                    existing: str, addition: str, *, separator: str = "\n"
+                ) -> str:
                     text = (addition or "").strip()
                     if not text:
                         return existing
@@ -162,7 +164,9 @@ class ProjectService:
 
                 async def persist_content() -> None:
                     if assistant_message_id:
-                        await repo.update_message_content(assistant_message_id, assistant_content)
+                        await repo.update_message_content(
+                            assistant_message_id, assistant_content
+                        )
 
                 async def persist_status(
                     status: ProjectMessageStatus,
@@ -226,7 +230,9 @@ class ProjectService:
                             if (val := payload.get("id")) is not None
                             else f"tool_{len(content_parts)}"
                         )
-                        tool_name = val if (val := payload.get("name")) is not None else "tool"
+                        tool_name = (
+                            val if (val := payload.get("name")) is not None else "tool"
+                        )
                         tool_input = payload.get("input")
                         # Track tool part for ordered reconstruction
                         # Initial state is "input-available" to match frontend websocket behavior
@@ -255,7 +261,10 @@ class ProjectService:
                         # Update tool state to "output-available" when result arrives
                         tool_use_id = payload.get("tool_use_id")
                         for part in content_parts:
-                            if part.get("type") == "tool_use" and part.get("id") == tool_use_id:
+                            if (
+                                part.get("type") == "tool_use"
+                                and part.get("id") == tool_use_id
+                            ):
                                 part["state"] = "output-available"
                                 part["output"] = payload.get("content")
                                 part["is_error"] = payload.get("is_error", False)
@@ -277,7 +286,9 @@ class ProjectService:
                             summary_parts.append(f"cost ${cost:.4f}")
                         input_tokens = usage.get("input_tokens")
                         output_tokens = usage.get("output_tokens")
-                        if isinstance(input_tokens, int) and isinstance(output_tokens, int):
+                        if isinstance(input_tokens, int) and isinstance(
+                            output_tokens, int
+                        ):
                             summary_parts.append(
                                 f"{input_tokens} input + {output_tokens} output tokens"
                             )
@@ -358,7 +369,9 @@ class ProjectService:
 
                 effective_prompt = prompt_override or project.prompt
                 if prompt_override:
-                    project = await repo.update_project_prompt(project_id, prompt_override)
+                    project = await repo.update_project_prompt(
+                        project_id, prompt_override
+                    )
                 else:
                     project = project.model_copy(update={"prompt": effective_prompt})
 
@@ -409,7 +422,9 @@ class ProjectService:
                             separator="\n\n",
                         )
                         await persist_content()
-                        await persist_status(ProjectMessageStatus.ERROR, {"error": error_detail})
+                        await persist_status(
+                            ProjectMessageStatus.ERROR, {"error": error_detail}
+                        )
                         await self.notification_service.publish_event(
                             ProjectEvent(
                                 project_id=project_id,
@@ -420,7 +435,9 @@ class ProjectService:
                             )
                         )
                         await emit_log(f"Fallback generator failed: {error_detail}")
-                        await repo.update_project_status(project_id, ProjectStatus.FAILED)
+                        await repo.update_project_status(
+                            project_id, ProjectStatus.FAILED
+                        )
                         await self.notification_service.publish_event(
                             ProjectEvent(
                                 project_id=project_id,
@@ -450,15 +467,22 @@ class ProjectService:
                         )
                         preview_path = outcome.preview_path
                         # Persist session_id for future conversation resumption
-                        if outcome.session_id and outcome.session_id != project.session_id:
-                            await repo.update_project_session_id(project_id, outcome.session_id)
+                        if (
+                            outcome.session_id
+                            and outcome.session_id != project.session_id
+                        ):
+                            await repo.update_project_session_id(
+                                project_id, outcome.session_id
+                            )
                         await emit_log("Claude generation finished.")
                     else:
                         preview_path = await run_fallback(
                             "Claude service unavailable or not configured."
                         )
                 except ClaudeServiceUnavailable as exc:
-                    preview_path = await run_fallback(f"Claude service unavailable: {exc}")
+                    preview_path = await run_fallback(
+                        f"Claude service unavailable: {exc}"
+                    )
                 except Exception as exc:
                     preview_path = await run_fallback(f"Claude generation error: {exc}")
 
@@ -473,7 +497,9 @@ class ProjectService:
                         await persist_status(
                             ProjectMessageStatus.ERROR, {"error": "generation_failed"}
                         )
-                        await repo.update_project_status(project_id, ProjectStatus.FAILED)
+                        await repo.update_project_status(
+                            project_id, ProjectStatus.FAILED
+                        )
                         await self.notification_service.publish_event(
                             ProjectEvent(
                                 project_id=project_id,
@@ -486,9 +512,11 @@ class ProjectService:
                     return
 
                 try:
-                    override_preview = await self.build_service.run_post_generation_steps(
-                        generation_root,
-                        emit_log,
+                    override_preview = (
+                        await self.build_service.run_post_generation_steps(
+                            generation_root,
+                            emit_log,
+                        )
                     )
                 except Exception as exc:
                     assistant_content = merge_content(
@@ -497,7 +525,9 @@ class ProjectService:
                         separator="\n\n",
                     )
                     await persist_content()
-                    await persist_status(ProjectMessageStatus.ERROR, {"error": str(exc)})
+                    await persist_status(
+                        ProjectMessageStatus.ERROR, {"error": str(exc)}
+                    )
                     await emit_log(f"Post-generation step failed: {exc}")
                     await repo.update_project_status(project_id, ProjectStatus.FAILED)
                     await self.notification_service.publish_event(
@@ -513,7 +543,9 @@ class ProjectService:
                 if override_preview:
                     preview_path = override_preview
 
-                preview_url = self.preview_service.build_preview_url(project_id, preview_path)
+                preview_url = self.preview_service.build_preview_url(
+                    project_id, preview_path
+                )
                 if preview_url:
                     await repo.update_project_preview_url(project_id, preview_url)
                     await self.notification_service.publish_event(

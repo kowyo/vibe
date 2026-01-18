@@ -25,7 +25,9 @@ class ProjectMessageDB(Base):
     content = Column(Text, nullable=False, default="")
     sequence = Column(Integer, nullable=False, index=True)
     message_metadata = Column("metadata", JSON, nullable=True, default=dict)
-    created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False)
+    created_at = Column(
+        DateTime(timezone=True), default=lambda: datetime.now(UTC), nullable=False
+    )
     updated_at = Column(
         DateTime(timezone=True),
         default=lambda: datetime.now(UTC),
@@ -33,5 +35,7 @@ class ProjectMessageDB(Base):
         nullable=False,
     )
 
-    project = relationship("ProjectDB", back_populates="messages", foreign_keys=[project_id])
+    project = relationship(
+        "ProjectDB", back_populates="messages", foreign_keys=[project_id]
+    )
     parent = relationship("ProjectMessageDB", remote_side=[id], backref="children")
