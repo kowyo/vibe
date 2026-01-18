@@ -30,16 +30,22 @@ jobs:
       - name: Install bun
         uses: oven-sh/setup-bun@v2
       
-      - name: Install dependencies
-        run: bun ci
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: bun install
 
-      - name: Format code with oxfmt
+      - name: Format frontend code with oxfmt
+        working-directory: frontend
         run: bun format
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
       - name: Format Python code
-        uses: astral-sh/ruff-action@v3
-      - run: ruff check --fix backend/app/
-      - run: ruff format backend/app/
+        working-directory: backend
+        run: |
+          uv run ruff check --fix .
+          uv run ruff format .
 
       - name: Commit and push changes
         run: |
