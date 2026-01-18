@@ -12,6 +12,22 @@ This project is an AI-powered web application builder that transforms natural la
 - `AGENTS.md`: Project documentation.
 - `LICENSE`: Project license.
 
+## Getting Started
+
+### Frontend
+```bash
+cd frontend
+bun install
+bun dev
+```
+
+### Backend
+```bash
+cd backend
+uv sync
+uv run uvicorn app.main:app --reload
+```
+
 ## Core Functionality
 
 **Natural Language Prompt Input** - Users describe their desired application in a text box and click Generate to start the AI-powered code generation process.
