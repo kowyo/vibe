@@ -44,8 +44,8 @@ jobs:
       - name: Format Python code
         working-directory: backend
         run: |
-          uv run ruff check --fix .
-          uv run ruff format .
+          uv run --extra dev ruff check --fix .
+          uv run --extra dev ruff format .
 
       - name: Commit and push changes
         run: |
