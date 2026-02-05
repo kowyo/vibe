@@ -607,9 +607,6 @@ class ProjectService:
 
     async def delete_all_user_projects(self, user_id: str) -> int:
         """Delete all projects, their messages, and their files for a user."""
-        # Get all projects before deleting from DB to know which directories to remove
-        projects = await self.repository.list_user_projects(user_id, limit=1000)
-
         # Delete database records
         count = await self.repository.delete_all_user_projects(user_id)
 
