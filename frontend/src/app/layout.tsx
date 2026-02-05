@@ -5,9 +5,9 @@ import { Analytics } from "@vercel/analytics/next"
 import "../styles/globals.css"
 
 export const metadata: Metadata = {
-  title: "MetaGPT X",
+  title: "Vercel X",
   icons: {
-    icon: "/metagpt-favicon.svg",
+    icon: "/vercel-favicon.svg",
   },
 }
 

@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card"
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
 import { Code2, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { MetaGPTLogo } from "@/components/social-icons"
+import { VercelLogo } from "@/components/social-icons"
 import { CodeViewer } from "@/components/code-viewer"
 import { PreviewWindow } from "@/components/preview-window"
 import { useProjectContext } from "@/contexts/project-context"
@@ -64,10 +64,10 @@ export default function Home() {
             }}
           >
             <div className="h-6 w-6 shrink-0">
-              <MetaGPTLogo />
+              <VercelLogo />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">MGX</p>
+              <p className="text-sm font-semibold text-foreground">Vibe</p>
             </div>
           </div>
           <div className="flex-1 flex items-center justify-between gap-4">
@@ -100,7 +100,7 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-1 min-h-0">
-        <ResizablePanelGroup direction="horizontal" className="flex w-full">
+        <ResizablePanelGroup orientation="horizontal" className="flex w-full">
           <ResizablePanel defaultSize={25} minSize={20} className="flex min-w-[300px]">
             <div ref={leftPanelRef} className="flex w-full flex-1 flex-col">
               <ConversationPanel

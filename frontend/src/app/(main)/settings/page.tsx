@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog"
 import { Trash2, AlertTriangle } from "lucide-react"
 import Link from "next/link"
-import { MetaGPTLogo } from "@/components/social-icons"
+import { VercelLogo } from "@/components/social-icons"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 
 export default function SettingsPage() {
@@ -65,9 +65,9 @@ export default function SettingsPage() {
             <div className="h-4 w-px bg-border/60 mx-1" />
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
               <div className="h-6 w-6">
-                <MetaGPTLogo />
+                <VercelLogo />
               </div>
-              <p className="text-sm font-semibold text-foreground">MGX</p>
+              <p className="text-sm font-semibold text-foreground">Vibe</p>
             </Link>
             <div className="h-4 w-px bg-border/60 mx-1" />
             <h1 className="text-sm font-medium text-muted-foreground">Settings</h1>
