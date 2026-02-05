@@ -1,6 +1,7 @@
 {
   "name": "vibe-monorepo",
   "private": true,
+  "license": "MIT",
   "scripts": {
     "prepare": "husky"
   },
