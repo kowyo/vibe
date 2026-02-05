@@ -1,33 +1,33 @@
-"use client"
+"use client";
 
-import { FormEvent, ChangeEvent, useMemo } from "react"
-import { useRouter } from "next/navigation"
-import { ConversationMessage } from "@/hooks/use-generation-session"
+import { FormEvent, ChangeEvent, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { ConversationMessage } from "@/hooks/use-generation-session";
 import {
   PromptInput,
   PromptInputTextarea,
   PromptInputSubmit,
   PromptInputFooter,
   PromptInputTools,
-} from "@/components/ai-elements/prompt-input"
-import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message"
+} from "@/components/ai-elements/prompt-input";
+import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import {
   Conversation,
   ConversationContent,
   ConversationEmptyState,
   ConversationScrollButton,
-} from "@/components/ai-elements/conversation"
-import { Tool, ToolContent, ToolHeader, ToolInput } from "@/components/ai-elements/tool"
-import { Sparkles } from "lucide-react"
-import { useSession } from "@/lib/auth-client"
-import type { ToolInvocation, ContentPart } from "@/hooks/generation/types"
+} from "@/components/ai-elements/conversation";
+import { Tool, ToolContent, ToolHeader, ToolInput } from "@/components/ai-elements/tool";
+import { Sparkles } from "lucide-react";
+import { useSession } from "@/lib/auth-client";
+import type { ToolInvocation, ContentPart } from "@/hooks/generation/types";
 
 interface ConversationPanelProps {
-  messages: ConversationMessage[]
-  prompt: string
-  onPromptChange: (value: string) => void
-  onSubmit: () => void | Promise<void>
-  isGenerating: boolean
+  messages: ConversationMessage[];
+  prompt: string;
+  onPromptChange: (value: string) => void;
+  onSubmit: () => void | Promise<void>;
+  isGenerating: boolean;
 }
 
 export function ConversationPanel({
@@ -37,13 +37,13 @@ export function ConversationPanel({
   onSubmit,
   isGenerating,
 }: ConversationPanelProps) {
-  const { data: session } = useSession()
-  const router = useRouter()
+  const { data: session } = useSession();
+  const router = useRouter();
   const orderedMessages = useMemo(
     () => [...messages].sort((a, b) => a.createdAt - b.createdAt),
-    [messages]
-  )
-  const disableSend = isGenerating || !prompt.trim()
+    [messages],
+  );
+  const disableSend = isGenerating || !prompt.trim();
 
   const renderMessageContent = (message: ConversationMessage) => {
     // If we have ordered content parts (from loaded messages), render them in order
@@ -52,7 +52,7 @@ export function ConversationPanel({
         if (part.type === "text") {
           return part.text ? (
             <MessageResponse key={`text-${index}`}>{part.text}</MessageResponse>
-          ) : null
+          ) : null;
         }
         if (part.type === "tool_use") {
           return (
@@ -62,10 +62,10 @@ export function ConversationPanel({
                 <ToolInput input={part.input} />
               </ToolContent>
             </Tool>
-          )
+          );
         }
-        return null
-      })
+        return null;
+      });
     }
 
     // Fallback: render content first, then tool invocations (for live messages)
@@ -81,59 +81,77 @@ export function ConversationPanel({
           </Tool>
         ))}
       </>
-    )
-  }
+    );
+  };
 
   const handleSubmit = (
     message: { text?: string; files?: any[] },
-    event: FormEvent<HTMLFormElement>
+    event: FormEvent<HTMLFormElement>,
   ) => {
-    event.preventDefault()
+    event.preventDefault();
 
     // Check if user is logged in
     if (!session?.user) {
-      router.push("/login")
-      return
+      router.push("/login");
+      return;
     }
-    void onSubmit()
-  }
+    void onSubmit();
+  };
 
   return (
     <div className="flex h-full flex-col">
-      <Conversation className="flex-1 px-2">
-        <ConversationContent className="px-2">
-          {orderedMessages.length === 0 ? (
-            <ConversationEmptyState
-              title="Share your idea to begin"
-              description="Tell the assistant what to build. You will see the conversation and build status appear here."
-              icon={<Sparkles className="h-8 w-8" />}
-            />
-          ) : (
-            <div className="space-y-2">
-              {orderedMessages.map((message) => (
-                <Message from={message.role} key={message.id}>
-                  <MessageContent>{renderMessageContent(message)}</MessageContent>
-                </Message>
-              ))}
+      {orderedMessages.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center pt-[20vh] p-4">
+          <div className="w-full max-w-3xl space-y-8">
+            <div className="flex items-center justify-center gap-3">
+              <Sparkles className="h-8 w-8 text-primary" />
+              <h1 className="text-3xl font-bold tracking-tight italic">Vibe</h1>
             </div>
-          )}
-        </ConversationContent>
-        <ConversationScrollButton />
-      </Conversation>
+            <PromptInput onSubmit={handleSubmit} className="relative w-full">
+              <PromptInputTextarea
+                name="message"
+                value={prompt}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onPromptChange(e.target.value)}
+                disabled={isGenerating}
+                placeholder="What do you want to build today?"
+              />
+              <PromptInputFooter>
+                <PromptInputTools></PromptInputTools>
+                <PromptInputSubmit disabled={disableSend} status={"ready"} />
+              </PromptInputFooter>
+            </PromptInput>
+          </div>
+        </div>
+      ) : (
+        <>
+          <Conversation className="flex-1 px-2">
+            <ConversationContent className="px-2 max-w-3xl mx-auto w-full">
+              <div className="space-y-2">
+                {orderedMessages.map((message) => (
+                  <Message from={message.role} key={message.id}>
+                    <MessageContent>{renderMessageContent(message)}</MessageContent>
+                  </Message>
+                ))}
+              </div>
+            </ConversationContent>
+            <ConversationScrollButton />
+          </Conversation>
 
-      <PromptInput onSubmit={handleSubmit} className="p-2 relative">
-        <PromptInputTextarea
-          name="message"
-          value={prompt}
-          onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onPromptChange(e.target.value)}
-          disabled={isGenerating}
-          placeholder="What do you want to build today?"
-        />
-        <PromptInputFooter>
-          <PromptInputTools></PromptInputTools>
-          <PromptInputSubmit disabled={disableSend} status={"ready"} />
-        </PromptInputFooter>
-      </PromptInput>
+          <PromptInput onSubmit={handleSubmit} className="p-4 relative max-w-3xl mx-auto w-full">
+            <PromptInputTextarea
+              name="message"
+              value={prompt}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onPromptChange(e.target.value)}
+              disabled={isGenerating}
+              placeholder="What do you want to build today?"
+            />
+            <PromptInputFooter>
+              <PromptInputTools></PromptInputTools>
+              <PromptInputSubmit disabled={disableSend} status={"ready"} />
+            </PromptInputFooter>
+          </PromptInput>
+        </>
+      )}
     </div>
-  )
+  );
 }

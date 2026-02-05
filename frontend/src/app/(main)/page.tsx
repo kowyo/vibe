@@ -32,6 +32,7 @@ export default function Home() {
     codeViewerLoading,
   } = useProjectContext();
 
+  const hasGeneratedCode = filesForViewer.length > 0;
   const [leftPanelWidth, setLeftPanelWidth] = useState(0);
   const leftPanelRef = useRef<HTMLDivElement>(null);
   const { data: session, isPending } = useSession();
@@ -60,7 +61,7 @@ export default function Home() {
           <div
             className="flex items-center px-1"
             style={{
-              width: leftPanelWidth > 0 ? `${leftPanelWidth}px` : "20%",
+              width: hasGeneratedCode && leftPanelWidth > 0 ? `${leftPanelWidth}px` : "auto",
             }}
           >
             <div className="flex h-6 w-6 shrink-0 items-center justify-center">
@@ -71,19 +72,21 @@ export default function Home() {
             </div>
           </div>
           <div className="flex-1 flex items-center justify-between gap-4">
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList>
-                <TabsTrigger value="code" className="gap-2 flex-none">
-                  <Code2 className="h-4 w-4 shrink-0" />
-                  {activeTab === "code" && <span>Code</span>}
-                </TabsTrigger>
-                <TabsTrigger value="preview" className="gap-2 flex-none">
-                  <Eye className="h-4 w-4 shrink-0" />
-                  {activeTab === "preview" && <span>Preview</span>}
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-            <div className="mr-2">
+            {hasGeneratedCode && (
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                  <TabsTrigger value="code" className="gap-2 flex-none">
+                    <Code2 className="h-4 w-4 shrink-0" />
+                    {activeTab === "code" && <span>Code</span>}
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" className="gap-2 flex-none">
+                    <Eye className="h-4 w-4 shrink-0" />
+                    {activeTab === "preview" && <span>Preview</span>}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
+            <div className="ml-auto mr-2">
               {isPending ? (
                 <div className="h-8 w-8 animate-pulse rounded-full bg-muted" />
               ) : session?.user ? (
@@ -100,8 +103,16 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="flex-1 min-h-0">
-        <ResizablePanelGroup orientation="horizontal" className="flex w-full">
-          <ResizablePanel defaultSize={25} minSize={20} className="flex min-w-[300px]">
+        <ResizablePanelGroup
+          key={hasGeneratedCode ? "split" : "full"}
+          orientation="horizontal"
+          className="flex w-full"
+        >
+          <ResizablePanel
+            defaultSize={hasGeneratedCode ? 25 : 100}
+            minSize={20}
+            className="flex min-w-[300px]"
+          >
             <div ref={leftPanelRef} className="flex w-full flex-1 flex-col">
               <ConversationPanel
                 messages={messages}
@@ -112,24 +123,29 @@ export default function Home() {
               />
             </div>
           </ResizablePanel>
-          <ResizableHandle className="bg-transparent" />
-          <ResizablePanel defaultSize={75} minSize={20} className="flex pb-2 pr-2">
-            <div className="flex w-full flex-1 flex-col ">
-              {activeTab === "code" && (
-                <Card className="flex flex-1 flex-col min-w-0 w-full border-border/80 bg-card/80 shadow-sm py-0">
-                  <CodeViewer
-                    files={filesForViewer}
-                    selectedFile={selectedFile}
-                    onSelect={(path) => setSelectedFile(path)}
-                    loading={codeViewerLoading}
-                  />
-                </Card>
-              )}
-              {activeTab === "preview" && (
-                <PreviewWindow url={previewUrl} onRefresh={handleRefreshPreview} />
-              )}
-            </div>
-          </ResizablePanel>
+
+          {hasGeneratedCode && (
+            <>
+              <ResizableHandle className="bg-transparent" />
+              <ResizablePanel defaultSize={75} minSize={20} className="flex pb-2 pr-2">
+                <div className="flex w-full flex-1 flex-col ">
+                  {activeTab === "code" && (
+                    <Card className="flex flex-1 flex-col min-w-0 w-full border-border/80 bg-card/80 shadow-sm py-0">
+                      <CodeViewer
+                        files={filesForViewer}
+                        selectedFile={selectedFile}
+                        onSelect={(path) => setSelectedFile(path)}
+                        loading={codeViewerLoading}
+                      />
+                    </Card>
+                  )}
+                  {activeTab === "preview" && (
+                    <PreviewWindow url={previewUrl} onRefresh={handleRefreshPreview} />
+                  )}
+                </div>
+              </ResizablePanel>
+            </>
+          )}
         </ResizablePanelGroup>
       </main>
     </div>
