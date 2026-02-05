@@ -116,7 +116,7 @@ export default function Home() {
           <ResizablePanel defaultSize={75} minSize={20} className="flex pb-2 pr-2">
             <div className="flex w-full flex-1 flex-col ">
               {activeTab === "code" && (
-                <Card className="flex flex-1 flex-col min-w-0 w-full border-border/80 bg-card/80 shadow-sm">
+                <Card className="flex flex-1 flex-col min-w-0 w-full border-border/80 bg-card/80 shadow-sm py-0">
                   <CodeViewer
                     files={filesForViewer}
                     selectedFile={selectedFile}
