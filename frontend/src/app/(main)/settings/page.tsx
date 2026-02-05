@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useSession } from "@/lib/auth-client"
-import { deleteAllProjects } from "@/hooks/generation/services/projects-list-service"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/auth-client";
+import { deleteAllProjects } from "@/hooks/generation/services/projects-list-service";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,12 +12,8 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert"
+} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Dialog,
   DialogContent,
@@ -26,34 +22,34 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Trash2, AlertTriangle } from "lucide-react"
-import Link from "next/link"
-import { VercelLogo } from "@/components/social-icons"
-import { SidebarTrigger } from "@/components/ui/sidebar"
+} from "@/components/ui/dialog";
+import { Trash2, AlertTriangle } from "lucide-react";
+import Link from "next/link";
+import { VercelLogo } from "@/components/social-icons";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function SettingsPage() {
-  const { data: session } = useSession()
-  const router = useRouter()
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
 
   const handleDeleteAll = async () => {
-    setIsDeleting(true)
-    setError(null)
-    setShowConfirmDialog(false)
+    setIsDeleting(true);
+    setError(null);
+    setShowConfirmDialog(false);
 
     try {
-      await deleteAllProjects(session)
-      router.push("/")
-      router.refresh()
+      await deleteAllProjects(session);
+      router.push("/");
+      router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete projects")
+      setError(err instanceof Error ? err.message : "Failed to delete projects");
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col h-screen bg-background">
@@ -64,7 +60,7 @@ export default function SettingsPage() {
             <SidebarTrigger className="-ml-1" />
             <div className="h-4 w-px bg-border/60 mx-1" />
             <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-              <div className="h-6 w-6">
+              <div className="flex h-6 w-6 items-center justify-center">
                 <VercelLogo />
               </div>
               <p className="text-sm font-semibold text-foreground">Vibe</p>
@@ -91,23 +87,22 @@ export default function SettingsPage() {
                 <Trash2 className="h-5 w-5" />
                 Danger Zone
               </CardTitle>
-              <CardDescription>
-                Irreversible actions for your projects and data.
-              </CardDescription>
+              <CardDescription>Irreversible actions for your projects and data.</CardDescription>
             </CardHeader>
             <CardContent className="p-0 divide-y divide-border/40">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-6">
                 <div className="space-y-1">
                   <div className="text-sm font-medium">Delete all projects</div>
                   <div className="text-sm text-muted-foreground max-w-md">
-                    Permanently delete all your projects and their associated files. This action cannot be undone.
+                    Permanently delete all your projects and their associated files. This action
+                    cannot be undone.
                   </div>
                 </div>
-                
+
                 <Dialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
                   <DialogTrigger asChild>
-                    <Button 
-                      variant="destructive" 
+                    <Button
+                      variant="destructive"
                       className="w-full sm:w-auto"
                       disabled={isDeleting}
                     >
@@ -118,8 +113,8 @@ export default function SettingsPage() {
                     <DialogHeader>
                       <DialogTitle>Are you absolutely sure?</DialogTitle>
                       <DialogDescription>
-                        This action cannot be undone. This will permanently delete all your
-                        projects and remove the data from our servers.
+                        This action cannot be undone. This will permanently delete all your projects
+                        and remove the data from our servers.
                       </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -153,5 +148,5 @@ export default function SettingsPage() {
         </div>
       </main>
     </div>
-  )
+  );
 }

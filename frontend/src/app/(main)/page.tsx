@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useState, useRef, useEffect } from "react"
-import Link from "next/link"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card } from "@/components/ui/card"
-import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable"
-import { Code2, Eye } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { VercelLogo } from "@/components/social-icons"
-import { CodeViewer } from "@/components/code-viewer"
-import { PreviewWindow } from "@/components/preview-window"
-import { useProjectContext } from "@/contexts/project-context"
-import { ConversationPanel } from "@/components/conversation-panel"
-import { UserMenu } from "@/components/user-menu"
-import { useSession } from "@/lib/auth-client"
+import { useState, useRef, useEffect } from "react";
+import Link from "next/link";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card } from "@/components/ui/card";
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "@/components/ui/resizable";
+import { Code2, Eye } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { VercelLogo } from "@/components/social-icons";
+import { CodeViewer } from "@/components/code-viewer";
+import { PreviewWindow } from "@/components/preview-window";
+import { useProjectContext } from "@/contexts/project-context";
+import { ConversationPanel } from "@/components/conversation-panel";
+import { UserMenu } from "@/components/user-menu";
+import { useSession } from "@/lib/auth-client";
 
 export default function Home() {
   const {
@@ -30,27 +30,27 @@ export default function Home() {
     handleGenerate,
     handleRefreshPreview,
     codeViewerLoading,
-  } = useProjectContext()
+  } = useProjectContext();
 
-  const [leftPanelWidth, setLeftPanelWidth] = useState(0)
-  const leftPanelRef = useRef<HTMLDivElement>(null)
-  const { data: session, isPending } = useSession()
+  const [leftPanelWidth, setLeftPanelWidth] = useState(0);
+  const leftPanelRef = useRef<HTMLDivElement>(null);
+  const { data: session, isPending } = useSession();
 
   useEffect(() => {
     const updateWidth = () => {
       if (leftPanelRef.current) {
-        setLeftPanelWidth(leftPanelRef.current.offsetWidth)
+        setLeftPanelWidth(leftPanelRef.current.offsetWidth);
       }
-    }
+    };
 
-    updateWidth()
-    const resizeObserver = new ResizeObserver(updateWidth)
+    updateWidth();
+    const resizeObserver = new ResizeObserver(updateWidth);
     if (leftPanelRef.current) {
-      resizeObserver.observe(leftPanelRef.current)
+      resizeObserver.observe(leftPanelRef.current);
     }
 
-    return () => resizeObserver.disconnect()
-  }, [])
+    return () => resizeObserver.disconnect();
+  }, []);
 
   return (
     <div className="flex flex-col bg-background h-screen">
@@ -58,16 +58,16 @@ export default function Home() {
       <header className="bg-card/95 backdrop-blur">
         <div className="flex h-12 w-full items-center">
           <div
-            className="flex items-center gap-0.5 px-2"
+            className="flex items-center px-1"
             style={{
               width: leftPanelWidth > 0 ? `${leftPanelWidth}px` : "20%",
             }}
           >
-            <div className="h-6 w-6 shrink-0">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center">
               <VercelLogo />
             </div>
             <div>
-              <p className="text-sm font-semibold text-foreground">Vibe</p>
+              <p className="text-base font-semibold text-foreground">Vibe</p>
             </div>
           </div>
           <div className="flex-1 flex items-center justify-between gap-4">
@@ -133,5 +133,5 @@ export default function Home() {
         </ResizablePanelGroup>
       </main>
     </div>
-  )
+  );
 }
